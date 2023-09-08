@@ -1,0 +1,148 @@
+        /* Custom CSS for your layout */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            background-color: #a8c8eb;
+            color: #fff;
+            height: 4em;
+        }
+        .footer {
+            background-color: #a8c8eb;
+            color: #fff;
+            height: 2em;
+        }
+        .sidebar {
+            background-color: rgb(220, 220, 220);
+            height: calc(100vh - 6em); /* Adjust for header and footer height */
+        }
+        .main-content {
+            padding: 20px;
+        }
+		
+		.toaster-container {
+			position: fixed;
+			bottom: 20px; /* Adjust the position as needed */
+			right: 20px; /* Adjust the position as needed */
+			z-index: 1000;
+		}
+		.toaster {
+			background-color: #333;
+			color: #fff;
+			padding: 10px 20px;
+			border-radius: 5px;
+			margin-bottom: 0px;
+			box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+			opacity: 0;
+			transition: opacity 0.3s ease-in-out;
+        }
+        
+        div.toaster span.toaster-icon {
+            margin-right: 1em;
+        }
+
+        /* Style the radio buttons based on messageType */
+
+        .info-radio:checked  {
+            background-color: darkgray; /* Info color */
+            border-color: darkgray;
+        }
+
+        .warn-radio:checked  {
+            background-color: #f1c40f; /* Warning color */
+            border-color: #f1c40f; 
+        }
+
+        .error-radio:checked {
+            background-color: #e74c3c; /* Error color */
+            border-color: #e74c3c;
+        }
+
+        .okay-radio:checked {
+            background-color: #2ecc71; /* Okay color */
+            border-color: #2ecc71;
+        }
+
+        /* Define the colors for each message type */
+        .info-radio:not(:checked) + .form-check-label:hover {
+            color: darkgray; /* Info color */
+        }
+
+        .okay-radio:not(:checked) + .form-check-label:hover {
+            color: #2ecc71; /* Okay color */
+        }
+
+        .warn-radio:not(:checked) + .form-check-label:hover {
+            color: #f1c40f; /* Warning color */
+        }
+
+        .error-radio:not(:checked) + .form-check-label:hover {
+            color: #e74c3c; /* Error color */
+        }
+
+        /* Define the colors for each message type */
+        .info-radio:checked + .form-check-label {
+            color: rgb(116, 114, 114); /* Info color */
+        }
+
+        .okay-radio:checked + .form-check-label {
+            color: #2ecc71; /* Okay color */
+        }
+
+        .warn-radio:checked + .form-check-label {
+            color: #f1c40f; /* Warning color */
+        }
+
+        .error-radio:checked + .form-check-label {
+            color: #e74c3c; /* Error color */
+        }
+
+        .error-radio:checked + .form-check-label {
+            color: #e74c3c; /* Error color */
+        }
+        
+
+
+
+        .message-submit {
+            height: 2.25em;
+            background-color: darkgray;
+        }
+
+        /* CSS for Top Navigation Mechanism */
+        .top-navigation {
+            /* Sticky positioning at the top */
+            position: sticky;
+            top: 0;
+            background-color: gray; /* Example background color for the top navigation */
+            padding: 10px; /* Add padding as needed */
+        }
+
+        /* CSS for Middle-Bottom Container */
+        .middle-bottom-container {
+            /* Set a maximum height for the container, accounting for the footer's height */
+            max-height: calc(100vh - 100px); /* Adjust the value to account for your footer's height */
+            overflow-y: auto; /* Add a scrollbar if needed */
+        }
+
+        /* CSS for Middle Section */
+        .middle-section {
+            /* Allow the Middle Section to expand to fill the available space */
+            flex: 1;
+            /* Add your styles for the middle section here */
+            padding: 10px; /* Add padding as needed */
+            background-color: gainsboro;
+        }
+
+        /* CSS for Bottom Div */
+        .bottom-div {
+            /* Sticky positioning at the bottom */
+            position: sticky;
+            bottom: 0;
+            background-color: gray; /* Example background color for the bottom div */
+            padding: 10px; /* Add padding as needed */
+        }
+
+
