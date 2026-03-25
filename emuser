@@ -1,0 +1,303 @@
+Robert K Nelson
+9004 Nelson Way, Columbia, MD 21045
+roberknelson@gmail.com
+
+Objective
+
+•	To join an organization where I can apply my research, analysis and problem-solving skills to help the organization design, create, and implement robust IT solutions to meet mission critical challenges.   I have a strong background in requirements collection & analysis and line of business design.  I provide strong support to team members seeking to acquire new technology skills.
+
+•	18 yrs – Requirements collection & analysis, data-modeling, system design
+•	15 yrs – VB, transact-sql, full cycle application development & support
+•	14yrs – Web development in ASP.Net, ASP legacy, C#, VB.Net, XML
+•	11yrs—Object Oriented Design (GoF design patterns, SOLID)
+
+Education
+
+Professional Microsoft .Net Certifications 
+
+MCSD     Microsoft Certified Solution Developer (August 2003)
+
+Conferences attended
+
+			SOA in HealthCare Conference (OMG-HL7) – Herndon VA 2011
+			SharePoint 2007 Connections, Las Vegas – November 2007
+VS.Net Connections, Las Vegas – November 2005
+			ASP.Net Connections, Orlando – April 2004
+			SD Best Practices, Boston – September 2003
+			ASP.Net Connections, New Orleans – April 2003
+			Visual Studio Connections, Orlando – October 2002
+			SQL-Server Connections, Palm Springs – April 2002
+Formal
+1989	B.A. History	Southwestern Adventist University -- Keene, Texas
+
+Skills
+
+
+Technology Skills	
+ASP.Net WebApi, C#, WPF, WCF, ASP.Net MVC, ADO.Net, XML, Transact-SQL, MS Visual Studio, MS-SQL Server, MongoDb, MySql 
+
+OOP & Patterns	
+GoF Design Patterns – Singleton, Factory, Builder, Chain of Responsibility, Façade, Strategy
+IOC, SOLID, CQRS, MVVM
+
+Current Pursuits	
+.Net Standard, ASP.Net Core, Docker, AWS (Code Pipeline, API Gateway, Lambda), Micro Services Architecture, Eventual Consistency, Event Sourcing, DDD, RabbitMQ
+
+
+ 
+
+Experience
+
+Jul 2013  Present		RBMedia (formerly Recorded Books, Inc.)
+
+Senior .Net Architect
+
+Push Notifications Micro Service
+o	Description –  A solution to facilitate communications via email, sms, mobile application push notification, mobile in-app notification, and any future message dispatch strategy.  The solution consists of an Web Api that receives preformatted messages, a message request containing data that is merged into message templates to create a formatted message, or the data is passed to a Push Notification Provider for message formatting.  The message request is then dispatched via strategy pattern to an email dispatcher, sms dispatcher, or push notification dispatcher.  Juxtaposed between the api receipt of the request, and the routing to the appropriate dispatcher is a RabbitMQ queue. The solution includes a WPF windows client message template designer.
+o	Design concepts – Micro Service architecture, Provider Pattern for data access, MVVM in windows client.
+o	Technology – ASP.Net Core 2.0, MySql, RabbitMQ, WPF
+o	My Role – Design, build deploy all facets of the solution.
+
+Remote Configuration Micro Service
+o	Description –  A solution to provide settings, configuration, and connection string data to client web applications (API, and Web SPA) from a central repository.  The solution includes a windows client interface to ease management of configuration, and to ensure reliable delivery of configuration changes to multiple application in multiple zones (Production, Staging, QA, etc.).  This project serves as a proof-of-concept for a single Micro Service, implemented in a delivery pipeline (CI-CD), Docker registry, build server with automated unit & integration testing.
+o	Design concepts –Micro Service architecture, Provider Pattern for data access, MVVM in windows client.
+o	Technology – ASP.Net Core 2.0, SqlServer 2016
+o	My Role – Design, build deploy all facets of the solution.
+
+
+Digital Platform API
+o	Description – Web API that provides ebook, audiobook & emagazine checkouts, book and magazine search, administrative endpoints, and other functionality for business partners applications, as well as mobile, web client, and windows client applications.
+o	Design concepts – The applications features pluggable Web API controllers architecture, decoupled business logic handlers, and data providers to various datastores and third party APIs. 
+o	Technology – ASP.Net Web API, MongoDb, Redis, SqlServer 2012, MySql, SOLR, SqlServer Service Broker Queues, AWS S3
+o	My Role – Design architecture, lead small team in construction, maintenance and enhancement of the solution (2014-present).
+
+Api Developer Site
+o	Description – Website allowing developers to register for authorization to develop against the Digital Platform API, and to provide documentation on API usage.
+o	Design concepts – The portal features a data-driven friendly url structure to navigate the various API endpoints, endpoint actions made available by the API. The site allows a site admin to update the API documentation on the site, saving content changes to a datastore.
+o	Technology – ASP.Net MVC 2.0, SqlServer 2012
+o	My Role – Design, build deploy all facets of the solution, including the documentation content.
+
+Metadata ETL
+o	Description –  This application collects authoritative data from various applications, hosted in diverse environments to compose the functional equivalent of master data (ebook,audiobook) metadata, and make that data available for consumption by the Digital Platform. 
+o	Design concepts – This solution features a Chain of Responsibility processing pipeline that gathers, enhances, and transforms book metadata into a complex model (book title, author(s), narrator(s), publisher, audio-files/ebook files) that is written to MongoDb.  The MongoDb then is the datastore backing in a read-aside caching strategy for book metadata served up by the Digital Platform.  It also serves as the CQRS-esque implementation of ebook/audiobook checkout/renew/returns and search.
+o	Technology – C#, SqlServer 2012, MongoDb
+o	My Role – Design, build deploy all aspects of the solution.
+
+Orders & Fulfillments
+o	Description –  Integration solution that moves product orders from various order producers to an order verification system, and allows for the immediate fulfillment/delivery of the digital product to the Digital Platform.
+o	Design concepts – The Orders solution features a Broker application which calls a webservice that picks up orders from various order producers, and sends the orders to a Order verification service.  The Fulfillment solution consists of Service Fulfillment client dlls, and a Fulfillment service that receives orders, validating them and placing them in a landing table for fulfillment processing.
+o	Technology – C#, MEF, WCF, SqlServer 2012
+o	My Role – Design, build deploy all aspects of the solution.
+
+Email Templates
+o	Description –  A solution comprising of an email template authoring tool that produces dlls that can be consumed to produce email bodies with data-driven content based upon runtime C# business objects.
+o	Design concepts – Text based templates use Razor syntax to produce dlls that can be consumed by client applications to produce rich email content.  This solution uses the Razor engine to allow the template designer to mock runtime C# business classes as json data, to create templates, compile those templates, and view the results in an imbedded html viewer.
+o	Technology – C#. Razor, WPF
+o	My Role – Design, build deploy all aspects of the solution.
+
+Parallelized File Mover
+o	Description –  This solution picks moves files from 1-n locations to 1-n locations. Those locations can be network server or AWS S3 locations. The file moving may execute in parallel, or serial.  The solution logs success and failures.
+o	Design concepts – Source and destination locations are provided via configuration or console app inputs, as well as whether to execute in parallel, and what degree of parallelism.
+o	Technology – C# , AWS SDK
+o	My Role – Design, build deploy all aspects of the solution.
+
+
+Jan 2010  July 2013		Inovalon, Inc (formerly MedAssurant Inc)
+
+Principal Software Development Engineer
+
+SOA Utility Services
+o	Description –  1st Tier SOA, featuring Logging & Common Data services
+o	Design concepts – The design of the 1st Tier Utility Services followed the following SOA design patterns: Decoupled Contract, Canonical Schema, Standardized Service Contract, Service Loose Coupling & Service Statelessness.  The design features a standard service façade that consumes 1-n plugin service implementations.   The Logging utility service is implemented as a plugin that wraps Enterprise Library Logging.  The Common Data service provided enterprise-wide authoritative data common to all applications.  The solution includes a lightweight client dll, providing an easily understood API to the Logging & Common Data services.
+o	Technology – WCF4, C# 4.0, MEF,  SqlServer 2008, Enterprise Library 5.0
+o	My Role – Design, build deploy all facets of the solution.
+
+Membership Outreach Viewer
+o	Description – Silverlight 4 application that delivers a read-only view on a HealthPlan Member outreach application .
+o	Design concepts – The applications features a state-machine driven UI, accessing SqlServer via asynchronous WCF services. 
+o	Technology – Silverlight 4, C# 4.0, ASP.Net, WCF Router & Backend WCF services, SqlServer 2008
+o	My Role – Design, build deploy all facets of the application.
+
+Pluggable Web Portal
+o	Description – Web portal framework that can deliver LOB applications implemented in ASP.Net MVC3 Framework, ASP.Net Webforms, & Silverlight 4.
+o	Design concepts – The portal features a plug-in architecture with a security trimming approach to delivering diverse applications under a single claims-based authentication using WIF, and a federated authorization strategy.  Line of Business plug-ins are developed independently, then packaged for import into the portal where they are registered and deployed through portal admin facilities. 
+o	Technology – WIF, ASP.Net MVC3 C# 4.0, MEF, ASP.Net Membership provider, SqlServer 2008
+o	My Role – Design, build deploy all facets of the portal, STS-IP, as well as a sample plug-in LOB applications  in ASP.Net Webforms, Silverlight 4, and MVC3.
+
+Line of Business Application Framework
+o	Description –  N-tier architectural framework consisting of loosely coupled architectural components, each featuring plug-in style implementations that allow a LOB app to be built with strong separation of concerns.  Plug-in architectural design allows maximum flexibility for changing between Client-Server, n-tier architectures, even at runtime.  Multiple service locators and data-access plug-ins can be utilized at runtime, without changing LOB code.
+o	Design concepts – “Lego-like” architectural components, runtime selection of plug-in strategies, very loose coupling of architectural layers and plug-ins.
+o	Technology – C# 4.0, MEF, Unity, Reflection, WCF
+o	My Role – Design, build deploy all aspects of the solution.
+
+XAML MVVM framework
+o	Description – UX framework, allowing for rapid development of WPF Line of Business applications.
+o	Design –  Generic MVVM framework, Wizard framework,  client-side read-aside caching
+o	Technology – C# 4.0, 
+o	My Role – Design, build, deploy all aspects of the solution
+
+Data Synchronization
+o	Description – Generic, synchronization solution to maintain business object synchronization across multiple applications featuring disparate database schemas.
+o	Design – Synchronization orchestrator, featuring plug-in adapters to diverse applications that have a data-driven registered interest in changes to business objects.  The solution features a publish-subscribe approach.
+o	Technology – Windows Service, ADO.Net, Xml, SmartCare Framework
+o	My Role – Requirements gathering, design, build, deploy all aspects of the solution
+
+Admin Tool
+o	Description – Windows Client tool for administering various aspects of mission critical LOB apps
+o	Design – WPF (MVVM) SmartClient featuring plug-in architecture, accessing databases via WCF
+o	Technology – C# 4.0, WPF, WCF, SqlServer 2008, Prism, Enterprise Library, SmartCare Framework
+o	My Role – Design & build the pluggable desktop application shell, implement Scheduling Admin plug-in module
+
+Adaptive Survey
+o	Description – Dynamic, questionnaire/survey  presentation solution
+o	Design – WPF UI, presenting survey questions & collecting answers in a data driven manner  
+o	Technology – C# 4.0, WPF, DSL
+o	My Role – Design, prototype, direct other developers in the building of the solution
+
+
+Apr 2009  December 2009		Ascend One Corporation
+
+Software Engineer 
+
+
+CareOneCredit.com  : CMS Conversion
+o	Description – Conversion of existing ASP.Net Webforms site from a collage of content management strategies to a single Alterian (UK) WCM framework
+o	Design concepts – No design necessary as this was a conversion.
+o	Technology – ASP.Net 3.5, C# 3.5, Alterian Morello
+o	My Role – Responsible for all facets of implementing a conversion from existing functionality, to a new CMS while retaining the existing look and feel of the site.
+
+Budget Buddy  
+o	Description – A gadget that allowed users to create a budget, track income and expenses.
+o	Design – Wizard style budget setup for first time use, followed up by custom views into monthly budget info, including custom built calendar view & tabular view.   
+o	Technology – ASP.Net Webforms , C# 3.5
+o	My Role – Build, deploy all aspects of the solution
+
+National Debt Statistics 2009 – 
+o	Description – REST-like url structure for presenting National, State, City debt statistics.
+o	Design – Custom HttpModule, HttpHandler, serving data based on xml files(national, state, city) 
+o	Technology – C# 3.5, ASP.Net, Xml, Xslt
+o	My Role – Build out MOSS solution
+
+
+Oct 2007  March 2009		Ease Technologies, Inc.
+
+Software Engineer -- Consultant 
+
+
+Verizon – Donata (SECMS) 
+o	Description – Web application to contain educational resource URLs & PURLs and to provide a taxonomical structure for classification of those resources vis-à-vis published State educational standards
+o	Design concepts – Multi-tier architecture,  Web UI, Web Services, Windows Service 
+o	Technology – ASP.Net 3.5, AJAX, C# 3.5, ADO.Net, SqlServer 2008, XML Web Services
+o	My Role – Design & build import & export features, build taxonomy support structures and user interface.
+
+SharePoint – Workflow  
+o	Description – MOSS 2007 workflow solution for underwriting building construction payments.
+o	Design – SharePoint workflow, custom lists,   
+o	Technology – WSS 3.0, C# 2.0, ASP.Net controls, Xml
+o	My Role – Design, build, deploy all aspects of the solution
+
+SharePoint 2007– MediaRich for SharePoint 
+o	Description – SharePoint based Digital Asset Management solution.
+o	Design – SharePoint & MediaRich Server, with a Sharepoint connector WSP  
+o	Technology – WSS 3.0, C# 2.0, ASP.Net controls
+o	My Role – Build out MOSS 2007 production environment, install MediaRich, customize the SharePoint solution
+CSPAN – Aquarius 
+o	Description – A Windows Client application to manage CSPANS collection of digital & analog media.  To prepare & schedule daily cut-sheets for daily CSPAN1, CSPAN2, CSPAN3 broadcast.
+o	Design – Multi-tier architecture 
+o	Technology – Windows Client (Winform), WebServices, C# 2.0, Oracle database, barcode scanning
+o	My Role – Design & build user interface for media search & barcoding, program  scheduling
+o	
+
+
+Feb 2006  Sept	 2007	Harte-Hanks Data Services
+
+Software Engineer  
+
+FRED – File Reformat/Edit 
+o	Description – Process engine that  merges data files from  various formats (fixed, delimited, MS-Excel, xml) into single files and offloads to a mainframe or network folder, performing data-quality analysis, optional edits to the data, data normalization at approximately 14.8 million records per hour.  Web UI for importing files, defining field mappings, data edits & normalization, preview of transformed data, business process package design, viewing data quality reports
+o	Design concepts – Multi-tier architecture, Windows Service application, Web UI, template based process engine. Process “packages” and data-file field definition templates can be saved as Xml documents for subsequent application against incoming data-files.
+o	Technology – ASP.Net 2.0, AJAX extensions 1.0, C# 2.0 Domain Objects, ADO.Net, SqlServer 2005, XML Serialization, Regex
+o	My Role – Design, build, deploy all facets of the application..
+
+SME – Single Mailing Environment 
+o	Description – Web interface to facilitate creation of Control Files for consumption by a mainframe.
+o	Design – Multi-tier  
+o	Technology – ASP.Net 2.0, Ajax extensions, C# 2.0, SqlServer 2005
+o	My Role – Design & build user interface, business objects, ORM around existing data-model
+
+
+
+
+Nov 2004  Feb 2006	Sytel (TechTeam Global) – contract at National Institutes of Health
+
+Software Engineer 
+
+Grants Management 
+o	Description – Workflow process consisting of moving .pdf Grant Application scans between contracting partners and NIH internal partners, allowing researchers to evaluate applications, award research grants.
+o	Technology – VBScript, ftp, ADO.Net, SqlServer 2000, SQLXML 3.0.
+o	My Role – Document business process flow, troubleshoot & solve legacy system breakdowns, wrote scripts to deliver daily process activity reports to business partners, manage access to FTP sites.
+
+OBSF Webtool 
+o	Description – Financial application for collecting budget actuals & projections.
+o	Technology – ASP.Net, VB.Net, SqlServer 2000
+o	My Role – Troubleshoot system bugs, provide coding fixes
+
+Business Card Request System – Web application for entering requests to print business cards
+o	Description –Web application for submitting requests for business cards for the 27 NIH Institutes & Centers to the NIH Division of Medical Arts & Printing Services
+o	Technology – ASP, VBScript, SqlServer 2000
+o	My Role – Troubleshoot problems, collect requirements for enhancements & modifications,  design & code modifications, test & deploy
+Mail Stop Code 
+o	Description – Web application for maintaining & publishing NIH internal mail stops
+o	Technology – ASP.Net, ASP, VBScript, SqlServer 2000
+o	My Role – Support and troubleshoot existing legacy application, collect and document customer requirements for a system redesign, design and build ASP.Net – SqlServer replacement for legacy application
+
+
+
+Sept 1994  Sept 2004		Adventist Risk Management, Inc, Silver Spring, Maryland
+
+Analyst/Software Programmer
+
+Workers Compensation Application
+•	Description – Provide a B2C solution to facilitate the submission of an ISO Workers’ Compensation insurance application to prospective carriers through an insurance agency
+o	Provide client online access to historical losses, estimated & audited payroll figures, and business locations 
+o	Client online ability to fill out ISO application questionnaire and maintain current payroll & business locations
+•	Design Concepts -- 3-tier architecture, workflow based business process design,  use MS-DAAB v2.0
+•	Technology -- SQL Server 2000, SQL-DML/DDL, ADO.Net, ASP.Net, Dynamic PDF reports
+•	My Role -- Requirements collection/documentation,  Application Design, DBA, collected/scrubbed and normalized payroll & locations data, coached/supervised an in-house programmer new to .Net in building the ASP.Net UI
+
+Accident & Sickness Application
+•	Description – Provide a solution to underwrite coverage under an Accident & Sickness master policy for ex-patriots worldwide, facilitate related accounting activity
+o	Underwrite & rate coverage according to rate tables
+o	Bill organizations that sponsor ex-patriot workers
+o	Provide underwriting statistics to agent for related International Workers Compensation policy
+•	Design Concepts  --  Temporally sensitive rating engine, client-server architecture
+•	Technology -- SQL-Server 2000, SQL-DML/DDL, MS-Access XP ADP, ADO, VBA
+•	My Role -- Requirements Collection, Application Design, DBA, build
+
+Database Programmer/Manager
+
+Insurance Company Operations 
+•	Description – Provide a mission critical solution for a single-parent captive insurance company.  Maintain insurance policies, adjudicate insurance claims, insurance accounting
+•	Design Concepts -- Client/Server application
+•	Technology -- MS-Access 97 / 2000 / XP, ADO, VBA
+•	My Role -- Requirements collection, application design, build, deploy, maintain
+
+Risk Manager	
+•	Advised clients on Loss Control, Claims handling practices, Risk Financing options, and alternative Risk Management techniques.
+•	Conducted seminars on Risk Management, P&C Insurance in Seoul, Hong Kong, Bali
+•	Served clients in Mongolia, Japan, South Korea, Taiwan, PR China, Philippines, Indonesia, Malaysia, Thailand, Singapore, Hong Kong
+
+Underwriter
+	Responsible for negotiating Facultative & Treaty reinsurance on P&C lines for a Single Parent Captive domiciled in Vermont.
+	Manage reinsurance recoverable claims with reinsurers.
+	Administer two Self-Insured Workers Compensation fund pools (CA & FL).
+	Negotiate reinsurance for and produce Worldwide Excess Liability policy. 
+
+Program Manager		
+	Managed Domestic & Canadian B&M policy, Int’l WC policy program.
+	Coordinated preparations for Reinsurance Underwriting Audits.
+
+Claims Examiner 
+•	Adjudicated Medical, Dental, Mental Health, Vision claims according to Employee Benefit Policy and resolved customer service issues.
+
+
