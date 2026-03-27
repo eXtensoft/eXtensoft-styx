@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEL Graph Invariants and Policy Expression Language - First Pass</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --line: #d1d5db;
+      --accent: #0f766e;
+      --accent-soft: #ecfeff;
+      --warn-soft: #fff7ed;
+      --warn: #c2410c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+    .hero, section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3, h4 {
+      margin-top: 0;
+      line-height: 1.2;
+    }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    h2 { font-size: 1.35rem; margin-bottom: 12px; color: var(--accent); }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 1rem; margin-bottom: 8px; }
+    p { margin: 10px 0; }
+    .sub { color: var(--muted); }
+    .quote, .note {
+      background: var(--accent-soft);
+      border-left: 5px solid var(--accent);
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+    .warning {
+      background: var(--warn-soft);
+      border-left: 5px solid var(--warn);
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .triple {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+    ul, ol { margin: 10px 0 10px 22px; }
+    li { margin: 6px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f3f4f6; }
+    pre, code {
+      font-family: Consolas, "Courier New", monospace;
+    }
+    pre {
+      background: #111827;
+      color: #f9fafb;
+      padding: 14px 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.93rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .footer {
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+      margin-top: 8px;
+    }
+    @media (max-width: 900px) {
+      .grid, .triple { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Adaptive Execution Loop (AEL)</h1>
+      <p class="sub">First-pass working document: graph invariants and policy expression language.</p>
+      <div class="quote">
+        <strong>Purpose:</strong> define the hard and soft rules that keep the artifact graph coherent, and define a machine-usable way to express governance policies that the engine can evaluate consistently.
+      </div>
+    </div>
+
+    <section>
+      <h2>1. Why this document matters</h2>
+      <p>The artifact graph gives AEL its structure. The runtime gives it motion. But without graph invariants and a policy language, the system has no disciplined way to decide what is valid, what is incomplete, what is forbidden, and what merely deserves warning.</p>
+      <p>This document therefore defines:</p>
+      <ol>
+        <li><strong>Graph invariants</strong>: conditions that must hold, should hold, or should be surfaced as defects.</li>
+        <li><strong>Policy Expression Language (PEL)</strong>: a first-pass declarative language for expressing rules over nodes, edges, states, evidence, gates, metrics, and transitions.</li>
+      </ol>
+      <div class="warning">
+        <strong>Key principle:</strong> if the graph is allowed to become semantically loose, the engine will eventually devolve into a document router instead of a governance system.
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Invariant classes</h2>
+      <p>Not all invariants should be treated the same. AEL should distinguish between hard failures, blocking governance failures, quality warnings, and historical irregularities.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Invariant class</th>
+            <th>Meaning</th>
+            <th>Typical engine response</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Structural hard invariant</strong></td>
+            <td>Graph is malformed or logically invalid</td>
+            <td>Reject merge or halt affected branch of execution</td>
+          </tr>
+          <tr>
+            <td><strong>Blocking governance invariant</strong></td>
+            <td>Graph is structurally valid but not admissible for advancement</td>
+            <td>Prevent gate passage; create task or escalate</td>
+          </tr>
+          <tr>
+            <td><strong>Quality invariant</strong></td>
+            <td>Graph is admissible but below desired quality threshold</td>
+            <td>Emit warning, optionally generate remediation task</td>
+          </tr>
+          <tr>
+            <td><strong>Historical integrity invariant</strong></td>
+            <td>Version/history lineage is incomplete or inconsistent</td>
+            <td>Flag defect; usually non-blocking unless audit-critical</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>3. First-pass graph invariants</h2>
+
+      <h3>3.1 Node identity invariants</h3>
+      <ul>
+        <li>Every node must have a globally unique identifier.</li>
+        <li>Every node must declare a valid <code>node_type</code>.</li>
+        <li>Every node must have exactly one active lifecycle state.</li>
+        <li>A node version must be monotonic within its semantic lineage.</li>
+        <li>A superseded node may remain in the graph but must not be treated as the default active node.</li>
+      </ul>
+
+      <h3>3.2 Edge integrity invariants</h3>
+      <ul>
+        <li>Every edge must connect two existing nodes.</li>
+        <li>Every edge must declare a valid <code>edge_type</code>.</li>
+        <li>Edge direction must be meaningful and consistent for its type.</li>
+        <li>Certain edge types may only connect allowed node-type pairs.</li>
+      </ul>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Edge type</th>
+            <th>Allowed examples</th>
+            <th>Disallowed example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>realizes</code></td>
+            <td>Design → Requirement, CodeUnit → Design, Test → UseCase</td>
+            <td>Requirement → CodeUnit, unless explicitly modeled as coarse trace</td>
+          </tr>
+          <tr>
+            <td><code>verifies</code></td>
+            <td>Test → Requirement, Evidence → Gate</td>
+            <td>Requirement → Test</td>
+          </tr>
+          <tr>
+            <td><code>constrains</code></td>
+            <td>Policy → Component, Requirement → Design</td>
+            <td>CodeUnit → Policy</td>
+          </tr>
+          <tr>
+            <td><code>supersedes</code></td>
+            <td>Requirement(v3) → Requirement(v2)</td>
+            <td>Requirement → Design</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>3.3 Traceability invariants</h3>
+      <ul>
+        <li>Every non-exploratory <code>CodeUnit</code> should trace to at least one upstream <code>Requirement</code>, <code>UserStory</code>, <code>UseCase</code>, or <code>Design</code>.</li>
+        <li>Every <code>Requirement</code> marked implemented should have at least one downstream realization path.</li>
+        <li>Every <code>Requirement</code> marked verified should have at least one verification path through <code>Test</code> or <code>Evidence</code>.</li>
+        <li>Every gate marked passed should have the evidence required by its gate definition.</li>
+        <li>An orphaned downstream node should be treated as a traceability defect.</li>
+      </ul>
+
+      <h3>3.4 State coherence invariants</h3>
+      <ul>
+        <li>A node cannot move to <code>verified</code> if it has not first been <code>implemented</code> or otherwise realized.</li>
+        <li>A node cannot move to <code>approved</code> if mandatory review evidence is absent.</li>
+        <li>A node in <code>superseded</code> state cannot be the sole active dependency of a current node without explicit waiver.</li>
+        <li>A task cannot move to <code>complete</code> while a blocking policy attached to its output remains failed.</li>
+      </ul>
+
+      <h3>3.5 History invariants</h3>
+      <ul>
+        <li>If node <code>A_v3</code> supersedes <code>A_v2</code>, then semantic lineage must remain queryable.</li>
+        <li>Merge events should preserve authorship, trigger, timestamp, and provenance metadata.</li>
+        <li>Agent-synthesized nodes should record generating inputs and governing constraints.</li>
+      </ul>
+
+      <div class="note">
+        <strong>Practical interpretation:</strong> invariants are not only about graph cleanliness. They are about preserving the engine’s ability to make trustworthy decisions.
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Core graph invariant catalog</h2>
+      <p>The following catalog is a first-pass starting set. IDs are included because these should eventually become first-class machine-evaluable rules.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Class</th>
+            <th>Statement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>INV-001</td>
+            <td>Unique Node Identity</td>
+            <td>Structural hard</td>
+            <td>No two active nodes may share the same identifier.</td>
+          </tr>
+          <tr>
+            <td>INV-002</td>
+            <td>Valid Node Type</td>
+            <td>Structural hard</td>
+            <td>Every node must declare a recognized node type.</td>
+          </tr>
+          <tr>
+            <td>INV-003</td>
+            <td>Valid Edge Endpoints</td>
+            <td>Structural hard</td>
+            <td>Every edge endpoint must reference an existing node.</td>
+          </tr>
+          <tr>
+            <td>INV-004</td>
+            <td>Allowed Edge Pairing</td>
+            <td>Structural hard</td>
+            <td>Each edge type may connect only permitted node-type pairs.</td>
+          </tr>
+          <tr>
+            <td>INV-005</td>
+            <td>No Orphaned Code</td>
+            <td>Blocking governance</td>
+            <td>Non-exploratory code must have at least one upstream trace path.</td>
+          </tr>
+          <tr>
+            <td>INV-006</td>
+            <td>Implemented Requirement Has Realization</td>
+            <td>Blocking governance</td>
+            <td>A requirement marked implemented must have at least one realizing node.</td>
+          </tr>
+          <tr>
+            <td>INV-007</td>
+            <td>Verified Requirement Has Verification Evidence</td>
+            <td>Blocking governance</td>
+            <td>A requirement marked verified must have at least one test or evidence verification path.</td>
+          </tr>
+          <tr>
+            <td>INV-008</td>
+            <td>Gate Pass Requires Evidence</td>
+            <td>Blocking governance</td>
+            <td>A passed gate must have all required evidence relationships satisfied.</td>
+          </tr>
+          <tr>
+            <td>INV-009</td>
+            <td>No Active Dependence on Superseded Node</td>
+            <td>Quality / blocking depending on scope</td>
+            <td>Current nodes should not depend solely on superseded nodes unless waived.</td>
+          </tr>
+          <tr>
+            <td>INV-010</td>
+            <td>Historical Lineage Preserved</td>
+            <td>Historical integrity</td>
+            <td>Supersession chains must remain queryable and intact.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>5. Policy Expression Language (PEL) goals</h2>
+      <p>The Policy Expression Language should be readable enough for disciplined humans to author and review, but strict enough that the engine can evaluate it consistently. It should express governance conditions over graph structure, node states, evidence presence, metrics, and transitions.</p>
+
+      <h3>5.1 PEL design goals</h3>
+      <ul>
+        <li>Technology-agnostic and engine-centric.</li>
+        <li>Readable in YAML or JSON representation.</li>
+        <li>Capable of expressing both hard constraints and advisory quality rules.</li>
+        <li>Explicit about scope, predicate, severity, and remediation behavior.</li>
+        <li>Composable into reusable policy packs.</li>
+      </ul>
+
+      <h3>5.2 PEL should answer four questions</h3>
+      <ol>
+        <li><strong>What does this rule apply to?</strong></li>
+        <li><strong>What condition is being tested?</strong></li>
+        <li><strong>What happens if the condition fails?</strong></li>
+        <li><strong>What evidence or exception can satisfy or waive it?</strong></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>6. First-pass PEL structure</h2>
+      <pre>policy:
+  id: POL-001
+  name: "No orphaned code"
+  kind: invariant | gate_rule | quality_rule | escalation_rule
+  scope:
+    node_types: [CodeUnit]
+    states: [implemented, verified]
+  severity: blocking | warning | advisory
+  predicate:
+    all:
+      - has_upstream_path:
+          from: self
+          to_any: [Requirement, UserStory, UseCase, Design]
+          via: [realizes, refines, depends_on]
+  on_fail:
+    action: block_transition
+    create_task: trace_reconciliation
+    escalate: false
+  waivers:
+    allowed: true
+    waiver_type: exploratory_code
+  metadata:
+    owner: governance
+    rationale: "Prevents implementation outside declared intent"</pre>
+
+      <p>The structure above suggests that every policy should have at least these sections:</p>
+      <div class="grid">
+        <div class="box">
+          <h4>Identity</h4>
+          <ul>
+            <li><code>id</code></li>
+            <li><code>name</code></li>
+            <li><code>kind</code></li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Applicability</h4>
+          <ul>
+            <li><code>scope</code></li>
+            <li><code>node_types</code></li>
+            <li><code>states</code></li>
+            <li><code>transitions</code> (optional)</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Evaluation</h4>
+          <ul>
+            <li><code>predicate</code></li>
+            <li><code>all</code>, <code>any</code>, <code>not</code></li>
+            <li>graph/path/existence/count checks</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Response</h4>
+          <ul>
+            <li><code>severity</code></li>
+            <li><code>on_fail</code></li>
+            <li><code>create_task</code></li>
+            <li><code>escalate</code></li>
+            <li><code>waivers</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>7. First-pass predicate vocabulary</h2>
+      <p>The predicate language does not need to be Turing-complete. In fact, it should not be. It should be constrained and explicit. A small, powerful vocabulary is preferable.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Predicate primitive</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>exists_node</code></td><td>A node matching criteria exists</td></tr>
+          <tr><td><code>exists_edge</code></td><td>An edge matching criteria exists</td></tr>
+          <tr><td><code>has_state</code></td><td>Target node is in a specific lifecycle state</td></tr>
+          <tr><td><code>has_upstream_path</code></td><td>There exists a valid path from current node to one or more upstream node types</td></tr>
+          <tr><td><code>has_downstream_path</code></td><td>There exists a valid path from current node to one or more downstream node types</td></tr>
+          <tr><td><code>count_gte</code></td><td>Count of matching items is greater than or equal to a threshold</td></tr>
+          <tr><td><code>count_eq</code></td><td>Count of matching items equals a threshold</td></tr>
+          <tr><td><code>metric_satisfies</code></td><td>A measured value satisfies a comparison</td></tr>
+          <tr><td><code>evidence_present</code></td><td>Evidence of a declared type exists</td></tr>
+          <tr><td><code>gate_satisfied</code></td><td>A referenced gate has reached passable or passed state</td></tr>
+          <tr><td><code>no_blocking_violations</code></td><td>No blocking policies currently fail in scope</td></tr>
+          <tr><td><code>transition_requested</code></td><td>A specified state transition is being attempted</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7.1 Boolean composition</h3>
+      <pre>predicate:
+  all:
+    - has_state: { target: self, value: implemented }
+    - any:
+        - evidence_present: { target: self, type: acceptance_test }
+        - evidence_present: { target: self, type: approved_demo }
+    - not:
+        - exists_node:
+            type: Risk
+            where:
+              severity: critical
+              status: open</pre>
+    </section>
+
+    <section>
+      <h2>8. Example policies</h2>
+
+      <h3>8.1 No orphaned code</h3>
+      <pre>policy:
+  id: POL-TRACE-001
+  name: "No orphaned code"
+  kind: invariant
+  scope:
+    node_types: [CodeUnit]
+    states: [implemented, verified]
+  severity: blocking
+  predicate:
+    has_upstream_path:
+      from: self
+      to_any: [Requirement, UserStory, UseCase, Design]
+      via: [realizes, refines, depends_on]
+  on_fail:
+    action: block_transition
+    create_task: trace_reconciliation
+    escalate: false</pre>
+
+      <h3>8.2 Verified requirement must have test evidence</h3>
+      <pre>policy:
+  id: POL-VERIFY-001
+  name: "Verified requirement has evidence"
+  kind: invariant
+  scope:
+    node_types: [Requirement]
+    states: [verified]
+  severity: blocking
+  predicate:
+    any:
+      - has_downstream_path:
+          from: self
+          to_any: [Test]
+          via: [verifies, realizes]
+      - evidence_present:
+          target: self
+          type: verification_result
+  on_fail:
+    action: revert_state
+    create_task: missing_verification_repair</pre>
+
+      <h3>8.3 Release gate requires acceptance evidence and no blocking violations</h3>
+      <pre>policy:
+  id: POL-GATE-REL-001
+  name: "Release admissibility"
+  kind: gate_rule
+  scope:
+    node_types: [Gate]
+    where:
+      gate_type: release
+  severity: blocking
+  predicate:
+    all:
+      - evidence_present:
+          target: self
+          type: acceptance_test
+      - evidence_present:
+          target: self
+          type: approval_evidence
+      - no_blocking_violations:
+          target: release_scope
+  on_fail:
+    action: deny_gate_pass
+    escalate: true</pre>
+
+      <h3>8.4 Demo latency quality rule</h3>
+      <pre>policy:
+  id: POL-METRIC-001
+  name: "Time to first demo"
+  kind: quality_rule
+  scope:
+    node_types: [Requirement]
+    states: [approved, implemented]
+  severity: warning
+  predicate:
+    metric_satisfies:
+      metric: time_to_first_demo_hours
+      op: lte
+      value: 72
+  on_fail:
+    action: create_task
+    create_task: accelerate_demo_feedback</pre>
+    </section>
+
+    <section>
+      <h2>9. Policy kinds</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Policy kind</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>invariant</code></td><td>Defines conditions that should always hold</td></tr>
+          <tr><td><code>gate_rule</code></td><td>Defines admissibility for gate passage</td></tr>
+          <tr><td><code>quality_rule</code></td><td>Defines quality expectations that may not block progression</td></tr>
+          <tr><td><code>transition_rule</code></td><td>Controls allowed state changes</td></tr>
+          <tr><td><code>escalation_rule</code></td><td>Defines when the engine must involve a human</td></tr>
+          <tr><td><code>waiver_rule</code></td><td>Defines conditions under which exceptions are acceptable</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>10. Waivers and exceptions</h2>
+      <p>An engine without exceptions will be brittle. An engine with uncontrolled exceptions will be meaningless. Therefore waivers must be explicit, typed, and recorded.</p>
+
+      <pre>waiver:
+  id: WAV-001
+  applies_to: POL-TRACE-001
+  subject: CODE-EXPERIMENT-123
+  reason: "exploratory prototype"
+  approved_by: architect_role
+  expires_at: 2026-12-31
+  compensating_controls:
+    - "must not be promoted to production branch"
+    - "must be reconciled before release gate"</pre>
+
+      <p>Suggested waiver rules:</p>
+      <ul>
+        <li>Waivers should never silently remove history.</li>
+        <li>Waivers should be time-bounded where possible.</li>
+        <li>Waivers should identify compensating controls.</li>
+        <li>Waived conditions should remain queryable and visible to gates.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>11. Engine evaluation model for policies</h2>
+      <pre>for each policy in applicable_policies(scope):
+    result = evaluate(policy.predicate, graph_context)
+
+    if result == fail:
+        record_violation(policy)
+        apply(policy.on_fail)
+
+    if waiver_exists(policy, subject):
+        modify_effect(policy, waiver)
+
+aggregate_results()
+update_gate_status()
+generate_tasks_or_escalations()</pre>
+
+      <p>The evaluation system should be deterministic given the same graph state, policy set, and waiver set. That matters for auditability and trust.</p>
+    </section>
+
+    <section>
+      <h2>12. Recommended invariant-to-policy boundary</h2>
+      <p>One design choice is whether invariants live outside the policy language as engine internals, or whether they are represented in the same language as policies. My recommendation for AEL is:</p>
+      <div class="triple">
+        <div class="box">
+          <h3>Engine-native invariants</h3>
+          <p>Use for irreducible structural truths such as valid node identity, valid endpoints, and basic graph shape.</p>
+        </div>
+        <div class="box">
+          <h3>Policy-expressed invariants</h3>
+          <p>Use for governance conditions like traceability, evidence requirements, and transition admissibility.</p>
+        </div>
+        <div class="box">
+          <h3>Quality rules</h3>
+          <p>Use for non-blocking but valuable expectations such as loop speed, demo latency, or warning thresholds.</p>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>Reason:</strong> not every truth should be configurable. Some conditions should remain constitutive of the engine itself.
+      </div>
+    </section>
+
+    <section>
+      <h2>13. Recommended next refinement</h2>
+      <ol>
+        <li>Finalize the allowed node-type and edge-type matrices.</li>
+        <li>Separate engine-native invariants from configurable policy-expressed invariants.</li>
+        <li>Define the exact path semantics for <code>has_upstream_path</code> and <code>has_downstream_path</code>.</li>
+        <li>Introduce schema versioning for PEL.</li>
+        <li>Define a compact formal grammar or JSON Schema/YAML schema for PEL documents.</li>
+        <li>Model gate status as computed state rather than manually asserted state.</li>
+        <li>Define how metrics are computed and attached to graph context.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>14. Closing position</h2>
+      <p>The artifact graph is the spine of AEL. Graph invariants protect its integrity. The policy language gives the engine a controlled way to evaluate admissibility, quality, and escalation. Together, they turn the lifecycle from a set of ideas into a machine-governable system.</p>
+      <p>Without graph invariants, the engine cannot trust its state. Without a policy language, it cannot explain or consistently enforce its judgments.</p>
+    </section>
+
+    <p class="footer">AEL — First-Pass Graph Invariants and Policy Expression Language</p>
+  </div>
+</body>
+</html>
