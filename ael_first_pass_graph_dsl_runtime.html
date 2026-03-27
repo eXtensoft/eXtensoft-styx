@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEL Graph, YAML DSL, and Runtime - First Pass</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --line: #d1d5db;
+      --accent: #0f766e;
+      --accent-soft: #ecfeff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+    .hero, section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3, h4 {
+      margin-top: 0;
+      line-height: 1.2;
+    }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    h2 { font-size: 1.35rem; margin-bottom: 12px; color: var(--accent); }
+    h3 { font-size: 1.08rem; margin-bottom: 8px; }
+    h4 { font-size: 1rem; margin-bottom: 8px; }
+    p { margin: 10px 0; }
+    .sub { color: var(--muted); }
+    .quote, .note {
+      background: var(--accent-soft);
+      border-left: 5px solid var(--accent);
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .triple {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+    ul, ol { margin: 10px 0 10px 22px; }
+    li { margin: 6px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f3f4f6; }
+    pre, code {
+      font-family: Consolas, "Courier New", monospace;
+    }
+    pre {
+      background: #111827;
+      color: #f9fafb;
+      padding: 14px 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.93rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .footer {
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+      margin-top: 8px;
+    }
+    @media (max-width: 900px) {
+      .grid, .triple { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Adaptive Execution Loop (AEL)</h1>
+      <p class="sub">First-pass working document covering: (1) artifact graph model, (2) YAML DSL for projects, and (3) engine runtime / orchestration model.</p>
+      <div class="quote">
+        <strong>Intent:</strong> move from position-paper language toward a machine-operable model. This document is deliberately technology-agnostic and is intended to define the governing core rather than a vendor-specific implementation.
+      </div>
+    </div>
+
+    <section>
+      <h2>0. Guiding Premise</h2>
+      <p>The AEL engine should not begin with code generation. It should begin with a governed model of reality: what artifacts exist, how they relate, what constraints apply, what evidence is required, and what actions are admissible. The engine then reasons and acts against that model.</p>
+      <p>Accordingly, this first-pass document is organized into three layers:</p>
+      <ol>
+        <li><strong>Artifact Graph</strong> — the persistent model of entities and traceability.</li>
+        <li><strong>Project YAML DSL</strong> — the machine-readable declaration layer for projects and governance inputs.</li>
+        <li><strong>Engine Runtime</strong> — the operating system that executes the Adaptive Execution Loop.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>1. Artifact Graph Model</h2>
+      <p>The artifact graph is the substrate of the engine. Artifacts are nodes. Relationships are edges. Policies and gates operate over the graph. Evidence strengthens or weakens confidence in specific subgraphs. Decisions and actions transform graph state.</p>
+
+      <h3>1.1 Node Classes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Node class</th>
+            <th>Purpose</th>
+            <th>Examples</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Intent</td>
+            <td>Declares desired outcome or mission of the project or subproject</td>
+            <td>Business objective, campaign goal, capability objective</td>
+          </tr>
+          <tr>
+            <td>Requirement</td>
+            <td>Formal statement of functional or non-functional need</td>
+            <td>Performance requirement, access-control rule</td>
+          </tr>
+          <tr>
+            <td>UserStory</td>
+            <td>Actor-centered expression of desired behavior</td>
+            <td>As a contributor, I want to submit content</td>
+          </tr>
+          <tr>
+            <td>UseCase</td>
+            <td>Structured interaction flow</td>
+            <td>Author content, route for approval</td>
+          </tr>
+          <tr>
+            <td>Policy</td>
+            <td>Machine-evaluable governance rule</td>
+            <td>All external interfaces require contract tests</td>
+          </tr>
+          <tr>
+            <td>Risk</td>
+            <td>Known threat, uncertainty, or hazard to success</td>
+            <td>Ambiguous data ownership, latency risk</td>
+          </tr>
+          <tr>
+            <td>Decision</td>
+            <td>Architectural or governance choice</td>
+            <td>Use event-driven integration, adopt approval gate</td>
+          </tr>
+          <tr>
+            <td>Design</td>
+            <td>Abstract or concrete realization model</td>
+            <td>Context model, sequence, component boundary</td>
+          </tr>
+          <tr>
+            <td>Component</td>
+            <td>Named logical unit of implementation</td>
+            <td>Catalog service, approval engine, UI shell</td>
+          </tr>
+          <tr>
+            <td>CodeUnit</td>
+            <td>Executable implementation artifact</td>
+            <td>Module, service, class, function</td>
+          </tr>
+          <tr>
+            <td>Test</td>
+            <td>Verification artifact</td>
+            <td>Unit test, contract test, scenario test</td>
+          </tr>
+          <tr>
+            <td>Evidence</td>
+            <td>Observed proof about an artifact or state transition</td>
+            <td>Passed suite, approval record, metric output</td>
+          </tr>
+          <tr>
+            <td>Gate</td>
+            <td>Admissibility boundary</td>
+            <td>Architecture gate, build gate, release gate</td>
+          </tr>
+          <tr>
+            <td>AgentCapability</td>
+            <td>Declares an agent’s available competencies</td>
+            <td>Generate code, critique design, produce tests</td>
+          </tr>
+          <tr>
+            <td>Task</td>
+            <td>Directed work item for the engine or an agent</td>
+            <td>Implement story, reconcile trace gap, generate demo</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>1.2 Edge Classes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Edge</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>refines</code></td><td>One node is a more detailed version of another</td></tr>
+          <tr><td><code>realizes</code></td><td>A downstream node implements or expresses an upstream node</td></tr>
+          <tr><td><code>constrains</code></td><td>A policy, requirement, or decision limits permissible form or behavior</td></tr>
+          <tr><td><code>verifies</code></td><td>A test or evidence node provides verification for another node</td></tr>
+          <tr><td><code>depends_on</code></td><td>A node requires another node to be meaningful or admissible</td></tr>
+          <tr><td><code>risks</code></td><td>A risk node threatens or weakens another node or transition</td></tr>
+          <tr><td><code>satisfies_gate</code></td><td>Evidence contributes to a gate being passable</td></tr>
+          <tr><td><code>assigned_to</code></td><td>A task is assigned to a human or agent capability</td></tr>
+          <tr><td><code>derived_from</code></td><td>A node was synthesized from one or more precursor nodes</td></tr>
+          <tr><td><code>supersedes</code></td><td>A newer node version replaces an older one semantically</td></tr>
+        </tbody>
+      </table>
+
+      <h3>1.3 Canonical Trace Chain</h3>
+      <pre>Intent
+  -> Requirement
+  -> UserStory / UseCase
+  -> Design
+  -> Component
+  -> CodeUnit
+  -> Test
+  -> Evidence
+  -> Gate</pre>
+      <p>This chain is not always strictly linear, but it defines the minimum traceability expectation. The engine should be able to traverse it in both directions.</p>
+
+      <h3>1.4 Minimal Node Schema</h3>
+      <pre>{
+  "id": "uuid",
+  "node_type": "Requirement",
+  "name": "REQ-ACCESS-001",
+  "state": "draft|proposed|approved|implemented|verified|superseded",
+  "version": 3,
+  "content": {},
+  "metadata": {
+    "owner": "role_or_actor",
+    "priority": "high",
+    "tags": ["security", "authorization"]
+  }
+}</pre>
+
+      <h3>1.5 Minimal Edge Schema</h3>
+      <pre>{
+  "id": "uuid",
+  "edge_type": "realizes",
+  "from_node_id": "REQ-123",
+  "to_node_id": "DESIGN-456",
+  "metadata": {
+    "confidence": 0.91,
+    "created_by": "engine"
+  }
+}</pre>
+
+      <h3>1.6 Graph Constraints</h3>
+      <ul>
+        <li>A <code>CodeUnit</code> should not exist without at least one upstream <code>Design</code>, <code>Requirement</code>, or <code>UserStory</code> trace, unless marked exploratory.</li>
+        <li>A <code>Gate</code> should not pass without required <code>Evidence</code> relationships.</li>
+        <li>A blocking <code>Policy</code> violation should create a graph condition that prevents advancement.</li>
+        <li>A superseded node should remain in the graph for history but no longer be treated as the active node unless explicitly referenced.</li>
+        <li>Orphaned downstream artifacts should be surfaced as traceability defects.</li>
+      </ul>
+
+      <div class="note">
+        <strong>Design principle:</strong> the graph should preserve history. AEL is not merely about the latest state; it is also about why the system arrived there.
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Project YAML DSL</h2>
+      <p>The YAML DSL is not the engine itself. It is the declarative surface by which a project, its governance rules, and its initial artifact set are described to the engine. It should be readable by humans, writable by disciplined teams, and translatable into the artifact graph.</p>
+
+      <h3>2.1 DSL Objectives</h3>
+      <ul>
+        <li>Declare project identity and intent.</li>
+        <li>Declare actors, artifact definitions, and lifecycle semantics.</li>
+        <li>Declare policies, gates, and success measures.</li>
+        <li>Declare agent capabilities and permitted actions.</li>
+        <li>Allow import or embedding of requirements, stories, use cases, diagrams, and standards.</li>
+      </ul>
+
+      <h3>2.2 First-Pass DSL Top-Level Sections</h3>
+      <pre>project:
+intent:
+actors:
+lifecycle:
+artifacts:
+traceability:
+policies:
+gates:
+success_metrics:
+agents:
+tasks:
+runtime:
+imports:</pre>
+
+      <h3>2.3 Example Project YAML</h3>
+      <pre>project:
+  id: cms-001
+  name: "Content Governance Pilot"
+  domain: "content-management"
+  description: "Pilot project for governed content authoring and approval"
+  owner_role: "ProductOwner"
+
+intent:
+  outcomes:
+    - "Enable governed content creation and approval"
+    - "Reduce cycle time from draft to publish"
+    - "Preserve traceability from request through publication"
+  constraints:
+    - "Human approval required for legal-sensitive content"
+    - "All publish actions must have approval evidence"
+
+actors:
+  - id: contributor
+    type: human_role
+  - id: editor
+    type: human_role
+  - id: approver
+    type: human_role
+  - id: engine
+    type: system
+  - id: code_agent
+    type: agent
+  - id: design_agent
+    type: agent
+
+lifecycle:
+  phases:
+    - inception
+    - elaboration
+    - construction
+    - transition
+  states:
+    artifact: [draft, proposed, approved, implemented, verified, superseded]
+    task: [queued, executing, blocked, complete, escalated]
+
+artifacts:
+  requirements:
+    - id: REQ-CMS-001
+      kind: functional
+      text: "The system shall allow contributors to author and submit content."
+  user_stories:
+    - id: US-CMS-001
+      text: "As a contributor, I want to author and submit new content."
+  use_cases:
+    - id: UC-CMS-001
+      actors: [contributor, system]
+      steps:
+        - "Contributor opens authoring view."
+        - "System presents content-type specific form."
+        - "Contributor saves draft or submits."
+
+traceability:
+  links:
+    - from: REQ-CMS-001
+      to: US-CMS-001
+      type: refines
+    - from: US-CMS-001
+      to: UC-CMS-001
+      type: realizes
+
+policies:
+  - id: POL-001
+    scope: [publish_action]
+    severity: blocking
+    rule: "publish requires approval_evidence == true"
+  - id: POL-002
+    scope: [code_unit]
+    severity: blocking
+    rule: "all external interfaces require contract_test"
+
+gates:
+  - id: GATE-ARCH-001
+    type: architecture
+    requires:
+      policies: [POL-002]
+      evidence: [design_review]
+  - id: GATE-REL-001
+    type: release
+    requires:
+      policies: [POL-001, POL-002]
+      evidence: [acceptance_test, approval_evidence]
+
+success_metrics:
+  - id: METRIC-001
+    name: "draft_to_publish_cycle_time"
+    target: "<= 2 days"
+  - id: METRIC-002
+    name: "traceability_coverage"
+    target: "100%"
+
+agents:
+  - id: code_agent
+    capabilities: [generate_code, refactor_code, generate_tests]
+  - id: design_agent
+    capabilities: [generate_design, critique_design, detect_trace_gaps]
+
+tasks:
+  generation_rules:
+    - trigger: "new_requirement"
+      action: "generate_candidate_story_and_use_case"
+    - trigger: "trace_gap_detected"
+      action: "create_reconciliation_task"
+
+runtime:
+  escalation:
+    when:
+      - "blocking_policy_violation unresolved > 1 loop"
+      - "ambiguous requirement confidence < 0.70"
+  logging:
+    level: detailed
+
+imports:
+  - "./requirements.yaml"
+  - "./policies/security.yaml"
+  - "./standards/coding.yaml"</pre>
+
+      <h3>2.4 DSL Design Notes</h3>
+      <ul>
+        <li>The DSL should declare <strong>what is true</strong>, <strong>what is allowed</strong>, and <strong>what is required</strong>, not procedural details that belong in runtime internals.</li>
+        <li>It should support modular imports so teams can compose reusable policy packs, domain packs, and standards packs.</li>
+        <li>It should remain vendor-neutral: agents are declared by capability, not by brand name.</li>
+        <li>It should be convertible into graph nodes and edges with minimal ambiguity.</li>
+      </ul>
+
+      <h3>2.5 Proposed Schema Buckets</h3>
+      <div class="grid">
+        <div class="box">
+          <h4>Declarative buckets</h4>
+          <ul>
+            <li>Project identity</li>
+            <li>Intent and constraints</li>
+            <li>Actors and roles</li>
+            <li>Artifact declarations</li>
+            <li>Policies and gates</li>
+            <li>Metrics and success targets</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Operational buckets</h4>
+          <ul>
+            <li>Agent capability map</li>
+            <li>Task generation rules</li>
+            <li>Escalation rules</li>
+            <li>Logging configuration</li>
+            <li>Import paths and package references</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Engine Runtime / Orchestration Layer</h2>
+      <p>The runtime is the active operating core of AEL. It observes the graph, evaluates admissibility, makes decisions, dispatches work, updates state, and records telemetry. The runtime should treat external agents as pluggable executors, not as the system of record.</p>
+
+      <h3>3.1 Runtime Responsibilities</h3>
+      <ul>
+        <li>Maintain current graph state and version history.</li>
+        <li>Detect triggers and loop-entry conditions.</li>
+        <li>Evaluate policies, evidence, gates, and traceability.</li>
+        <li>Synthesize or queue tasks.</li>
+        <li>Route tasks to appropriate agent capabilities or humans.</li>
+        <li>Accept outputs, validate them, and merge them into graph state.</li>
+        <li>Persist telemetry and decision history.</li>
+      </ul>
+
+      <h3>3.2 Canonical Loop</h3>
+      <pre>Loop(S_t):
+  O_t = observe(S_t)
+  V_t = evaluate(O_t)
+  D_t = decide(V_t)
+  X_t = dispatch_and_act(D_t)
+  S_(t+1) = update_graph(S_t, X_t)
+  T_t = record_telemetry(S_t, O_t, V_t, D_t, X_t, S_(t+1))
+  return S_(t+1)</pre>
+
+      <h3>3.3 Observe</h3>
+      <p>Observe should gather:</p>
+      <ul>
+        <li>new or modified artifacts,</li>
+        <li>missing trace links,</li>
+        <li>policy failures,</li>
+        <li>test outcomes,</li>
+        <li>demo outcomes,</li>
+        <li>human feedback,</li>
+        <li>unresolved tasks and escalations.</li>
+      </ul>
+
+      <h3>3.4 Evaluate</h3>
+      <p>Evaluate should answer:</p>
+      <ul>
+        <li>What changed?</li>
+        <li>What nodes or edges are now invalid, incomplete, or superseded?</li>
+        <li>What policy checks pass or fail?</li>
+        <li>What gates have become passable or blocked?</li>
+        <li>Does new evidence suggest upstream correction?</li>
+      </ul>
+
+      <h3>3.5 Decide</h3>
+      <p>Decision outcomes should be finite and explicit. Example dispositions:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Disposition</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>advance</code></td><td>Admissibility satisfied; proceed to next state or gate</td></tr>
+          <tr><td><code>revise_upstream</code></td><td>Evidence indicates issue in requirement, story, use case, or design</td></tr>
+          <tr><td><code>regenerate_downstream</code></td><td>Downstream realization should be rebuilt from updated upstream artifacts</td></tr>
+          <tr><td><code>retry</code></td><td>Repeat the same class of action with revised context</td></tr>
+          <tr><td><code>hold</code></td><td>Wait for dependency or prerequisite evidence</td></tr>
+          <tr><td><code>escalate</code></td><td>Require human judgment or exception handling</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.6 Dispatch and Agent Interface</h3>
+      <p>The runtime should not directly encode vendor specifics. It should dispatch tasks to a generic capability interface.</p>
+      <pre>AgentRequest:
+  task_id
+  capability_required
+  input_artifacts
+  governing_constraints
+  success_conditions
+  output_contract</pre>
+
+      <p>Example capabilities:</p>
+      <ul>
+        <li><code>generate_design</code></li>
+        <li><code>critique_design</code></li>
+        <li><code>generate_code</code></li>
+        <li><code>generate_tests</code></li>
+        <li><code>explain_trace_gap</code></li>
+        <li><code>summarize_feedback</code></li>
+        <li><code>produce_demo_artifact</code></li>
+      </ul>
+
+      <h3>3.7 Merge and Validation</h3>
+      <p>No agent output should be treated as truth on arrival. The runtime should validate outputs before graph merge:</p>
+      <ul>
+        <li>Is the output well-formed?</li>
+        <li>Does it satisfy the requested output contract?</li>
+        <li>Does it preserve or strengthen traceability?</li>
+        <li>Does it violate any blocking policies?</li>
+        <li>Does it supersede or fork an existing node?</li>
+      </ul>
+
+      <h3>3.8 Telemetry Model</h3>
+      <pre>LoopLog:
+  loop_id
+  trigger
+  nodes_in_scope
+  edges_in_scope
+  policy_results
+  gate_results
+  decision
+  tasks_generated
+  agent_invocations
+  outputs_received
+  merge_results
+  escalation_events
+  latency
+  successor_state_id</pre>
+
+      <p>Suggested derived metrics:</p>
+      <ul>
+        <li>mean time from requirement creation to first demo,</li>
+        <li>traceability coverage ratio,</li>
+        <li>upstream correction frequency,</li>
+        <li>policy-violation recurrence rate,</li>
+        <li>human-escalation rate,</li>
+        <li>agent task success rate.</li>
+      </ul>
+
+      <h3>3.9 Escalation Logic</h3>
+      <p>The runtime should escalate deliberately. Candidate escalation conditions:</p>
+      <ul>
+        <li>blocking policy violation persists beyond configured retry threshold,</li>
+        <li>conflicting upstream artifacts cannot be reconciled,</li>
+        <li>confidence in inferred requirement interpretation falls below threshold,</li>
+        <li>human-signoff policy applies to the current gate,</li>
+        <li>risk severity exceeds permitted autonomy boundary.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4. Integration of the Three Layers</h2>
+      <div class="triple">
+        <div class="box">
+          <h3>Graph</h3>
+          <p>Persistent state and traceability substrate.</p>
+        </div>
+        <div class="box">
+          <h3>YAML DSL</h3>
+          <p>Declarative input and configuration surface.</p>
+        </div>
+        <div class="box">
+          <h3>Runtime</h3>
+          <p>Adaptive Execution Loop that reasons, acts, and records.</p>
+        </div>
+      </div>
+
+      <pre>Project YAML
+  -> parsed into graph nodes and edges
+  -> runtime evaluates graph under policy and gate rules
+  -> runtime dispatches tasks to agents or humans
+  -> outputs are validated and merged back into graph
+  -> telemetry is recorded for future improvement</pre>
+    </section>
+
+    <section>
+      <h2>5. Recommended Next Refinements</h2>
+      <ol>
+        <li><strong>Typed node taxonomy:</strong> finalize the allowed node and edge sets.</li>
+        <li><strong>Graph invariants:</strong> define hard constraints and soft warnings.</li>
+        <li><strong>YAML schema versioning:</strong> introduce explicit versioning and package composition.</li>
+        <li><strong>Policy expression language:</strong> define how rules are formally written and evaluated.</li>
+        <li><strong>Output contracts:</strong> define the required structure of agent outputs.</li>
+        <li><strong>Escalation classes:</strong> distinguish ambiguity, risk, authority, and policy exceptions.</li>
+      </ol>
+      <div class="quote">
+        <strong>Most important next move:</strong> formalize the artifact graph invariants. The graph is the spine of the system. If its semantics remain loose, the rest of the engine will drift.
+      </div>
+    </section>
+
+    <section>
+      <h2>6. Closing Position</h2>
+      <p>This first-pass model treats AEL as a governed system with three indispensable layers: a graph of artifacts and relationships, a declarative configuration and project language, and a runtime loop that orchestrates adaptation. External AI systems may provide execution power, but the governing intelligence remains with the AEL engine.</p>
+      <p>That distinction is central. The engine governs. Agents execute.</p>
+    </section>
+
+    <p class="footer">AEL — First-Pass Artifact Graph, YAML DSL, and Runtime Model</p>
+  </div>
+</body>
+</html>
