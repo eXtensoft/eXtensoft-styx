@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEL Docker, Dual-Stack, and Skinny-but-Tall Guidance</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --line: #d1d5db;
+      --accent: #0f766e;
+      --accent-soft: #ecfeff;
+      --warn-soft: #fff7ed;
+      --warn: #c2410c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+    .hero, section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+      line-height: 1.2;
+    }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    h2 { font-size: 1.35rem; margin-bottom: 12px; color: var(--accent); }
+    h3 { font-size: 1.06rem; margin-bottom: 8px; }
+    p { margin: 10px 0; }
+    .sub { color: var(--muted); }
+    .quote, .note {
+      background: var(--accent-soft);
+      border-left: 5px solid var(--accent);
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+    .warning {
+      background: var(--warn-soft);
+      border-left: 5px solid var(--warn);
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+    ul, ol { margin: 10px 0 10px 22px; }
+    li { margin: 6px 0; }
+    pre, code {
+      font-family: Consolas, "Courier New", monospace;
+    }
+    pre {
+      background: #111827;
+      color: #f9fafb;
+      padding: 14px 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.93rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .footer {
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+      margin-top: 8px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>AEL: Docker, Dual-Stack, and “Skinny but Tall” Guidance</h1>
+      <p class="sub">Memorialized guidance on using Docker, Python, and .NET while building the Adaptive Execution Loop engine end-to-end.</p>
+      <div class="quote">
+        <strong>Core idea:</strong> prioritize an end-to-end vertical slice of the engine before expanding breadth. Build the engine “skinny but tall.”
+      </div>
+    </div>
+
+    <section>
+      <h2>1. Validate the Direction: Docker + Dual Stack</h2>
+      <p>The recommended direction is sound:</p>
+      <ul>
+        <li><strong>Python in Docker</strong> as the reference engine for fast iteration and portability.</li>
+        <li><strong>.NET locally</strong> as a parallel validation track and possible long-term enterprise implementation.</li>
+      </ul>
+      <p>This arrangement helps prove that the underlying AEL engine is genuinely host-language agnostic rather than accidentally dependent on a specific runtime or ecosystem.</p>
+      <div class="note">
+        <strong>Architectural benefit:</strong> this approach protects the abstraction. It reduces the risk of building “a Python tool” instead of building an actual engine model.
+      </div>
+    </section>
+
+    <section>
+      <h2>2. What “Skinny but Tall” Means in AEL</h2>
+      <p>“Skinny but tall” means building one narrow but complete vertical slice through the system. The objective is to make the engine run end-to-end before broadening the ontology, policy catalog, or runtime sophistication.</p>
+      <div class="grid">
+        <div class="box">
+          <h3>Wrong approach: wide but shallow</h3>
+          <ul>
+            <li>Too many node types</li>
+            <li>Too many policies</li>
+            <li>No actual execution loop</li>
+            <li>No real decisioning</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>Right approach: skinny but tall</h3>
+          <ul>
+            <li>Minimal YAML</li>
+            <li>Minimal graph</li>
+            <li>One policy</li>
+            <li>One decision rule</li>
+            <li>One complete loop</li>
+          </ul>
+        </div>
+      </div>
+      <pre>YAML → Graph → Policy → Decision → Action → Update → Log</pre>
+      <p>If this works, the architecture is real. If it does not work, adding more concepts only increases confusion.</p>
+    </section>
+
+    <section>
+      <h2>3. First Vertical Slice</h2>
+      <p>The first slice should be aggressively constrained:</p>
+      <ul>
+        <li><strong>Node types:</strong> Requirement, CodeUnit</li>
+        <li><strong>Edge type:</strong> realizes</li>
+        <li><strong>Policy:</strong> “No orphaned code”</li>
+        <li><strong>Loop behavior:</strong> evaluate → decide → print or log</li>
+      </ul>
+      <p>That is enough to prove that the engine can:</p>
+      <ul>
+        <li>read declared state,</li>
+        <li>build a graph,</li>
+        <li>evaluate a policy,</li>
+        <li>produce a decision,</li>
+        <li>emit a useful result.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4. Example Minimal Flow</h2>
+      <pre>1. YAML contains:
+   - one Requirement
+   - one CodeUnit
+   - no realizes trace edge
+
+2. Engine runs.
+
+3. Policy evaluation detects:
+   - orphaned code
+
+4. Decision logic produces:
+   - violation
+   - create trace-reconciliation task
+
+5. Output is printed or logged.</pre>
+      <p>This is intentionally small. It is sufficient to validate the architecture.</p>
+    </section>
+
+    <section>
+      <h2>5. Minimal Docker Strategy</h2>
+      <p>The Docker setup should remain intentionally simple. It is there to guarantee portability and repeatability, not to introduce orchestration complexity prematurely.</p>
+      <pre>FROM python:3.11-slim
+
+WORKDIR /app
+COPY . .
+
+RUN pip install pyyaml
+
+CMD ["python", "main.py"]</pre>
+      <p>Suggested execution flow:</p>
+      <pre>docker build -t ael-engine .
+docker run -v $(pwd)/data:/app/data ael-engine</pre>
+      <p>The goal at this stage is not scale. The goal is a stable, reproducible execution environment.</p>
+    </section>
+
+    <section>
+      <h2>6. Parallel .NET Track</h2>
+      <p>The .NET track should not become a second independent engine effort. Instead, it should function as a controlled validation path.</p>
+      <ul>
+        <li><strong>Python</strong> remains the reference implementation for rapid experimentation.</li>
+        <li><strong>.NET</strong> mirrors the same YAML inputs and expected decisions at a minimal level.</li>
+      </ul>
+      <p>This parallel path tests whether the engine model is portable across runtimes. That is the real architectural question.</p>
+      <div class="quote">
+        <strong>Important constraint:</strong> do not let .NET become a competing conceptual model. It is a validation track, not a conceptual fork.
+      </div>
+    </section>
+
+    <section>
+      <h2>7. Critical Discipline Rule</h2>
+      <p>No logic should live outside the engine model.</p>
+      <p>In practice this means:</p>
+      <ul>
+        <li>no hidden rules hard-coded in one runtime but not the other,</li>
+        <li>no silent assumptions buried in a helper class,</li>
+        <li>no behavior that cannot be explained in terms of graph state, policy, DSL, or explicit engine logic.</li>
+      </ul>
+      <p>The engine must remain understandable, portable, and governed by declared structure rather than accidental implementation detail.</p>
+    </section>
+
+    <section>
+      <h2>8. What AEL Actually Is</h2>
+      <p>AEL is not merely an application, a code generator, or a project framework. It is better understood as:</p>
+      <div class="note">
+        <strong>A runtime for governed decision-making over structured intent.</strong>
+      </div>
+      <p>That places it closer to a compiler, workflow engine, rules engine, or orchestration runtime than to a normal line-of-business application.</p>
+    </section>
+
+    <section>
+      <h2>9. Recommended Development Loop</h2>
+      <pre>1. Define minimal YAML
+2. Run engine
+3. Observe output
+4. Refine:
+   - graph model
+   - policy
+   - loop
+5. Repeat</pre>
+      <p>The design should be shaped by repeated execution, not by speculative expansion. This is especially important given the novelty of the engine concept.</p>
+    </section>
+
+    <section>
+      <h2>10. Main Risk to Avoid</h2>
+      <p>The biggest near-term risk is over-modeling before execution.</p>
+      <div class="warning">
+        <strong>Failure mode:</strong> perfect schemas, rich taxonomy, and elegant theory — but no running system.
+      </div>
+      <p>The “skinny but tall” method is specifically designed to avoid this trap. It forces the architecture to prove itself through execution as early as possible.</p>
+    </section>
+
+    <section>
+      <h2>11. Immediate Next Steps</h2>
+      <ol>
+        <li>Create <code>main.py</code> and <code>project.yaml</code>.</li>
+        <li>Implement YAML loading.</li>
+        <li>Construct a graph with two nodes and one possible edge type.</li>
+        <li>Implement one policy: “No orphaned code.”</li>
+        <li>Run the engine and emit a decision or task.</li>
+        <li>Wrap the result in Docker.</li>
+      </ol>
+      <p>At that point, the engine will exist in a real, end-to-end sense, even if its scope is extremely narrow.</p>
+      <div class="quote">
+        <strong>Anchor question:</strong> “Does this run end-to-end yet?” If the answer is no, avoid expanding breadth.
+      </div>
+    </section>
+
+    <p class="footer">AEL — Docker, Dual-Stack, and Skinny-but-Tall Guidance</p>
+  </div>
+</body>
+</html>
