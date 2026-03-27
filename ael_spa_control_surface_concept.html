@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEL SPA Control Surface Concept</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --line: #d1d5db;
+      --accent: #0f766e;
+      --accent-soft: #ecfeff;
+      --warn-soft: #fff7ed;
+      --warn: #c2410c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+    .hero, section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+      line-height: 1.2;
+    }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    h2 { font-size: 1.35rem; margin-bottom: 12px; color: var(--accent); }
+    h3 { font-size: 1.05rem; margin-bottom: 8px; }
+    p { margin: 10px 0; }
+    .sub { color: var(--muted); }
+    .quote, .note {
+      background: var(--accent-soft);
+      border-left: 5px solid var(--accent);
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+    .warning {
+      background: var(--warn-soft);
+      border-left: 5px solid var(--warn);
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .triple {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+    ul, ol { margin: 10px 0 10px 22px; }
+    li { margin: 6px 0; }
+    pre, code {
+      font-family: Consolas, "Courier New", monospace;
+    }
+    pre {
+      background: #111827;
+      color: #f9fafb;
+      padding: 14px 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.93rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .footer {
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+      margin-top: 8px;
+    }
+    @media (max-width: 900px) {
+      .grid, .triple { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>AEL SPA Control Surface Concept</h1>
+      <p class="sub">Working memo on the role of an ES6 SPA, backed by a Node or Python server, as the operator-facing host environment for the Adaptive Execution Loop engine.</p>
+      <div class="quote">
+        <strong>Core boundary:</strong> the SPA is not the engine. The SPA is the control surface over the engine.
+      </div>
+    </div>
+
+    <section>
+      <h2>1. The central idea</h2>
+      <p>An ES6-based SPA served by a lightweight Node or Python server can absolutely serve as the host environment for AEL. This is not merely a convenience. It is architecturally desirable because it creates a visible, interactive surface over an otherwise abstract governance runtime.</p>
+      <p>The SPA should be treated as the operator console of the system: a place to inspect graph state, review policy results, submit structured changes, trigger loop execution, and observe decisions, metrics, and outcomes.</p>
+    </section>
+
+    <section>
+      <h2>2. Architectural boundary</h2>
+      <p>The boundary must remain strict:</p>
+      <pre>SPA (UI / control surface)
+  ↓
+Host Server (Node or Python)
+  ↓
+AEL Engine (graph + policies + decisions + runtime loop)</pre>
+      <p>The SPA can request information, trigger actions, and render results. The engine remains the only source of truth for graph semantics, policy logic, decisions, and admissibility.</p>
+      <div class="warning">
+        <strong>Non-negotiable rule:</strong> the frontend must not contain engine logic, policy logic, or graph-governance rules.
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Valid hosting patterns</h2>
+      <div class="grid">
+        <div class="box">
+          <h3>Pattern A: Embedded engine</h3>
+          <pre>Node/Python Host
+  ├── serves SPA
+  └── runs engine in same process</pre>
+          <p>This is the best starting point. It minimizes complexity and accelerates experimentation.</p>
+        </div>
+        <div class="box">
+          <h3>Pattern B: Split engine service</h3>
+          <pre>SPA
+  ↓
+Host API
+  ↓
+Engine Service (separate process/container)</pre>
+          <p>This is cleaner architecturally and likely the better long-term direction, but it introduces additional moving parts too early for the first vertical slice.</p>
+        </div>
+      </div>
+      <p>Recommended path: start with Pattern A, evolve later toward Pattern B when the engine model stabilizes.</p>
+    </section>
+
+    <section>
+      <h2>4. What the SPA actually is</h2>
+      <p>The SPA is not a generic dashboard. It is not just a data-entry front end. It is an <strong>interactive, schema-driven control surface</strong> for governed engineering.</p>
+      <div class="triple">
+        <div class="box">
+          <h3>Visualization surface</h3>
+          <p>Shows graph state, traceability, violations, and runtime outcomes.</p>
+        </div>
+        <div class="box">
+          <h3>Interaction surface</h3>
+          <p>Allows users to submit structured changes, approve decisions, and trigger loop execution.</p>
+        </div>
+        <div class="box">
+          <h3>Observation surface</h3>
+          <p>Displays metrics, trends, timing, and system behavior over time.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Why this is powerful</h2>
+      <p>This approach directly compresses the feedback loop that motivated AEL in the first place. Instead of waiting for long requirement-to-demo cycles, the system can support a much tighter interaction loop:</p>
+      <pre>Edit → Submit → Evaluate → Visualize → Refine → Repeat</pre>
+      <p>That means a user, architect, or operator can observe the consequences of a change far sooner. The act of visualization itself becomes a refinement mechanism, which is entirely consistent with the AEL premise that demonstration is a discovery instrument.</p>
+    </section>
+
+    <section>
+      <h2>6. Primary SPA responsibilities</h2>
+      <ol>
+        <li><strong>Graph visualization</strong><br />
+            Display nodes, edges, traceability chains, orphans, and supersession.</li>
+        <li><strong>Policy result display</strong><br />
+            Show passed rules, failed rules, severity, rationale, and affected scope.</li>
+        <li><strong>Loop triggering</strong><br />
+            Allow explicit invocation of loop execution, evaluation, or targeted actions.</li>
+        <li><strong>Decision display</strong><br />
+            Present decisions, generated tasks, escalations, and next recommended steps.</li>
+        <li><strong>Dynamic form rendering</strong><br />
+            Render artifact-editing and artifact-creation forms from JSON Schema or equivalent declarative schemas.</li>
+        <li><strong>Metrics presentation</strong><br />
+            Display loop latency, traceability coverage, violation trends, and other system metrics.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>7. Dynamic forms and schemas</h2>
+      <p>Schema-driven interaction is especially important because it preserves extensibility. If artifact types, policy types, and task types are declared through schemas, the UI can render forms dynamically rather than hard-coding every interaction surface.</p>
+      <pre>Schema → Form → Submission → Engine → Updated Graph / Metrics / Decisions</pre>
+      <p>This allows the system to grow without rewriting the UI every time the ontology expands.</p>
+      <div class="note">
+        <strong>Interpretation:</strong> schemas become part of the language between the operator and the engine.
+      </div>
+    </section>
+
+    <section>
+      <h2>8. Metrics as first-class output</h2>
+      <p>Metrics are not an accessory. They are part of the feedback system. The SPA is an ideal place to surface them because it makes the behavior of the engine legible to human operators.</p>
+      <p>Examples of useful first-pass metrics:</p>
+      <ul>
+        <li>traceability coverage ratio,</li>
+        <li>number of orphaned downstream artifacts,</li>
+        <li>policy violations by severity and category,</li>
+        <li>loop execution latency,</li>
+        <li>time from requirement creation to first demo,</li>
+        <li>human escalation rate,</li>
+        <li>rate of upstream correction.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>9. Runtime discoverability</h2>
+      <p>The host server should expose the information needed for the SPA to discover the system at runtime. That means the UI should not have to know the world in advance.</p>
+      <p>Illustrative endpoints:</p>
+      <pre>GET  /schemas
+GET  /schema/requirement
+GET  /node-types
+GET  /policies
+GET  /metrics
+GET  /graph
+POST /run-loop
+POST /artifact
+POST /apply-decision</pre>
+      <p>The more the system can describe itself at runtime, the more adaptable and reusable the SPA becomes.</p>
+    </section>
+
+    <section>
+      <h2>10. Minimal first implementation</h2>
+      <p>The first UI should remain extremely small. It does not need to be visually polished. It only needs to prove the interaction pattern.</p>
+      <ol>
+        <li>A button to run the engine loop.</li>
+        <li>A simple area showing policy violations or decisions.</li>
+        <li>A single schema-driven form for creating one artifact type, such as a Requirement.</li>
+      </ol>
+      <p>If these three things work together, the UI/engine boundary is real and the concept is operational.</p>
+    </section>
+
+    <section>
+      <h2>11. Recommended host choice</h2>
+      <p>Either a lightweight Node server or a Python server can act as the host. Given the current direction of AEL, a Python host paired with the Python engine is the shortest path for early experimentation. A Node host remains viable, especially if it fits the developer’s established comfort with ES6-based SPA serving.</p>
+      <p>The deciding factor is not ideology. It is feedback speed and architectural cleanliness.</p>
+    </section>
+
+    <section>
+      <h2>12. Final framing</h2>
+      <p>The SPA should be understood as the <strong>operator-facing surface of AEL</strong>. It gives the engine eyes, hands, and a visible nervous system. The graph remains memory. Policies remain rules. Metrics provide awareness. The host server is the bridge. The engine governs.</p>
+      <div class="quote">
+        <strong>Compact metaphor:</strong><br />
+        Engine = brain<br />
+        Graph = memory<br />
+        Policies = rules<br />
+        SPA = senses + control surface<br />
+        Metrics = awareness<br />
+        Schemas = language
+      </div>
+    </section>
+
+    <p class="footer">AEL — SPA Control Surface Concept</p>
+  </div>
+</body>
+</html>
