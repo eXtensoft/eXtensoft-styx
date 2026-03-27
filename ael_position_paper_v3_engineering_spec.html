@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEL Position Paper V3 - Engineering Spec</title>
+  
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --line: #d1d5db;
+      --accent: #0f766e;
+      --accent-soft: #ecfeff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.58;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+    .hero, section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+      line-height: 1.2;
+    }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    h2 { font-size: 1.35rem; margin-bottom: 12px; color: var(--accent); }
+    h3 { font-size: 1.05rem; margin-bottom: 8px; }
+    p { margin: 10px 0; }
+    .sub {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+    .quote, .note {
+      background: var(--accent-soft);
+      border-left: 5px solid var(--accent);
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+    ul, ol { margin: 10px 0 10px 22px; }
+    li { margin: 6px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f3f4f6; }
+    code, pre {
+      font-family: "Courier New", Courier, monospace;
+    }
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+    pre {
+      background: #111827;
+      color: #f9fafb;
+      padding: 14px 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+    .footer {
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+      margin-top: 8px;
+    }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero, section { padding: 18px 18px; }
+    }
+  </style>
+
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Adaptive Execution Loop (AEL)</h1>
+      <p class="sub">Version 3 — Engineering-spec style position paper with formal definitions and system-oriented structure.</p>
+      <div class="quote">
+        <strong>Formal statement:</strong> AEL is a stateful, policy-governed software engineering system in which artifacts evolve through a continuous loop that observes state, evaluates admissibility, determines action, executes change, and records resulting evidence.
+      </div>
+    </div>
+
+    <section>
+      <h2>1. Scope</h2>
+      <p>This document defines AEL at a system level. It does not prescribe a particular implementation language, repository model, storage technology, agent vendor, or SDLC tooling stack. Its purpose is to define the minimum conceptual structure required for an engine capable of governed, adaptive, closed-loop software execution.</p>
+    </section>
+
+    <section>
+      <h2>2. Problem Definition</h2>
+      <p>Software lifecycle failure commonly arises from one or more of the following conditions:</p>
+      <ul>
+        <li>requirements that remain ambiguous or untested until late,</li>
+        <li>weak traceability between upstream and downstream artifacts,</li>
+        <li>slow or sparse feedback between implementation and stakeholder evaluation,</li>
+        <li>human governance that is inconsistent, delayed, or non-machine-readable,</li>
+        <li>lack of structured means to revise upstream artifacts when downstream evidence invalidates them.</li>
+      </ul>
+      <p>AEL is intended to address these conditions by replacing loosely coordinated progression with stateful loop execution under policy and evidence constraints.</p>
+    </section>
+
+    <section>
+      <h2>3. System Model</h2>
+      <pre>System S = (A, P, E, G, D, X, L)
+
+Where:
+A = set of artifacts
+P = set of policies
+E = set of evidence
+G = set of gates
+D = set of decisions
+X = set of executable actions
+L = loop function</pre>
+      <p>The engine operates over a current system state <code>S_t</code> and produces a successor state <code>S_(t+1)</code>.</p>
+    </section>
+
+    <section>
+      <h2>4. Primitive Definitions</h2>
+      <h3>4.1 Artifact</h3>
+      <pre>Artifact:
+  id: unique identifier
+  type: artifact classification
+  state: lifecycle state
+  version: revision indicator
+  content: structured or unstructured payload
+  metadata: auxiliary attributes</pre>
+
+      <h3>4.2 Policy</h3>
+      <pre>Policy:
+  id: unique identifier
+  scope: applicable artifact types or transitions
+  condition: machine-evaluable rule
+  severity: advisory | blocking
+  outcome: pass | fail | unknown</pre>
+
+      <h3>4.3 Evidence</h3>
+      <pre>Evidence:
+  id: unique identifier
+  type: evidence classification
+  subject: referenced artifact or transition
+  result: structured finding
+  timestamp: observed time
+  provenance: source of generation or validation</pre>
+
+      <h3>4.4 Gate</h3>
+      <pre>Gate:
+  id: unique identifier
+  required_policies: policy set
+  required_evidence: evidence set
+  condition: admissibility function over current state</pre>
+
+      <h3>4.5 Decision</h3>
+      <pre>Decision:
+  id: unique identifier
+  trigger: originating event or condition
+  target: artifact(s), transition, or gate
+  disposition: advance | revise_upstream | regenerate_downstream | retry | escalate | hold</pre>
+    </section>
+
+    <section>
+      <h2>5. Loop Definition</h2>
+      <pre>Loop(S_t):
+  O_t = observe(S_t)
+  V_t = evaluate(O_t, P, G)
+  D_t = decide(V_t)
+  X_t = act(D_t)
+  S_(t+1) = update(S_t, X_t)
+  record(S_t, O_t, V_t, D_t, X_t, S_(t+1))
+  return S_(t+1)</pre>
+      <p>The loop is the control mechanism of the lifecycle. Phases may contextualize activity but do not replace loop control.</p>
+    </section>
+
+    <section>
+      <h2>6. Function Semantics</h2>
+      <h3>6.1 Observe</h3>
+      <p>Collect current artifact states, evidence states, gate status, operational results, and external feedback relevant to admissibility or correction.</p>
+
+      <h3>6.2 Evaluate</h3>
+      <p>Assess traceability completeness, policy compliance, artifact validity, success measures, and gate satisfaction. Evaluation should be capable of producing both deterministic findings and unresolved conditions requiring escalation.</p>
+
+      <h3>6.3 Decide</h3>
+      <p>Select a disposition. A disposition may advance the system, direct revision, request regeneration, block further progression, or escalate to human judgment.</p>
+
+      <h3>6.4 Act</h3>
+      <p>Invoke agents, modify artifacts, generate artifacts, execute tests, create demonstrations, or create decision tasks. The engine may use one or more external agent systems, but orchestration remains internal to AEL.</p>
+
+      <h3>6.5 Record</h3>
+      <p>Persist loop telemetry sufficient for replay, audit, and continuous improvement.</p>
+    </section>
+
+    <section>
+      <h2>7. Upstream Correction Model</h2>
+      <p>AEL explicitly permits correction of upstream artifacts when downstream evidence invalidates them. This is a core structural property rather than an exception condition.</p>
+      <pre>Examples:
+If demo_feedback invalidates workflow assumption
+  -> revise use case and possibly requirement
+
+If test failure reveals undefined business rule
+  -> revise requirement or policy definition
+
+If policy violation reveals architectural inconsistency
+  -> revise design or implementation artifact</pre>
+      <p>Upstream correction prevents the engine from falsely treating early artifacts as immutable truth.</p>
+    </section>
+
+    <section>
+      <h2>8. Traceability Requirement</h2>
+      <p>AEL assumes that artifacts participate in a graph of trace links. At minimum, the engine should be able to relate:</p>
+      <ul>
+        <li>intent to requirements,</li>
+        <li>requirements to stories and use cases,</li>
+        <li>stories and use cases to designs and behaviors,</li>
+        <li>designs and behaviors to code and tests,</li>
+        <li>tests, demos, and approvals to evidence and gate satisfaction.</li>
+      </ul>
+      <p>Broken traceability degrades governance quality and weakens confidence in decisions.</p>
+    </section>
+
+    <section>
+      <h2>9. Admissibility and Gates</h2>
+      <p>Advancement under AEL is admissibility-based, not assumption-based. A gate should be satisfied only when the required evidence and policies jointly support progression.</p>
+      <pre>BuildGate(S) = true iff:
+  required design artifacts exist
+  blocking policies pass
+  required evidence exists
+  unresolved severity threshold is acceptable</pre>
+      <p>This makes advancement a computable proposition rather than an informal judgment.</p>
+    </section>
+
+    <section>
+      <h2>10. Human Escalation Boundary</h2>
+      <p>The engine must distinguish between what can be machine-evaluated and what requires human judgment. Escalation is appropriate where policy is incomplete, competing objectives are unresolved, risk acceptance must be explicit, or ethical, legal, or strategic decisions are present.</p>
+      <div class="note">
+        <strong>Rule:</strong> humans should be inserted deliberately where judgment is necessary, not because the lifecycle lacks structure.
+      </div>
+    </section>
+
+    <section>
+      <h2>11. Telemetry Model</h2>
+      <pre>LoopLog:
+  loop_id
+  trigger
+  artifacts_in_scope
+  policies_checked
+  gate_status
+  decision
+  actions_executed
+  agents_invoked
+  evidence_generated
+  outcome
+  latency
+  successor_state_reference</pre>
+      <p>Instrumentation is required for auditability, diagnosability, and improvement of engine behavior over time.</p>
+    </section>
+
+    <section>
+      <h2>12. Comparison with Existing Paradigms</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Paradigm</th>
+            <th>Primary strength</th>
+            <th>Relative gap addressed by AEL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Waterfall</td>
+            <td>Planning clarity</td>
+            <td>Insufficient adaptability under changing understanding</td>
+          </tr>
+          <tr>
+            <td>Agile</td>
+            <td>Iteration and responsiveness</td>
+            <td>Often lacks formal machine-readable governance</td>
+          </tr>
+          <tr>
+            <td>DevOps</td>
+            <td>Automation of build-test-deploy operations</td>
+            <td>Typically does not govern upstream intent and requirement correction</td>
+          </tr>
+          <tr>
+            <td>AEL</td>
+            <td>Policy-governed adaptive execution across the artifact graph</td>
+            <td>Requires formalized artifacts, rules, and evidence discipline</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>13. System Properties</h2>
+      <ul>
+        <li><strong>Stateful:</strong> decisions occur against explicit system state.</li>
+        <li><strong>Adaptive:</strong> feedback can trigger both upstream and downstream change.</li>
+        <li><strong>Governed:</strong> policy and evidence constrain admissible progression.</li>
+        <li><strong>Traceable:</strong> artifact relationships remain part of the decision substrate.</li>
+        <li><strong>Extensible:</strong> external agent systems may be incorporated without changing the governing core.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>14. Final Position</h2>
+      <p>AEL should be treated as a candidate engineering model for governed agentic execution. Its central claim is that software delivery improves when lifecycle control is organized around a formal loop that continuously evaluates state, corrects misalignment, and records evidence. In this model, the engine governs convergence.</p>
+    </section>
+
+    <p class="footer">AEL Position Paper V3 — Engineering Spec</p>
+  </div>
+</body>
+</html>

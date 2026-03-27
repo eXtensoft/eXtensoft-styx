@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEL Position Paper V2 - Balanced</title>
+  
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --line: #d1d5db;
+      --accent: #0f766e;
+      --accent-soft: #ecfeff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.58;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+    .hero, section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+      line-height: 1.2;
+    }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    h2 { font-size: 1.35rem; margin-bottom: 12px; color: var(--accent); }
+    h3 { font-size: 1.05rem; margin-bottom: 8px; }
+    p { margin: 10px 0; }
+    .sub {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+    .quote, .note {
+      background: var(--accent-soft);
+      border-left: 5px solid var(--accent);
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+    ul, ol { margin: 10px 0 10px 22px; }
+    li { margin: 6px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f3f4f6; }
+    code, pre {
+      font-family: "Courier New", Courier, monospace;
+    }
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+    pre {
+      background: #111827;
+      color: #f9fafb;
+      padding: 14px 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+    .footer {
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+      margin-top: 8px;
+    }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero, section { padding: 18px 18px; }
+    }
+  </style>
+
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Adaptive Execution Loop (AEL)</h1>
+      <p class="sub">Version 2 — Balanced position paper: formal enough to structure the system, readable enough to think with.</p>
+      <div class="quote">
+        <strong>Working definition:</strong> AEL is a governance-driven software lifecycle in which artifacts evolve through a continuous loop that enforces traceability, policy compliance, evidence-based advancement, and both upstream and downstream correction.
+      </div>
+    </div>
+
+    <section>
+      <h2>1. Problem Statement</h2>
+      <p>Most software delivery failures are not explained by a lack of coding capability. They are better explained by breakdowns in the surrounding lifecycle: ambiguous requirements, weak traceability, slow feedback, delayed visualization, and human gating that is inconsistent or poorly structured.</p>
+      <p>AEL responds to this by treating the lifecycle itself as the subject of engineering. The primary objective is to improve the quality, speed, and discipline of the feedback loop connecting intent, realization, evidence, and correction.</p>
+    </section>
+
+    <section>
+      <h2>2. System View</h2>
+      <p>AEL is centered on a continuous operational loop rather than a purely sequential phase model. Phases may still be present as useful context, but loop execution is the actual control mechanism. The engine should repeatedly:</p>
+      <ol>
+        <li>observe current artifacts and results,</li>
+        <li>evaluate them against policies, traceability, and success measures,</li>
+        <li>decide whether to advance, revise, regenerate, retry, or escalate,</li>
+        <li>act through generation, modification, testing, or demonstration,</li>
+        <li>record what occurred for audit and future improvement.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>3. Core Elements</h2>
+      <div class="grid">
+        <div class="box">
+          <h3>Artifacts</h3>
+          <p>Represent system state. Examples include intent statements, requirements, user stories, use cases, designs, code units, tests, deployment plans, and decisions.</p>
+        </div>
+        <div class="box">
+          <h3>Policies</h3>
+          <p>Machine-evaluable rules that constrain what states, transitions, or outputs are admissible. These may include quality rules, architectural rules, security rules, or compliance obligations.</p>
+        </div>
+        <div class="box">
+          <h3>Evidence</h3>
+          <p>Proof that an artifact or transition satisfies relevant conditions. Examples include passed tests, accepted demos, review outcomes, metrics, or validated simulations.</p>
+        </div>
+        <div class="box">
+          <h3>Gates</h3>
+          <p>Decision points that require defined evidence before advancement is allowed. Gates prevent silent progression under weak assumptions.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Why Upstream Correction Matters</h2>
+      <p>Traditional SDLC interpretations tend to assume that feedback primarily improves downstream artifacts such as code and tests. AEL rejects that limitation. It assumes that failures or discoveries may reveal flaws in requirements, use cases, or even intent itself.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Trigger</th>
+            <th>Possible correction target</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Failed test</td>
+            <td>Code, design, requirement</td>
+          </tr>
+          <tr>
+            <td>Demo reaction</td>
+            <td>User story, use case, requirement, intent</td>
+          </tr>
+          <tr>
+            <td>Policy violation</td>
+            <td>Design or implementation</td>
+          </tr>
+          <tr>
+            <td>Missing coverage</td>
+            <td>Tests, requirement definition, or traceability</td>
+          </tr>
+          <tr>
+            <td>Operational concern</td>
+            <td>Non-functional requirements or design constraints</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>5. Demonstration and User Acceptance</h2>
+      <p>AEL treats visualization and demonstration as high-value feedback instruments. In many projects, a stakeholder cannot truly evaluate a requirement until confronted with a concrete form of it. This means user acceptance is not merely a terminal checkpoint. It is a structured source of refinement.</p>
+      <div class="note">
+        <strong>Important implication:</strong> a demo that changes the user’s mind is not a process failure. It is often a signal that the loop is working correctly.
+      </div>
+    </section>
+
+    <section>
+      <h2>6. Governance Principle</h2>
+      <p>If an artifact cannot be evaluated, it cannot be governed. This principle is foundational. Vague standards such as “clean design” or “intuitive behavior” are not sufficient by themselves. They must be converted into rules, checks, measurable qualities, or explicit human decision boundaries.</p>
+    </section>
+
+    <section>
+      <h2>7. Instrumentation and Recording</h2>
+      <p>AEL requires instrumentation. Each loop iteration should leave behind a useful record. At minimum, the system should capture the trigger, the affected artifacts, the policies evaluated, the decision taken, the actions executed, the evidence produced, and the resulting state.</p>
+      <p>This is necessary not only for auditability, but also for engine improvement. Without telemetry, the lifecycle cannot learn where its bottlenecks, ambiguities, or wasteful patterns exist.</p>
+    </section>
+
+    <section>
+      <h2>8. Human Involvement</h2>
+      <p>Humans should be introduced deliberately rather than reflexively. Human judgment is appropriate where priorities conflict, risk must be consciously accepted, policy is incomplete, or strategic direction is being shaped. The engine should handle as much structured work as possible, but it must also know when to escalate.</p>
+    </section>
+
+    <section>
+      <h2>9. Contrast with Other Paradigms</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>General character</th>
+            <th>Limitation relative to AEL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Waterfall</td>
+            <td>Sequential, stage-heavy, commitment-oriented</td>
+            <td>Too rigid for evidence-driven upstream correction</td>
+          </tr>
+          <tr>
+            <td>Agile</td>
+            <td>Iterative and adaptive</td>
+            <td>Often still heavily human-governed and weakly formalized</td>
+          </tr>
+          <tr>
+            <td>DevOps</td>
+            <td>Strong at build-test-deploy automation</td>
+            <td>Usually not intent-aware or requirement-aware</td>
+          </tr>
+          <tr>
+            <td>AEL</td>
+            <td>Continuous, policy-driven, evidence-based, adaptive</td>
+            <td>Requires formalization and governance discipline to work well</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>10. Position Summary</h2>
+      <p>AEL is best seen as a loop-governed lifecycle for agentic engineering in which artifacts are continuously evaluated and corrected. Its central claim is that success depends less on any single coding tool and more on the quality of the loop connecting intent, realization, observation, and correction. That is the system to be engineered.</p>
+    </section>
+
+    <p class="footer">AEL Position Paper V2 — Balanced</p>
+  </div>
+</body>
+</html>
