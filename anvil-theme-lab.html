@@ -1,0 +1,2882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anvil Theme Laboratory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Cinzel:wght@500;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================
+   LAB CHROME — neutral instrument aesthetic, distinct from
+   any theme being authored. Uses --lab-* tokens, never --color-*.
+   ========================================================== */
+:root {
+  --lab-bg:        #0d1117;
+  --lab-panel:     #131923;
+  --lab-panel-2:   #1a2230;
+  --lab-edge:      #232c3d;
+  --lab-edge-soft: #1a2230;
+  --lab-text:      #d6dde8;
+  --lab-text-mid:  #8893a8;
+  --lab-text-dim:  #5b6478;
+  --lab-accent:    #f4c66b;  /* warm amber — instrument indicator */
+  --lab-accent-2:  #6ec1ff;  /* signal blue */
+  --lab-good:      #6ee7b7;
+  --lab-warn:      #fcd34d;
+  --lab-bad:       #fb7185;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--lab-bg);
+  color: var(--lab-text);
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  font-feature-settings: 'ss01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+
+/* ==========================================================
+   APP SHELL
+   ========================================================== */
+#lab {
+  display: grid;
+  grid-template-rows: 44px 1fr 22px;
+  height: 100vh;
+  width: 100vw;
+}
+
+.lab-toolbar {
+  display: grid;
+  grid-template-columns: 220px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px;
+  background: linear-gradient(180deg, #1a2230 0%, #131923 100%);
+  border-bottom: 1px solid var(--lab-edge);
+  user-select: none;
+}
+
+.lab-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: 'Geist Mono', monospace;
+  letter-spacing: 0.04em;
+}
+.lab-brand-mark {
+  width: 22px; height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--lab-accent) 0%, #c79543 100%);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 1px 2px rgba(0,0,0,0.4);
+}
+.lab-brand-mark svg { width: 13px; height: 13px; color: #2a1d05; }
+.lab-brand-name {
+  font-size: 13px; font-weight: 600;
+}
+.lab-brand-sub {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--lab-accent);
+  padding: 2px 6px;
+  border: 1px solid rgba(244, 198, 107, 0.3);
+  border-radius: 3px;
+  background: rgba(244, 198, 107, 0.06);
+}
+
+.lab-toolbar-mid {
+  display: flex; align-items: center; gap: 14px; min-width: 0;
+}
+.theme-name-input {
+  background: var(--lab-bg);
+  border: 1px solid var(--lab-edge);
+  color: var(--lab-text);
+  padding: 6px 10px;
+  font: inherit;
+  font-weight: 500;
+  font-size: 13px;
+  border-radius: 3px;
+  width: 220px;
+  outline: none;
+  transition: border-color .15s;
+}
+.theme-name-input:focus { border-color: var(--lab-accent); }
+
+.theme-id-display {
+  font-family: 'Geist Mono', monospace;
+  color: var(--lab-text-dim);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.lab-toolbar-actions {
+  display: flex; gap: 6px;
+}
+
+.btn {
+  background: var(--lab-panel-2);
+  border: 1px solid var(--lab-edge);
+  color: var(--lab-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all .12s;
+  white-space: nowrap;
+}
+.btn:hover { background: #232c3d; border-color: #2f3a4f; }
+.btn-primary {
+  background: linear-gradient(180deg, #f4c66b 0%, #d6a44d 100%);
+  color: #2a1d05;
+  border-color: #c79543;
+  font-weight: 600;
+}
+.btn-primary:hover { filter: brightness(1.08); }
+
+/* ==========================================================
+   MAIN BODY: controls | preview | contrast
+   ========================================================== */
+.lab-body {
+  display: grid;
+  grid-template-columns: 360px 1fr 320px;
+  min-height: 0;
+  border-bottom: 1px solid var(--lab-edge);
+}
+
+@media (max-width: 1280px) {
+  .lab-body { grid-template-columns: 340px 1fr; }
+  .lab-contrast { display: none; }
+}
+
+/* ---- CONTROLS PANEL ---- */
+.lab-controls {
+  background: var(--lab-panel);
+  border-right: 1px solid var(--lab-edge);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.lab-controls::-webkit-scrollbar,
+.lab-contrast::-webkit-scrollbar,
+.preview-frame::-webkit-scrollbar { width: 8px; height: 8px; }
+.lab-controls::-webkit-scrollbar-track,
+.lab-contrast::-webkit-scrollbar-track,
+.preview-frame::-webkit-scrollbar-track { background: transparent; }
+.lab-controls::-webkit-scrollbar-thumb,
+.lab-contrast::-webkit-scrollbar-thumb,
+.preview-frame::-webkit-scrollbar-thumb {
+  background: var(--lab-edge);
+  border-radius: 4px;
+}
+.lab-controls::-webkit-scrollbar-thumb:hover,
+.lab-contrast::-webkit-scrollbar-thumb:hover,
+.preview-frame::-webkit-scrollbar-thumb:hover { background: #2f3a4f; }
+
+.section {
+  border-bottom: 1px solid var(--lab-edge-soft);
+}
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px 9px;
+  cursor: pointer;
+  user-select: none;
+}
+.section-title {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lab-text-mid);
+}
+.section-chevron {
+  width: 12px; height: 12px;
+  color: var(--lab-text-dim);
+  transition: transform .15s;
+}
+.section.collapsed .section-chevron { transform: rotate(-90deg); }
+.section-body {
+  padding: 4px 14px 14px;
+}
+.section.collapsed .section-body { display: none; }
+
+.row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+.row-label {
+  font-size: 11px;
+  color: var(--lab-text-mid);
+  font-family: 'Geist Mono', monospace;
+}
+.row-control { min-width: 0; }
+
+select, input[type="text"] {
+  background: var(--lab-bg);
+  border: 1px solid var(--lab-edge);
+  color: var(--lab-text);
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 3px;
+  width: 100%;
+  outline: none;
+}
+select:focus, input[type="text"]:focus { border-color: var(--lab-accent); }
+input[type="checkbox"] { accent-color: var(--lab-accent); }
+
+/* OKLCH triple editor */
+.oklch {
+  display: grid; gap: 6px;
+  padding: 8px;
+  background: var(--lab-bg);
+  border: 1px solid var(--lab-edge);
+  border-radius: 4px;
+  margin-top: 6px;
+}
+.oklch-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 4px;
+}
+.oklch-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--lab-text-mid);
+}
+.oklch-swatch {
+  width: 28px; height: 18px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+.slider-row {
+  display: grid;
+  grid-template-columns: 14px 1fr 50px;
+  align-items: center; gap: 8px;
+}
+.slider-axis {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--lab-text-dim);
+  text-align: center;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  height: 14px;
+  width: 100%;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--lab-edge);
+  border-radius: 2px;
+}
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  background: var(--lab-edge);
+  border-radius: 2px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px; height: 12px;
+  background: var(--lab-accent);
+  border-radius: 50%;
+  margin-top: -4px;
+  box-shadow: 0 0 0 2px var(--lab-bg), 0 1px 3px rgba(0,0,0,0.5);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 12px; height: 12px;
+  background: var(--lab-accent);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--lab-bg), 0 1px 3px rgba(0,0,0,0.5);
+}
+.slider-value {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--lab-text);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* hex input row */
+.hex-row {
+  display: grid;
+  grid-template-columns: 26px 1fr 90px;
+  gap: 8px;
+  align-items: center;
+  padding: 3px 0;
+}
+.hex-swatch-wrap {
+  position: relative;
+  width: 24px; height: 24px;
+}
+.hex-swatch {
+  width: 24px; height: 24px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  cursor: pointer;
+  display: block;
+  transition: box-shadow .12s, transform .12s;
+}
+.hex-swatch:hover {
+  box-shadow: 0 0 0 2px var(--lab-accent), 0 1px 2px rgba(0,0,0,0.5);
+  transform: scale(1.05);
+}
+.hex-color-picker {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+.hex-name {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  color: var(--lab-text-mid);
+  letter-spacing: 0.02em;
+}
+.hex-input {
+  font-family: 'Geist Mono', monospace !important;
+  text-transform: lowercase;
+  font-size: 11px !important;
+  text-align: right;
+}
+
+/* ==========================================================
+   PREVIEW PANE — frames the mock Anvil UI as a "specimen"
+   ========================================================== */
+.lab-preview {
+  background: var(--lab-bg);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+}
+
+.preview-bezel {
+  flex: 1;
+  margin: 16px;
+  border: 1px solid var(--lab-edge);
+  border-radius: 6px;
+  background: var(--lab-panel);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.3),
+    0 4px 24px rgba(0,0,0,0.5);
+}
+
+.preview-rule {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 12px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--lab-text-dim);
+  border-bottom: 1px solid var(--lab-edge-soft);
+  user-select: none;
+}
+.preview-rule .ind {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--lab-good);
+  margin-right: 6px;
+  box-shadow: 0 0 6px currentColor;
+  color: var(--lab-good);
+  vertical-align: middle;
+}
+.preview-rule .meta {
+  color: var(--lab-text-mid);
+  font-weight: 500;
+}
+
+.preview-frame {
+  flex: 1;
+  overflow: auto;
+  background: var(--color-bg);
+  isolation: isolate;
+}
+
+/* ==========================================================
+   ANVIL MOCK — uses --color-* contract from authored theme
+   ========================================================== */
+.anvil-mock {
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: var(--anvil-header, 48px) 1fr 22px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body, 'Geist', system-ui, sans-serif);
+  font-size: var(--fs-base, 13px);
+}
+
+.am-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-muted);
+}
+.am-brand {
+  display: flex; align-items: center; gap: 10px;
+}
+.am-brand-mark {
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border-radius: 6px;
+  background: var(--color-accent-container);
+  color: var(--color-accent);
+}
+.am-brand-mark svg { width: 16px; height: 16px; }
+.am-brand-name {
+  font-family: var(--font-display, inherit);
+  font-size: var(--fs-md, 15px);
+  font-weight: var(--fw-bold, 700);
+  letter-spacing: var(--tracking-display, -0.01em);
+}
+.am-tag {
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-accent-fg);
+  background: var(--color-accent);
+  padding: 3px 7px;
+  border-radius: 3px;
+}
+.am-header-right {
+  display: flex; align-items: center; gap: 12px;
+}
+.am-icon-btn {
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.am-icon-btn:hover { background: var(--color-hover); color: var(--color-text); }
+.am-icon-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.am-body {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  min-height: 0;
+}
+
+/* activity bar */
+.am-activity {
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border-muted);
+  display: flex; flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  gap: 2px;
+}
+.am-act-btn {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  background: transparent;
+  border: none;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  border-radius: 4px;
+  position: relative;
+}
+.am-act-btn:hover { color: var(--color-text); background: var(--color-hover); }
+.am-act-btn.active { color: var(--color-accent-icon); }
+.am-act-btn.active::before {
+  content: '';
+  position: absolute;
+  left: -8px; top: 6px; bottom: 6px;
+  width: 2px;
+  background: var(--color-accent);
+  border-radius: 0 2px 2px 0;
+}
+.am-act-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+
+/* main panel */
+.am-main {
+  padding: 24px 28px;
+  overflow: auto;
+  background: var(--color-bg);
+}
+.am-eyebrow {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-micro, 0.12em);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+.am-h1 {
+  font-family: var(--font-display, inherit);
+  font-size: var(--fs-xl, 26px);
+  font-weight: var(--fw-bold, 700);
+  letter-spacing: var(--tracking-display, -0.01em);
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+.am-h2 {
+  font-family: var(--font-display, inherit);
+  font-size: var(--fs-lg, 18px);
+  font-weight: var(--fw-semi, 600);
+  color: var(--color-text);
+  margin-top: 22px;
+  margin-bottom: 10px;
+}
+.am-tagline {
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+.am-card {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-md, 6px);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.am-card-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 12.5px;
+}
+.am-card-row .k {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  align-self: center;
+}
+.am-card-row .v {
+  font-family: var(--font-mono, monospace);
+  color: var(--color-text);
+  font-size: 12px;
+}
+
+.am-btn-row {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 14px;
+}
+.btn-anvil {
+  font: inherit;
+  font-size: 12px;
+  font-weight: var(--fw-medium, 500);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 120ms;
+}
+.btn-anvil-primary {
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  border-color: var(--color-accent);
+}
+.btn-anvil-primary:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); }
+.btn-anvil-secondary {
+  background: var(--color-accent-secondary, var(--color-accent));
+  color: var(--color-accent-secondary-fg, var(--color-accent-fg));
+  border-color: var(--color-accent-secondary, var(--color-accent));
+}
+.btn-anvil-tertiary {
+  background: var(--color-accent-tertiary, var(--color-accent));
+  color: var(--color-accent-tertiary-fg, var(--color-accent-fg));
+  border-color: var(--color-accent-tertiary, var(--color-accent));
+}
+.btn-anvil-ghost {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+.btn-anvil-ghost:hover { background: var(--color-hover); }
+
+.am-form {
+  display: grid; gap: 10px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-muted);
+  padding: 14px 16px;
+  border-radius: var(--radius-md, 6px);
+  margin-bottom: 14px;
+}
+.am-form-row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+.am-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.am-input {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm, 4px);
+  outline: none;
+}
+.am-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 var(--ring-width, 2px) var(--ring-color, transparent);
+}
+.am-select {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm, 4px);
+}
+.am-toggle {
+  display: inline-flex; align-items: center; gap: 8px;
+  cursor: pointer;
+  color: var(--color-text);
+}
+.am-check {
+  width: 14px; height: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  background: var(--color-bg);
+  display: inline-grid; place-items: center;
+}
+.am-check.on {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-fg);
+}
+.am-check.on::after {
+  content: '';
+  width: 4px; height: 7px;
+  border: solid var(--color-accent-fg);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) translate(0, -1px);
+}
+
+/* severity panel */
+.am-severities { display: grid; gap: 6px; margin-bottom: 14px; }
+.am-sev {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md, 6px);
+  font-size: 12.5px;
+  border-left: 3px solid;
+}
+.am-sev .icon { width: 14px; height: 14px; }
+.am-sev .icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.am-sev .ts {
+  font-family: var(--font-mono, monospace);
+  font-size: 10.5px;
+  color: var(--color-text-muted);
+}
+.am-sev-info    { background: var(--color-info-container);    border-left-color: var(--color-info);    color: var(--color-text); }
+.am-sev-info .icon { color: var(--color-info); }
+.am-sev-success { background: var(--color-success-container); border-left-color: var(--color-success); color: var(--color-text); }
+.am-sev-success .icon { color: var(--color-success); }
+.am-sev-warning { background: var(--color-warning-container); border-left-color: var(--color-warning); color: var(--color-text); }
+.am-sev-warning .icon { color: var(--color-warning); }
+.am-sev-error   { background: var(--color-error-container);   border-left-color: var(--color-error);   color: var(--color-text); }
+.am-sev-error .icon { color: var(--color-error); }
+
+/* type sample */
+.am-text-stack {
+  display: grid; gap: 5px; padding: 12px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-md, 6px);
+  margin-bottom: 14px;
+}
+.t-text       { color: var(--color-text); }
+.t-text-muted { color: var(--color-text-muted); }
+.t-text-subtle{ color: var(--color-text-subtle); }
+.t-accent     { color: var(--color-accent); }
+.t-accent-icon{ color: var(--color-accent-icon); }
+
+/* divider */
+.am-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 16px 0;
+}
+
+/* collapsible card (mock) — exists in the preview so chevron icon
+   overrides have a visible target. Click the header to toggle. */
+.am-collapsible-header {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+.am-collapsible-chevron {
+  display: inline-grid; place-items: center;
+  width: 20px; height: 20px;
+  color: var(--color-text-muted);
+  transition: color 120ms;
+}
+.am-collapsible-chevron svg {
+  width: 18px; height: 18px;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.am-collapsible:hover .am-collapsible-chevron { color: var(--color-text); }
+.am-collapsible-body { /* no display rule here — set inline */ }
+
+/* ============== ICON OVERRIDES (lab control panel) ============== */
+.icon-empty {
+  font-size: 11px;
+  color: var(--lab-text-dim);
+  font-style: italic;
+  padding: 6px 0 8px;
+  line-height: 1.5;
+}
+.icon-list {
+  display: grid; gap: 4px;
+}
+.icon-card {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  background: var(--lab-bg);
+  border: 1px solid var(--lab-edge);
+  border-radius: 4px;
+}
+.icon-preview-box {
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  background: var(--lab-edge-soft);
+  border-radius: 3px;
+  color: var(--lab-accent);
+}
+.icon-preview-box svg, .icon-preview-box .icon-glyph {
+  width: 18px; height: 18px;
+}
+.icon-card-meta {
+  display: grid; gap: 1px;
+  min-width: 0;
+}
+.icon-card-name {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--lab-text);
+}
+.icon-card-type {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lab-text-dim);
+}
+.icon-form {
+  display: grid; gap: 8px;
+  padding: 10px;
+  margin-top: 8px;
+  background: var(--lab-bg);
+  border: 1px solid var(--lab-accent);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.icon-form-row {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+.icon-form-row .row-label {
+  font-size: 10px;
+}
+.icon-type-toggle {
+  display: inline-flex; gap: 0;
+  background: var(--lab-panel);
+  border: 1px solid var(--lab-edge);
+  border-radius: 3px;
+  padding: 2px;
+}
+.icon-type-toggle button {
+  background: transparent;
+  border: none;
+  color: var(--lab-text-mid);
+  font: inherit;
+  font-size: 10.5px;
+  padding: 3px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: 'Geist Mono', monospace;
+  letter-spacing: 0.04em;
+}
+.icon-type-toggle button.active {
+  background: var(--lab-accent);
+  color: #2a1d05;
+  font-weight: 600;
+}
+.icon-form textarea, .icon-form input[type="text"] {
+  width: 100%;
+  background: var(--lab-panel);
+  border: 1px solid var(--lab-edge);
+  color: var(--lab-text);
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 3px;
+  outline: none;
+  resize: vertical;
+}
+.icon-form textarea:focus, .icon-form input[type="text"]:focus { border-color: var(--lab-accent); }
+.icon-form-preview {
+  display: grid; place-items: center;
+  background: var(--lab-edge-soft);
+  border-radius: 3px;
+  padding: 12px;
+  min-height: 60px;
+  color: var(--lab-accent);
+}
+.icon-form-preview svg, .icon-form-preview .icon-glyph {
+  width: 32px; height: 32px;
+}
+.icon-form-preview.empty {
+  color: var(--lab-text-dim);
+  font-size: 10px;
+  font-style: italic;
+}
+.icon-form-actions {
+  display: flex; justify-content: flex-end; gap: 6px;
+}
+
+/* footer */
+.am-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border-muted);
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.am-footer .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* ==========================================================
+   CONTRAST PANE
+   ========================================================== */
+.lab-contrast {
+  background: var(--lab-panel);
+  border-left: 1px solid var(--lab-edge);
+  overflow-y: auto;
+  padding: 12px 14px 18px;
+}
+.lab-contrast h3 {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lab-text-mid);
+  margin-bottom: 8px;
+  margin-top: 14px;
+}
+.lab-contrast h3:first-child { margin-top: 0; }
+
+.cc-row {
+  display: grid;
+  grid-template-columns: 12px 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  margin-bottom: 2px;
+  background: var(--lab-bg);
+  border: 1px solid var(--lab-edge-soft);
+}
+.cc-row.fail   { border-color: rgba(251,113,133,0.3); }
+.cc-row.poor   { border-color: rgba(252,211,77,0.25); }
+
+.cc-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--lab-text-dim);
+}
+.cc-dot.aaa  { background: var(--lab-good); }
+.cc-dot.aa   { background: #5fb3ff; }
+.cc-dot.aalg { background: var(--lab-warn); }
+.cc-dot.fail { background: var(--lab-bad); }
+
+.cc-pair {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  color: var(--lab-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cc-ratio {
+  font-family: 'Geist Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--lab-text);
+}
+.cc-grade {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+.cc-grade.aaa  { background: rgba(110,231,183,0.15); color: var(--lab-good); }
+.cc-grade.aa   { background: rgba(95,179,255,0.15);  color: #5fb3ff; }
+.cc-grade.aalg { background: rgba(252,211,77,0.15);  color: var(--lab-warn); }
+.cc-grade.fail { background: rgba(251,113,133,0.15); color: var(--lab-bad); }
+
+.cc-summary {
+  display: flex; gap: 6px; margin-bottom: 12px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+}
+.cc-summary span {
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: var(--lab-bg);
+  border: 1px solid var(--lab-edge);
+}
+
+/* ==========================================================
+   FOOTER
+   ========================================================== */
+.lab-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px;
+  background: var(--lab-panel);
+  font-family: 'Geist Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lab-text-dim);
+}
+.lab-footer .l, .lab-footer .r { display: flex; gap: 14px; align-items: center; }
+
+/* ==========================================================
+   DIALOGS
+   ========================================================== */
+dialog {
+  background: var(--lab-panel);
+  border: 1px solid var(--lab-edge);
+  border-radius: 6px;
+  color: var(--lab-text);
+  padding: 0;
+  max-width: 720px;
+  width: 80vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+dialog::backdrop {
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(2px);
+}
+.dlg-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--lab-edge);
+}
+.dlg-title {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lab-text);
+}
+.dlg-body { padding: 14px 16px; }
+.dlg-body p { color: var(--lab-text-mid); margin-bottom: 10px; font-size: 12px; }
+.dlg-body textarea {
+  width: 100%;
+  min-height: 280px;
+  background: var(--lab-bg);
+  border: 1px solid var(--lab-edge);
+  color: var(--lab-text);
+  font-family: 'Geist Mono', monospace;
+  font-size: 11.5px;
+  line-height: 1.55;
+  padding: 10px 12px;
+  border-radius: 4px;
+  resize: vertical;
+  outline: none;
+}
+.dlg-body textarea:focus { border-color: var(--lab-accent); }
+.dlg-foot {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--lab-edge);
+}
+.dlg-msg {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--lab-bad);
+  min-height: 16px;
+  padding: 4px 0;
+}
+.dlg-msg.ok { color: var(--lab-good); }
+
+/* palette preview inside import dialog */
+.palette-preview {
+  margin-top: 12px;
+  border: 1px solid var(--lab-edge);
+  border-radius: 4px;
+  background: var(--lab-bg);
+  padding: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.palette-meta-bar {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  color: var(--lab-text-mid);
+  padding: 6px 8px 8px;
+  display: flex; gap: 14px;
+  border-bottom: 1px solid var(--lab-edge-soft);
+  margin-bottom: 6px;
+}
+.palette-meta-bar .fmt {
+  color: var(--lab-accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 9.5px;
+}
+.palette-row {
+  display: grid;
+  grid-template-columns: 32px 1fr 140px;
+  gap: 10px;
+  align-items: center;
+  padding: 5px 6px;
+  border-radius: 3px;
+}
+.palette-row:hover { background: var(--lab-edge-soft); }
+.palette-swatch-lg {
+  width: 32px; height: 32px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+.palette-name {
+  font-size: 12px;
+  color: var(--lab-text);
+  margin-bottom: 1px;
+}
+.palette-stats {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--lab-text-dim);
+  letter-spacing: 0.02em;
+}
+.palette-role {
+  font-size: 11px !important;
+  padding: 4px 6px !important;
+}
+.mode-toggle {
+  display: inline-flex; gap: 4px;
+  padding: 2px;
+  background: var(--lab-bg);
+  border: 1px solid var(--lab-edge);
+  border-radius: 4px;
+  margin-left: auto;
+}
+.mode-toggle button {
+  background: transparent;
+  border: none;
+  color: var(--lab-text-mid);
+  font: inherit;
+  font-size: 10.5px;
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  text-transform: lowercase;
+  font-family: 'Geist Mono', monospace;
+}
+.mode-toggle button.active {
+  background: var(--lab-accent);
+  color: #2a1d05;
+  font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<div id="lab">
+
+  <header class="lab-toolbar">
+    <div class="lab-brand">
+      <span class="lab-brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 14h13l2-5H7L5 3H2"/>
+          <path d="M17 14v3a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2v-3"/>
+          <path d="M9 19h8"/>
+        </svg>
+      </span>
+      <span class="lab-brand-name">Anvil</span>
+      <span class="lab-brand-sub">Theme Lab</span>
+    </div>
+
+    <div class="lab-toolbar-mid">
+      <input id="theme-name" class="theme-name-input" type="text" value="My Theme" />
+      <span class="theme-id-display" id="theme-id-display">id: my-theme</span>
+    </div>
+
+    <div class="lab-toolbar-actions">
+      <button class="btn" id="btn-import" title="Import a complete theme module">Import theme…</button>
+      <button class="btn" id="btn-palette" title="Import a color palette from Coolors, Adobe, etc.">Import palette…</button>
+      <button class="btn" id="btn-css" title="View the generated CSS variables">View CSS</button>
+      <button class="btn" id="btn-reset">Reset</button>
+      <button class="btn btn-primary" id="btn-export">Export JS</button>
+    </div>
+  </header>
+
+  <div class="lab-body">
+
+    <!-- ============== CONTROLS ============== -->
+    <aside class="lab-controls" id="controls"></aside>
+
+    <!-- ============== PREVIEW ============== -->
+    <main class="lab-preview">
+      <div class="preview-bezel">
+        <div class="preview-rule">
+          <span><span class="ind"></span> Live preview <span class="meta" id="rule-meta"></span></span>
+          <span id="rule-tokens"></span>
+        </div>
+        <div class="preview-frame">
+          <div class="anvil-mock" id="mock"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ============== CONTRAST ============== -->
+    <aside class="lab-contrast" id="contrast"></aside>
+  </div>
+
+  <footer class="lab-footer">
+    <div class="l">
+      <span>● Ready</span>
+      <span id="footer-strategy">strategy: mono</span>
+      <span id="footer-mode">mode: dark</span>
+    </div>
+    <div class="r">
+      <span id="footer-failures">— failures</span>
+      <span>Anvil v1 contract</span>
+    </div>
+  </footer>
+
+</div>
+
+<dialog id="dlg-import">
+  <div class="dlg-head">
+    <span class="dlg-title">Import Theme</span>
+    <button class="btn" data-close="dlg-import">Close</button>
+  </div>
+  <div class="dlg-body">
+    <p>Paste a complete Anvil <code style="font-family:'Geist Mono',monospace">ThemeDefinition</code> module, or a single variation object. The lab will sniff and load whichever it finds.</p>
+    <textarea id="import-text" placeholder="// paste theme JS here…"></textarea>
+    <div class="dlg-msg" id="import-msg"></div>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn" data-close="dlg-import">Cancel</button>
+    <button class="btn btn-primary" id="btn-import-go">Load</button>
+  </div>
+</dialog>
+
+<dialog id="dlg-export">
+  <div class="dlg-head">
+    <span class="dlg-title">Export Theme</span>
+    <button class="btn" data-close="dlg-export">Close</button>
+  </div>
+  <div class="dlg-body">
+    <div id="export-warning" style="display:none;background:rgba(252,211,77,0.08);border:1px solid rgba(252,211,77,0.3);border-radius:4px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--lab-warn)">
+      <strong>Heads up:</strong> the theme name still looks like the placeholder. Set a real name and ID before saving so you don't ship a "My Theme" / "my-theme" file.
+    </div>
+    <p>Drop this into <code style="font-family:'Geist Mono',monospace" id="export-filename">client/src/anvil/themes/defaults/&lt;id&gt;.js</code>. Personality fields (typography / motion / shadow / spacing / radii / ring) carry sensible defaults; edit by hand if your theme needs different ones.</p>
+    <textarea id="export-text" readonly></textarea>
+    <div class="dlg-msg ok" id="export-msg"></div>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn" id="btn-copy">Copy to clipboard</button>
+    <button class="btn btn-primary" data-close="dlg-export">Done</button>
+  </div>
+</dialog>
+
+<dialog id="dlg-palette">
+  <div class="dlg-head">
+    <span class="dlg-title">Import Palette</span>
+    <button class="btn" data-close="dlg-palette">Close</button>
+  </div>
+  <div class="dlg-body">
+    <p>Paste a palette from <strong>Coolors</strong> (URL or any export format), <strong>Adobe</strong>, <strong>Tailwind</strong>, or anywhere. Recognized: Coolors URL, JSON array/object, XML, CSS hex (<code style="font-family:'Geist Mono',monospace">--name: #hex</code>), SCSS hex (<code style="font-family:'Geist Mono',monospace">$name: #hex</code>), or a plain list of hex codes.</p>
+    <textarea id="palette-text" placeholder="https://coolors.co/0d1b2a-1b263b-415a77-778da9-e0e1dd
+or
+--imperial-red: #f94144;
+--orange-pantone: #f3722c;
+…"></textarea>
+    <div class="dlg-msg" id="palette-msg"></div>
+    <div id="palette-preview-wrap" style="display:none">
+      <div class="palette-meta-bar">
+        <span><span class="fmt" id="palette-fmt">format</span></span>
+        <span id="palette-count">0 swatches</span>
+        <span style="display:flex;align-items:center;gap:8px">
+          mode:
+          <span class="mode-toggle" id="palette-mode-toggle">
+            <button data-mode="dark">dark</button>
+            <button data-mode="light">light</button>
+          </span>
+        </span>
+      </div>
+      <div class="palette-preview" id="palette-preview"></div>
+    </div>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn" data-close="dlg-palette">Cancel</button>
+    <button class="btn" id="btn-palette-parse">Parse</button>
+    <button class="btn btn-primary" id="btn-palette-apply" disabled>Apply to variation</button>
+  </div>
+</dialog>
+
+<dialog id="dlg-css">
+  <div class="dlg-head">
+    <span class="dlg-title">Generated CSS</span>
+    <button class="btn" data-close="dlg-css">Close</button>
+  </div>
+  <div class="dlg-body">
+    <p>This is what Anvil's <code style="font-family:'Geist Mono',monospace">applyTheme()</code> writes onto <code style="font-family:'Geist Mono',monospace">:root</code> at runtime. You don't normally need to look at it — your <code style="font-family:'Geist Mono',monospace">.js</code> module is the source of truth — but it's handy for debugging, sharing, or sanity-checking the OKLCH math.</p>
+    <textarea id="css-text" readonly></textarea>
+    <div class="dlg-msg ok" id="css-msg"></div>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn" id="btn-css-copy">Copy to clipboard</button>
+    <button class="btn btn-primary" data-close="dlg-css">Done</button>
+  </div>
+</dialog>
+
+<script>
+/* ===================================================================
+   COLOR MATH — OKLCH ↔ sRGB, WCAG contrast.
+   Björn Ottosson transforms.
+   =================================================================== */
+
+function srgbToLinear(c) {
+  c = c / 255;
+  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+}
+function linearToSrgb(x) {
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  return x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1/2.4) - 0.055;
+}
+
+function hexToRgb(hex) {
+  if (!hex) return null;
+  let m = hex.replace(/^#/, '').toLowerCase();
+  if (!/^[0-9a-f]{3,8}$/.test(m)) return null;
+  if (m.length === 3) m = m.split('').map(c => c+c).join('');
+  if (m.length === 8) m = m.slice(0, 6);
+  if (m.length !== 6) return null;
+  return {
+    r: parseInt(m.slice(0,2), 16),
+    g: parseInt(m.slice(2,4), 16),
+    b: parseInt(m.slice(4,6), 16),
+  };
+}
+function rgbToHex({r, g, b}) {
+  const h = (n) => n.toString(16).padStart(2, '0');
+  return '#' + h(r) + h(g) + h(b);
+}
+
+function relativeLuminance({r, g, b}) {
+  return 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b);
+}
+function contrastRatio(c1, c2) {
+  if (!c1 || !c2) return 0;
+  const L1 = relativeLuminance(c1);
+  const L2 = relativeLuminance(c2);
+  const hi = Math.max(L1, L2);
+  const lo = Math.min(L1, L2);
+  return (hi + 0.05) / (lo + 0.05);
+}
+function gradeContrast(ratio, isLargeText = false) {
+  if (ratio >= 7)   return { tag: 'AAA',  cls: 'aaa' };
+  if (ratio >= 4.5) return { tag: 'AA',   cls: 'aa'  };
+  if (ratio >= 3)   return { tag: isLargeText ? 'AA-LG' : 'AA-LG', cls: 'aalg' };
+  return { tag: 'FAIL', cls: 'fail' };
+}
+
+function oklchToRgb({l, c, h}, amplitude = 1) {
+  const L = l / 100;
+  const C = c * amplitude;
+  const a = C * Math.cos(h * Math.PI / 180);
+  const b = C * Math.sin(h * Math.PI / 180);
+
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+
+  const lc = l_*l_*l_, mc = m_*m_*m_, sc = s_*s_*s_;
+  const rL =  4.0767416621*lc - 3.3077115913*mc + 0.2309699292*sc;
+  const gL = -1.2684380046*lc + 2.6097574011*mc - 0.3413193965*sc;
+  const bL = -0.0041960863*lc - 0.7034186147*mc + 1.7076147010*sc;
+
+  return {
+    r: Math.round(linearToSrgb(rL) * 255),
+    g: Math.round(linearToSrgb(gL) * 255),
+    b: Math.round(linearToSrgb(bL) * 255),
+  };
+}
+
+function rgbToOklch({r, g, b}) {
+  const lr = srgbToLinear(r), lg = srgbToLinear(g), lb = srgbToLinear(b);
+  const l = Math.cbrt(0.4122214708*lr + 0.5363325363*lg + 0.0514459929*lb);
+  const m = Math.cbrt(0.2119034982*lr + 0.6806995451*lg + 0.1073969566*lb);
+  const s = Math.cbrt(0.0883024619*lr + 0.2817188376*lg + 0.6299787005*lb);
+
+  const L = 0.2104542553*l + 0.7936177850*m - 0.0040720468*s;
+  const a = 1.9779984951*l - 2.4285922050*m + 0.4505937099*s;
+  const bb= 0.0259040371*l + 0.7827717662*m - 0.8086757660*s;
+  const C = Math.sqrt(a*a + bb*bb);
+  let H = Math.atan2(bb, a) * 180 / Math.PI;
+  if (H < 0) H += 360;
+  return { l: L * 100, c: C, h: H };
+}
+
+function oklchToHex(triple, amp) { return rgbToHex(oklchToRgb(triple, amp)); }
+
+/* ===================================================================
+   STATE — single source of truth
+   =================================================================== */
+
+const DEFAULT_THEME = () => ({
+  id: 'my-theme',
+  name: 'My Theme',
+  family: 'my-theme',
+  icon: 'palette',
+  defaultVariation: 'dark',
+  readOnly: false,
+  variations: {
+    dark: {
+      mode: 'dark',
+      strategy: 'mono',
+      neutrals: {
+        bg:            '#0b0e14',
+        surface:       '#10141c',
+        surface_2:     '#171c26',
+        hover:         '#1e2533',
+        border:        '#2a3244',
+        border_muted:  '#1a202c',
+        border_accent: 'var(--color-accent)',
+        text:          '#e8ecf4',
+        text_muted:    '#94a3b8',
+        text_subtle:   '#5a6478',
+      },
+      accents: {
+        primary: { l: 60, c: 0.20, h: 254 },
+      },
+      semantics: {
+        info:    { l: 70, c: 0.16, h: 240 },
+        success: { l: 73, c: 0.18, h: 145 },
+        warning: { l: 80, c: 0.16, h: 80  },
+        error:   { l: 65, c: 0.20, h: 22  },
+      },
+      amplitude: { default: 1.0, locked: false },
+    },
+  },
+});
+
+const DEFAULT_PERSONALITY = {
+  typography: {
+    fonts: {
+      display: "'Geist', 'Segoe UI', system-ui, sans-serif",
+      body:    "'Geist', 'Segoe UI', system-ui, -apple-system, sans-serif",
+      mono:    "'Geist Mono', 'Cascadia Code', 'Consolas', monospace",
+    },
+    scale:    { xs: '10.5px', sm: '12px', base: '13px', md: '15px', lg: '18px', xl: '26px' },
+    weights:  { regular: 400, medium: 500, semi: 600, bold: 700 },
+    tracking: { micro: '0.12em', display: '-0.01em' },
+  },
+  spacing: { 1: 2, 2: 4, 3: 8, 4: 12, 5: 16, 6: 24 },
+  radii:   { sm: 4, md: 6, lg: 10 },
+  shadow: {
+    sm:   '0 1px 2px rgba(0,0,0,0.40)',
+    md:   '0 4px 12px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.35)',
+    lg:   '0 12px 32px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.40)',
+    glow: '0 0 0 1px color-mix(in srgb, var(--color-accent) 30%, transparent)',
+  },
+  motion: {
+    dur:  { fast: 120, med: 200, slow: 340 },
+    ease: { standard: 'cubic-bezier(0.2, 0, 0, 1)', expressive: 'cubic-bezier(0.34, 1.4, 0.64, 1)' },
+  },
+  ring: { width: 2, color: 'color-mix(in srgb, var(--color-accent) 35%, transparent)' },
+};
+
+let theme = DEFAULT_THEME();
+let activeVar = 'dark';
+
+function v() { return theme.variations[activeVar]; }
+function getAmp() { const a = v().amplitude; return a.locked ? 1 : a.default; }
+
+/* ===================================================================
+   CSS APPLIER — emit Anvil's --color-* contract from current state
+   =================================================================== */
+
+function deriveAccentTokens(prefix, triple, amp) {
+  const out = {};
+  out[`--color-${prefix}`]               = oklchToHex(triple, amp);
+  out[`--color-${prefix}-hover`]         = oklchToHex({ l: Math.min(100, triple.l + 6), c: triple.c, h: triple.h }, amp);
+  out[`--color-${prefix}-fg`]            = triple.l < 65 ? '#ffffff' : '#0a0a0a';
+  out[`--color-${prefix}-icon`]          = oklchToHex({ l: Math.min(100, triple.l + 8), c: triple.c * 0.55, h: triple.h }, amp);
+  out[`--color-${prefix}-container`]     = oklchToHex({ l: Math.max(0, triple.l - 5), c: triple.c * 0.18, h: triple.h }, amp);
+  out[`--color-${prefix}-container-fg`]  = 'var(--color-text)';
+  return out;
+}
+function deriveSemanticTokens(prefix, triple, amp) {
+  return {
+    [`--color-${prefix}`]:           oklchToHex(triple, amp),
+    [`--color-${prefix}-container`]: oklchToHex({ l: Math.max(0, triple.l - 5), c: triple.c * 0.18, h: triple.h }, amp),
+  };
+}
+
+function buildTokenMap() {
+  const variation = v();
+  const amp = getAmp();
+  const tokens = {};
+
+  // neutrals
+  const n = variation.neutrals;
+  tokens['--color-bg']            = n.bg;
+  tokens['--color-surface']       = n.surface;
+  tokens['--color-surface-2']     = n.surface_2;
+  tokens['--color-hover']         = n.hover;
+  tokens['--color-border']        = n.border;
+  tokens['--color-border-muted']  = n.border_muted;
+  tokens['--color-border-accent'] = n.border_accent;
+  tokens['--color-text']          = n.text;
+  tokens['--color-text-muted']    = n.text_muted;
+  tokens['--color-text-subtle']   = n.text_subtle;
+
+  // accents
+  const a = variation.accents;
+  Object.assign(tokens, deriveAccentTokens('accent', a.primary, amp));
+  if (a.secondary) Object.assign(tokens, deriveAccentTokens('accent-secondary', a.secondary, amp));
+  if (a.tertiary)  Object.assign(tokens, deriveAccentTokens('accent-tertiary', a.tertiary, amp));
+
+  // semantics
+  Object.assign(tokens, deriveSemanticTokens('info',    variation.semantics.info,    amp));
+  Object.assign(tokens, deriveSemanticTokens('success', variation.semantics.success, amp));
+  Object.assign(tokens, deriveSemanticTokens('warning', variation.semantics.warning, amp));
+  Object.assign(tokens, deriveSemanticTokens('error',   variation.semantics.error,   amp));
+
+  // amplitude
+  tokens['--theme-amplitude'] = String(amp);
+
+  // personality (defaults — applied so preview honors them)
+  const p = DEFAULT_PERSONALITY;
+  tokens['--font-display']      = p.typography.fonts.display;
+  tokens['--font-body']         = p.typography.fonts.body;
+  tokens['--font-mono']         = p.typography.fonts.mono;
+  tokens['--fs-xs']             = p.typography.scale.xs;
+  tokens['--fs-sm']             = p.typography.scale.sm;
+  tokens['--fs-base']           = p.typography.scale.base;
+  tokens['--fs-md']             = p.typography.scale.md;
+  tokens['--fs-lg']             = p.typography.scale.lg;
+  tokens['--fs-xl']             = p.typography.scale.xl;
+  tokens['--fw-regular']        = p.typography.weights.regular;
+  tokens['--fw-medium']         = p.typography.weights.medium;
+  tokens['--fw-semi']           = p.typography.weights.semi;
+  tokens['--fw-bold']           = p.typography.weights.bold;
+  tokens['--tracking-micro']    = p.typography.tracking.micro;
+  tokens['--tracking-display']  = p.typography.tracking.display;
+  tokens['--radius-sm']         = `${p.radii.sm}px`;
+  tokens['--radius-md']         = `${p.radii.md}px`;
+  tokens['--radius-lg']         = `${p.radii.lg}px`;
+  tokens['--ring-width']        = `${p.ring.width}px`;
+  tokens['--ring-color']        = p.ring.color;
+
+  return tokens;
+}
+
+function applyTokensToMock() {
+  const map = buildTokenMap();
+  const mock = document.getElementById('mock');
+  for (const [k, val] of Object.entries(map)) {
+    mock.style.setProperty(k, val);
+  }
+  // border_accent uses var(--color-accent), so set it after accent is set
+  mock.style.setProperty('--color-border-accent', v().neutrals.border_accent);
+}
+
+/* Resolve any token (incl. var() refs and oklch outputs) to a concrete RGB.
+   Used for contrast computation. */
+function resolveTokenColor(name, tokens) {
+  let val = tokens[name];
+  let safety = 5;
+  while (typeof val === 'string' && val.startsWith('var(') && safety-- > 0) {
+    const inner = val.slice(4, val.indexOf(')')).trim();
+    val = tokens[inner];
+  }
+  if (typeof val !== 'string') return null;
+  if (val.startsWith('#')) return hexToRgb(val);
+  // The derived oklch values were already converted to hex above, so plain
+  // hex is what we'll see in practice. But handle named/raw fallbacks gracefully.
+  return null;
+}
+
+/* ===================================================================
+   PREVIEW (Anvil Mock) — built once, re-styled via CSS vars
+   =================================================================== */
+
+/* ===================================================================
+   ICONS — storage & rendering with override support
+   - MOCK_ICONS: inner SVG markup (matches Anvil registry shape) for the
+     icons the mock actually renders. Schema-aligned: no <svg> wrapper.
+   - ALL_REGISTRY_ICONS: every name in Anvil's registry. The override
+     authoring UI lets you override any of these, even ones the mock
+     doesn't show — useful for theming icons your real app uses.
+   - iconHTML(name): returns the rendered icon, respecting any active
+     theme override (variation.icons[name].svg | .text).
+   =================================================================== */
+
+const MOCK_ICONS = {
+  home:           `<path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>`,
+  'file-text':    `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>`,
+  terminal:       `<polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>`,
+  folder:         `<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>`,
+  layers:         `<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>`,
+  palette:        `<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>`,
+  cog:            `<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>`,
+  anvil:          `<path d="M4 14h13l2-5H7L5 3H2"/><path d="M17 14v3a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2v-3"/><path d="M9 19h8"/>`,
+  info:           `<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>`,
+  'check-circle': `<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>`,
+  'alert-triangle': `<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>`,
+  'x-circle':     `<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>`,
+  bell:           `<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>`,
+  'chevron-down': `<polyline points="6 9 12 15 18 9"/>`,
+  'chevron-up':   `<polyline points="18 15 12 9 6 15"/>`,
+};
+
+// Full set of names from Anvil's registry — for the override picker dropdown
+const ALL_REGISTRY_ICONS = [
+  'chevron-left','chevron-right','chevron-up','chevron-down',
+  'arrow-up','arrow-down',
+  'plus','minus','close','check','search','trash','upload','copy','refresh',
+  'info','alert-triangle','alert-circle','x-circle','check-circle',
+  'file','file-text','folder','folder-plus','book-open',
+  'palette','moon','sun','cog','sparkles','shield','fortress','star','compass',
+  'anvil','home','terminal',
+  'layers','sidebar-right','sidebar-left',
+  'send','pin','pin-off',
+];
+
+/** Returns rendered HTML for a named icon, honoring any active theme override. */
+function iconHTML(name) {
+  const override = (v().icons || {})[name];
+  if (override && override.text) {
+    const fontStyle = override.font ? `font-family:${override.font};` : '';
+    return `<span class="icon-glyph" style="${fontStyle}display:inline-flex;align-items:center;justify-content:center;font-size:18px;line-height:1;width:100%;height:100%;">${escapeHtml(override.text)}</span>`;
+  }
+  const inner = (override && override.svg) || MOCK_ICONS[name] || '';
+  if (!inner) return '';
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+}
+
+/** Mock collapsible card state — module-level so it survives mock re-renders. */
+let mockCollapsibleOpen = true;
+
+function renderMock() {
+  const mock = document.getElementById('mock');
+  const variation = v();
+  const hasSecondary = !!variation.accents.secondary;
+  const hasTertiary  = !!variation.accents.tertiary;
+
+  const collapsibleChevron = mockCollapsibleOpen
+    ? iconHTML('chevron-down')
+    : iconHTML('chevron-up');
+
+  mock.innerHTML = `
+    <header class="am-header">
+      <div class="am-brand">
+        <span class="am-brand-mark">${iconHTML('anvil')}</span>
+        <span class="am-brand-name">${escapeHtml(theme.name)}</span>
+        <span class="am-tag">Studio</span>
+      </div>
+      <div class="am-header-right">
+        <button class="am-icon-btn" title="Theme switcher">${iconHTML('palette')}</button>
+        <button class="am-icon-btn" title="Notifications">${iconHTML('bell')}</button>
+      </div>
+    </header>
+
+    <div class="am-body">
+      <nav class="am-activity">
+        <button class="am-act-btn active" title="Home">${iconHTML('home')}</button>
+        <button class="am-act-btn" title="Docs">${iconHTML('file-text')}</button>
+        <button class="am-act-btn" title="Terminal">${iconHTML('terminal')}</button>
+        <button class="am-act-btn" title="Files">${iconHTML('folder')}</button>
+        <button class="am-act-btn" title="Assets">${iconHTML('layers')}</button>
+        <button class="am-act-btn" title="Themes">${iconHTML('palette')}</button>
+        <button class="am-act-btn" title="Settings">${iconHTML('cog')}</button>
+      </nav>
+
+      <main class="am-main">
+        <div class="am-eyebrow">Welcome</div>
+        <h1 class="am-h1">${escapeHtml(theme.name)}</h1>
+        <p class="am-tagline">A live preview of your theme tokens, rendered against the Anvil shell.</p>
+
+        <div class="am-card">
+          <div class="am-card-row"><span class="k">Active Theme</span><span class="v">${escapeHtml(theme.name)}</span></div>
+          <div class="am-card-row"><span class="k">Variation</span><span class="v">${escapeHtml(activeVar)}</span></div>
+          <div class="am-card-row"><span class="k">Strategy</span><span class="v">${variation.strategy}</span></div>
+          <div class="am-card-row"><span class="k">Mode</span><span class="v">${variation.mode}</span></div>
+          <div class="am-card-row"><span class="k">Amplitude</span><span class="v">${variation.amplitude.default.toFixed(2)}× ${variation.amplitude.locked ? '(locked)' : ''}</span></div>
+        </div>
+
+        <div class="am-card am-collapsible" id="mock-collapsible-card">
+          <div class="am-collapsible-header" id="mock-collapsible-toggle">
+            <div>
+              <div class="am-eyebrow" style="margin-bottom: 2px;">Disclosure</div>
+              <div style="font-family:var(--font-display);font-weight:var(--fw-semi);">Build log</div>
+            </div>
+            <span class="am-collapsible-chevron">${collapsibleChevron}</span>
+          </div>
+          <div class="am-collapsible-body" style="${mockCollapsibleOpen ? '' : 'display:none;'}">
+            <div style="padding-top: 10px; border-top: 1px solid var(--color-border-muted); margin-top: 10px;">
+              <div style="font-family: var(--font-mono); font-size: 11px; color: var(--color-text-muted); display: grid; gap: 4px;">
+                <div>12:04:11 — collecting tokens</div>
+                <div>12:04:12 — validation passed (26 tokens)</div>
+                <div>12:04:13 — applied <code style="color:var(--color-accent)">${escapeHtml(theme.id)}</code></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="am-h2">Buttons</h2>
+        <div class="am-btn-row">
+          <button class="btn-anvil btn-anvil-primary">Primary</button>
+          ${hasSecondary ? '<button class="btn-anvil btn-anvil-secondary">Secondary</button>' : ''}
+          ${hasTertiary  ? '<button class="btn-anvil btn-anvil-tertiary">Tertiary</button>' : ''}
+          <button class="btn-anvil btn-anvil-ghost">Ghost</button>
+        </div>
+
+        <h2 class="am-h2">Form Controls</h2>
+        <div class="am-form">
+          <div class="am-form-row">
+            <label class="am-label">Project</label>
+            <input class="am-input" value="forge-anvil-1" />
+          </div>
+          <div class="am-form-row">
+            <label class="am-label">Variation</label>
+            <select class="am-select"><option>dark</option><option>light</option></select>
+          </div>
+          <div class="am-form-row">
+            <label class="am-label">Auto-save</label>
+            <label class="am-toggle"><span class="am-check on"></span> Enabled</label>
+          </div>
+        </div>
+
+        <h2 class="am-h2">Severity</h2>
+        <div class="am-severities">
+          <div class="am-sev am-sev-info">    <span class="icon">${iconHTML('info')}</span>          <span>Build started: collecting theme tokens.</span> <span class="ts">12:04:11</span></div>
+          <div class="am-sev am-sev-success"> <span class="icon">${iconHTML('check-circle')}</span>  <span>Theme validation passed. 26 tokens emitted.</span> <span class="ts">12:04:12</span></div>
+          <div class="am-sev am-sev-warning"> <span class="icon">${iconHTML('alert-triangle')}</span><span>Contrast warning: text-subtle on bg = 3.4 (AA-LG only).</span> <span class="ts">12:04:13</span></div>
+          <div class="am-sev am-sev-error">   <span class="icon">${iconHTML('x-circle')}</span>      <span>Strategy mismatch: mono cannot include secondary accent.</span> <span class="ts">12:04:14</span></div>
+        </div>
+
+        <h2 class="am-h2">Type</h2>
+        <div class="am-text-stack">
+          <div class="t-text">The quick brown fox jumps over the lazy dog. — text</div>
+          <div class="t-text-muted">The quick brown fox jumps over the lazy dog. — text-muted</div>
+          <div class="t-text-subtle">The quick brown fox jumps over the lazy dog. — text-subtle</div>
+          <hr class="am-divider" />
+          <div class="t-accent">Accent text reads at full saturation</div>
+          <div class="t-accent-icon" style="font-family:var(--font-mono)">accent-icon — used for icon strokes against bg</div>
+        </div>
+      </main>
+    </div>
+
+    <footer class="am-footer">
+      <span><span class="dot"></span> Ready</span>
+      <span>theme: ${escapeHtml(theme.id)} · ${escapeHtml(activeVar)}</span>
+    </footer>
+  `;
+
+  // wire collapsible toggle
+  const toggle = document.getElementById('mock-collapsible-toggle');
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      mockCollapsibleOpen = !mockCollapsibleOpen;
+      renderMock();
+      applyTokensToMock();
+    });
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ===================================================================
+   CONTROLS — render editing UI
+   =================================================================== */
+
+function el(tag, attrs = {}, children = []) {
+  const e = document.createElement(tag);
+  for (const [k, val] of Object.entries(attrs)) {
+    if (k === 'class') e.className = val;
+    else if (k === 'html') e.innerHTML = val;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), val);
+    else e.setAttribute(k, val);
+  }
+  for (const c of (Array.isArray(children) ? children : [children])) {
+    if (c == null) continue;
+    e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  }
+  return e;
+}
+
+function section(title, body, key) {
+  const h = el('div', { class: 'section-header', onclick: () => {
+    const sec = h.parentElement;
+    sec.classList.toggle('collapsed');
+  }}, [
+    el('span', { class: 'section-title' }, title),
+    el('svg', { class: 'section-chevron', viewBox: '0 0 12 12', html: '<path d="M3 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' }),
+  ]);
+  return el('div', { class: 'section', 'data-key': key || '' }, [h, el('div', { class: 'section-body' }, body)]);
+}
+
+function row(label, control) {
+  return el('div', { class: 'row' }, [
+    el('span', { class: 'row-label' }, label),
+    el('div', { class: 'row-control' }, [control]),
+  ]);
+}
+
+function selectInput(value, options, onchange) {
+  const s = el('select', { onchange: e => onchange(e.target.value) },
+    options.map(([v, l]) => {
+      const o = el('option', { value: v }, l);
+      if (v === value) o.selected = true;
+      return o;
+    })
+  );
+  return s;
+}
+
+function textInput(value, oninput) {
+  return el('input', { type: 'text', value, oninput: e => oninput(e.target.value) });
+}
+
+function checkboxInput(checked, onchange, label) {
+  const c = el('input', { type: 'checkbox', onchange: e => onchange(e.target.checked) });
+  c.checked = checked;
+  return el('label', { style: 'display:flex;align-items:center;gap:6px;cursor:pointer;' }, [c, label || '']);
+}
+
+function oklchEditor(label, triple, onchange, withDelete) {
+  const swatch = el('span', { class: 'oklch-swatch' });
+  const update = () => {
+    swatch.style.background = oklchToHex(triple, getAmp());
+  };
+  update();
+
+  const slider = (axis, val, min, max, step, fmt) => {
+    const r = el('input', { type: 'range', min, max, step, value: val });
+    const v = el('span', { class: 'slider-value' }, fmt(val));
+    r.addEventListener('input', e => {
+      const n = parseFloat(e.target.value);
+      triple[axis] = n;
+      v.textContent = fmt(n);
+      update();
+      onchange();
+    });
+    return el('div', { class: 'slider-row' }, [
+      el('span', { class: 'slider-axis' }, axis.toUpperCase()),
+      r, v
+    ]);
+  };
+
+  const head = el('div', { class: 'oklch-head' }, [
+    el('span', { class: 'oklch-label' }, label),
+    swatch,
+  ]);
+
+  const wrap = el('div', { class: 'oklch' }, [
+    head,
+    slider('l', triple.l, 0, 100, 0.5, n => n.toFixed(1)),
+    slider('c', triple.c, 0, 0.4, 0.005, n => n.toFixed(3)),
+    slider('h', triple.h, 0, 359.9, 0.5, n => n.toFixed(1) + '°'),
+  ]);
+
+  if (withDelete) {
+    const del = el('button', { class: 'btn', style: 'padding: 3px 8px; font-size: 10px; margin-top: 4px;', onclick: withDelete }, 'Remove');
+    wrap.appendChild(del);
+  }
+  return wrap;
+}
+
+function hexInputRow(label, key, value, onchange) {
+  const swatchWrap = el('span', { class: 'hex-swatch-wrap' });
+  const swatch = el('span', { class: 'hex-swatch' });
+  const picker = el('input', { type: 'color', class: 'hex-color-picker', value: '#888888' });
+  swatchWrap.appendChild(swatch);
+  swatchWrap.appendChild(picker);
+
+  const inp = el('input', { type: 'text', class: 'hex-input', value: value });
+
+  const syncFromText = () => {
+    const rgb = hexToRgb(inp.value);
+    if (rgb) {
+      const hex = rgbToHex(rgb);
+      swatch.style.background = hex;
+      picker.value = hex;
+      inp.style.color = '';
+    } else if (inp.value.startsWith('var(')) {
+      // var() reference — show a placeholder swatch (resolved at render)
+      swatch.style.background = oklchToHex(v().accents.primary, getAmp());
+      picker.value = '#888888';
+      inp.style.color = '';
+    } else {
+      inp.style.color = 'var(--lab-bad)';
+    }
+  };
+
+  inp.addEventListener('input', () => {
+    syncFromText();
+    onchange(inp.value);
+  });
+
+  picker.addEventListener('input', () => {
+    inp.value = picker.value;
+    syncFromText();
+    onchange(picker.value);
+  });
+
+  syncFromText();
+  return el('div', { class: 'hex-row' }, [
+    swatchWrap,
+    el('span', { class: 'hex-name' }, label),
+    inp,
+  ]);
+}
+
+function renderIconOverrides() {
+  const variation = v();
+  if (!variation.icons) variation.icons = {};
+  const overrides = variation.icons;
+  const body = [];
+
+  const overrideNames = Object.keys(overrides);
+  if (overrideNames.length === 0) {
+    body.push(el('div', { class: 'icon-empty' },
+      'No overrides yet. Override an icon to give your theme personality — replace chevrons with brass keys, the cog with a gear, the bell with a steam whistle, etc. Click the “Build log” card header in the preview to test chevron-down ↔ chevron-up swaps.'
+    ));
+  } else {
+    const list = el('div', { class: 'icon-list' });
+    for (const name of overrideNames) {
+      const ov = overrides[name];
+      const previewHTML = ov.svg
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ov.svg}</svg>`
+        : ov.text
+          ? `<span class="icon-glyph"${ov.font ? ` style="font-family:${ov.font}"` : ''}>${escapeHtml(ov.text)}</span>`
+          : '?';
+      const previewBox = el('div', { class: 'icon-preview-box', html: previewHTML });
+      const meta = el('div', { class: 'icon-card-meta' }, [
+        el('div', { class: 'icon-card-name' }, name),
+        el('div', { class: 'icon-card-type' }, ov.svg ? 'svg' : ov.text ? 'glyph' : 'override'),
+      ]);
+      const removeBtn = el('button', {
+        class: 'btn',
+        style: 'padding: 4px 10px; font-size: 10px;',
+        onclick: () => { delete variation.icons[name]; render(); }
+      }, 'Remove');
+      list.appendChild(el('div', { class: 'icon-card' }, [previewBox, meta, removeBtn]));
+    }
+    body.push(list);
+  }
+
+  // ---- inline add-override form ----
+  const formWrap = el('div', { style: 'display: none;' });
+  let currentType = 'svg';
+
+  const nameSelect = el('select');
+  const available = ALL_REGISTRY_ICONS.filter(n => !overrides[n]);
+  if (available.length === 0) {
+    const o = el('option', { value: '' }, '(all icons overridden)');
+    o.disabled = true;
+    nameSelect.appendChild(o);
+  } else {
+    for (const n of available) nameSelect.appendChild(el('option', { value: n }, n));
+  }
+
+  const svgArea = el('textarea', { rows: 4, placeholder: '<path d="..."/>\n<circle cx="12" cy="12" r="..."/>' });
+  const textInp = el('input', { type: 'text', placeholder: '⚙  or  ⛯  or any character' });
+  const fontInp = el('input', { type: 'text', placeholder: '(optional) font-family' });
+  const previewEl = el('div', { class: 'icon-form-preview empty' }, 'live preview');
+
+  const updatePreview = () => {
+    if (currentType === 'svg') {
+      const svg = svgArea.value.trim();
+      if (svg) {
+        previewEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${svg}</svg>`;
+        previewEl.classList.remove('empty');
+      } else {
+        previewEl.textContent = 'paste inner SVG markup (no <svg> wrapper)';
+        previewEl.classList.add('empty');
+      }
+    } else {
+      const t = textInp.value.trim();
+      if (t) {
+        const f = fontInp.value.trim();
+        const style = f ? `font-family:${f};` : '';
+        previewEl.innerHTML = `<span class="icon-glyph" style="${style}font-size:32px;line-height:1;">${escapeHtml(t)}</span>`;
+        previewEl.classList.remove('empty');
+      } else {
+        previewEl.textContent = 'enter a glyph';
+        previewEl.classList.add('empty');
+      }
+    }
+  };
+  svgArea.addEventListener('input', updatePreview);
+  textInp.addEventListener('input', updatePreview);
+  fontInp.addEventListener('input', updatePreview);
+
+  const svgRow  = el('div', { class: 'icon-form-row' }, [el('span', { class: 'row-label' }, 'svg'),  svgArea]);
+  const textRow = el('div', { class: 'icon-form-row', style: 'display: none;' }, [el('span', { class: 'row-label' }, 'glyph'), textInp]);
+  const fontRow = el('div', { class: 'icon-form-row', style: 'display: none;' }, [el('span', { class: 'row-label' }, 'font'),  fontInp]);
+
+  const tog = el('div', { class: 'icon-type-toggle' });
+  const svgBtn  = el('button', { class: 'active' }, 'SVG');
+  const textBtn = el('button', {}, 'Glyph');
+  svgBtn.addEventListener('click', () => {
+    currentType = 'svg';
+    svgBtn.classList.add('active');  textBtn.classList.remove('active');
+    svgRow.style.display = 'grid'; textRow.style.display = 'none'; fontRow.style.display = 'none';
+    updatePreview();
+  });
+  textBtn.addEventListener('click', () => {
+    currentType = 'text';
+    svgBtn.classList.remove('active'); textBtn.classList.add('active');
+    svgRow.style.display = 'none'; textRow.style.display = 'grid'; fontRow.style.display = 'grid';
+    updatePreview();
+  });
+  tog.appendChild(svgBtn); tog.appendChild(textBtn);
+
+  const cancelBtn = el('button', { class: 'btn', onclick: () => {
+    formWrap.style.display = 'none';
+    svgArea.value = ''; textInp.value = ''; fontInp.value = '';
+    updatePreview();
+  }}, 'Cancel');
+  const saveBtn = el('button', { class: 'btn btn-primary', onclick: () => {
+    const name = nameSelect.value;
+    if (!name) return;
+    if (currentType === 'svg') {
+      const svg = svgArea.value.trim();
+      if (!svg) return;
+      variation.icons[name] = { svg };
+    } else {
+      const t = textInp.value.trim();
+      if (!t) return;
+      const ov = { text: t };
+      const f = fontInp.value.trim();
+      if (f) ov.font = f;
+      variation.icons[name] = ov;
+    }
+    render();
+  }}, 'Save override');
+
+  formWrap.appendChild(el('div', { class: 'icon-form' }, [
+    el('div', { class: 'icon-form-row' }, [el('span', { class: 'row-label' }, 'name'), nameSelect]),
+    el('div', { class: 'icon-form-row' }, [el('span', { class: 'row-label' }, 'type'), tog]),
+    svgRow, textRow, fontRow, previewEl,
+    el('div', { class: 'icon-form-actions' }, [cancelBtn, saveBtn]),
+  ]));
+  body.push(formWrap);
+
+  const addBtn = el('button', {
+    class: 'btn',
+    style: 'margin-top: 8px; width: 100%;',
+    onclick: () => {
+      formWrap.style.display = formWrap.style.display === 'none' ? 'block' : 'none';
+    }
+  }, '+ Add icon override');
+  body.push(addBtn);
+
+  updatePreview();
+  return body;
+}
+
+function renderControls() {
+  const c = document.getElementById('controls');
+  c.innerHTML = '';
+  const variation = v();
+
+  // --- Identity ---
+  c.appendChild(section('Identity', [
+    row('ID', textInput(theme.id, val => {
+      theme.id = val.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/^-+|-+$/g, '') || 'theme';
+      theme.family = theme.id;
+      theme._idLocked = true;  // user explicitly set ID — stop auto-deriving from name
+      sync();
+    })),
+    row('Family', textInput(theme.family, val => { theme.family = val; sync(); })),
+    row('Icon', selectInput(theme.icon || 'palette', ALL_REGISTRY_ICONS.map(n => [n, n]), val => {
+      theme.icon = val;
+      sync();
+    })),
+  ]));
+
+  // --- Variation ---
+  c.appendChild(section('Variation', [
+    row('Mode', selectInput(variation.mode, [['dark','dark'],['light','light']], val => {
+      const oldMode = variation.mode;
+      variation.mode = val;
+      // If the variation key was using the mode-as-key convention, rename it to match.
+      // This avoids the "mode: 'light' under key 'dark'" inconsistency in exports.
+      if (activeVar === oldMode && oldMode !== val && !theme.variations[val]) {
+        theme.variations[val] = theme.variations[oldMode];
+        delete theme.variations[oldMode];
+        if (theme.defaultVariation === oldMode) theme.defaultVariation = val;
+        activeVar = val;
+      }
+      sync(); render();
+    })),
+    row('Strategy', selectInput(variation.strategy, [
+      ['mono','mono'],['analogous','analogous'],['triadic','triadic']
+    ], val => {
+      variation.strategy = val;
+      // adjust accents to match strategy
+      if (val === 'mono') {
+        delete variation.accents.secondary;
+        delete variation.accents.tertiary;
+      } else if (val === 'analogous') {
+        if (!variation.accents.secondary) {
+          variation.accents.secondary = { l: variation.accents.primary.l + 5, c: variation.accents.primary.c, h: (variation.accents.primary.h + 30) % 360 };
+        }
+        delete variation.accents.tertiary;
+      } else if (val === 'triadic') {
+        if (!variation.accents.secondary) {
+          variation.accents.secondary = { l: variation.accents.primary.l, c: variation.accents.primary.c, h: (variation.accents.primary.h + 120) % 360 };
+        }
+        if (!variation.accents.tertiary) {
+          variation.accents.tertiary = { l: variation.accents.primary.l, c: variation.accents.primary.c, h: (variation.accents.primary.h + 240) % 360 };
+        }
+      }
+      sync(); render();
+    })),
+  ]));
+
+  // --- Amplitude ---
+  const ampWrap = el('div');
+  const ampSlider = el('input', { type: 'range', min: 0, max: 1.5, step: 0.01, value: variation.amplitude.default });
+  const ampVal = el('span', { class: 'slider-value' }, variation.amplitude.default.toFixed(2) + '×');
+  ampSlider.addEventListener('input', e => {
+    variation.amplitude.default = parseFloat(e.target.value);
+    ampVal.textContent = variation.amplitude.default.toFixed(2) + '×';
+    sync();
+  });
+  ampWrap.appendChild(el('div', { class: 'slider-row' }, [
+    el('span', { class: 'slider-axis' }, 'A'),
+    ampSlider, ampVal
+  ]));
+  ampWrap.appendChild(el('div', { style: 'margin-top:8px' }, [
+    checkboxInput(variation.amplitude.locked, val => { variation.amplitude.locked = val; sync(); }, 'Locked (pin to 1.0×)')
+  ]));
+  c.appendChild(section('Amplitude', [ampWrap]));
+
+  // --- Accents ---
+  const accentBody = [];
+  accentBody.push(oklchEditor('Primary', variation.accents.primary, () => sync()));
+  if (variation.accents.secondary) {
+    accentBody.push(oklchEditor('Secondary', variation.accents.secondary, () => sync(),
+      variation.strategy === 'analogous' ? () => {
+        delete variation.accents.secondary;
+        if (variation.accents.tertiary) delete variation.accents.tertiary;
+        render();
+      } : null
+    ));
+  }
+  if (variation.accents.tertiary) {
+    accentBody.push(oklchEditor('Tertiary', variation.accents.tertiary, () => sync(),
+      variation.strategy === 'analogous' ? () => {
+        delete variation.accents.tertiary;
+        render();
+      } : null
+    ));
+  }
+  if (variation.strategy === 'analogous' && !variation.accents.tertiary) {
+    accentBody.push(el('button', {
+      class: 'btn',
+      style: 'margin-top:6px;width:100%',
+      onclick: () => {
+        const p = variation.accents.primary;
+        variation.accents.tertiary = { l: p.l, c: p.c, h: (p.h + 60) % 360 };
+        render();
+      }
+    }, '+ Add tertiary (optional)'));
+  }
+  c.appendChild(section('Accents', accentBody));
+
+  // --- Neutrals ---
+  const neutralKeys = ['bg','surface','surface_2','hover','border','border_muted','border_accent','text','text_muted','text_subtle'];
+  const neutralBody = neutralKeys.map(k =>
+    hexInputRow(k, k, variation.neutrals[k], val => {
+      variation.neutrals[k] = val;
+      sync();
+    })
+  );
+  c.appendChild(section('Neutrals', neutralBody));
+
+  // --- Semantics ---
+  const semBody = ['info','success','warning','error'].map(k =>
+    oklchEditor(k, variation.semantics[k], () => sync())
+  );
+  c.appendChild(section('Semantics', semBody));
+
+  // --- Icon Overrides ---
+  c.appendChild(section('Icon Overrides', renderIconOverrides()));
+}
+
+/* ===================================================================
+   CONTRAST MATRIX
+   =================================================================== */
+
+const CONTRAST_PAIRS = [
+  // Text legibility
+  { group: 'Text on backgrounds', pairs: [
+    ['--color-text',         '--color-bg'],
+    ['--color-text',         '--color-surface'],
+    ['--color-text',         '--color-surface-2'],
+    ['--color-text',         '--color-hover'],
+    ['--color-text-muted',   '--color-bg'],
+    ['--color-text-muted',   '--color-surface'],
+    ['--color-text-subtle',  '--color-bg'],
+  ]},
+  { group: 'Accent', pairs: [
+    ['--color-accent-fg',    '--color-accent'],
+    ['--color-accent-fg',    '--color-accent-hover'],
+    ['--color-accent',       '--color-bg'],
+    ['--color-accent-icon',  '--color-bg'],
+    ['--color-text',         '--color-accent-container'],
+  ]},
+  { group: 'Semantic', pairs: [
+    ['--color-info',     '--color-bg'],
+    ['--color-success',  '--color-bg'],
+    ['--color-warning',  '--color-bg'],
+    ['--color-error',    '--color-bg'],
+    ['--color-text',     '--color-info-container'],
+    ['--color-text',     '--color-success-container'],
+    ['--color-text',     '--color-warning-container'],
+    ['--color-text',     '--color-error-container'],
+  ]},
+];
+
+function renderContrast() {
+  const tokens = buildTokenMap();
+  const target = document.getElementById('contrast');
+  target.innerHTML = '';
+
+  let totalFails = 0;
+  let totalAaLg  = 0;
+  let totalAA    = 0;
+  let totalAAA   = 0;
+
+  // count & build
+  const sectionEls = [];
+  for (const grp of CONTRAST_PAIRS) {
+    const head = el('h3', {}, grp.group);
+    sectionEls.push(head);
+    for (const [a, b] of grp.pairs) {
+      const ca = resolveTokenColor(a, tokens);
+      const cb = resolveTokenColor(b, tokens);
+      const ratio = contrastRatio(ca, cb);
+      const grade = gradeContrast(ratio);
+      if (grade.cls === 'aaa') totalAAA++;
+      else if (grade.cls === 'aa') totalAA++;
+      else if (grade.cls === 'aalg') totalAaLg++;
+      else totalFails++;
+
+      const cls = 'cc-row' + (grade.cls === 'fail' ? ' fail' : grade.cls === 'aalg' ? ' poor' : '');
+      const r = el('div', { class: cls, title: `${a} on ${b}` }, [
+        el('span', { class: 'cc-dot ' + grade.cls }),
+        el('span', { class: 'cc-pair' }, `${a.replace('--color-','')} / ${b.replace('--color-','')}`),
+        el('span', { class: 'cc-ratio' }, ratio.toFixed(2)),
+        el('span', { class: 'cc-grade ' + grade.cls }, grade.tag),
+      ]);
+      sectionEls.push(r);
+    }
+  }
+
+  const summary = el('div', { class: 'cc-summary' }, [
+    el('span', { style: 'color: var(--lab-good)' }, `AAA · ${totalAAA}`),
+    el('span', { style: 'color: #5fb3ff' }, `AA · ${totalAA}`),
+    el('span', { style: 'color: var(--lab-warn)' }, `AA-LG · ${totalAaLg}`),
+    el('span', { style: 'color: var(--lab-bad)' }, `FAIL · ${totalFails}`),
+  ]);
+
+  target.appendChild(el('h3', {}, 'Contrast Matrix'));
+  target.appendChild(summary);
+  for (const e of sectionEls) target.appendChild(e);
+
+  document.getElementById('footer-failures').textContent =
+    totalFails === 0 ? '✓ no failures' : `✗ ${totalFails} failure${totalFails===1?'':'s'}`;
+  document.getElementById('footer-failures').style.color =
+    totalFails === 0 ? 'var(--lab-good)' : 'var(--lab-bad)';
+}
+
+/* ===================================================================
+   TOP-LEVEL RENDER & SYNC
+   =================================================================== */
+
+function sync() {
+  applyTokensToMock();
+  renderContrast();
+  document.getElementById('theme-id-display').textContent = `id: ${theme.id}`;
+  document.getElementById('rule-meta').textContent = `· ${theme.id} · ${activeVar} · ${v().strategy}`;
+  document.getElementById('rule-tokens').textContent = countTokens() + ' tokens emitted';
+  document.getElementById('footer-strategy').textContent = `strategy: ${v().strategy}`;
+  document.getElementById('footer-mode').textContent = `mode: ${v().mode}`;
+}
+
+function countTokens() {
+  return Object.keys(buildTokenMap()).filter(k => k.startsWith('--color-') || k === '--theme-amplitude').length;
+}
+
+function render() {
+  renderControls();
+  renderMock();
+  applyTokensToMock();
+  renderContrast();
+  sync();
+}
+
+/* ===================================================================
+   PALETTE IMPORT — sniffing parser + role-guess heuristic
+   Mirrors Anvil's import.js: 7 formats + Coolors URL.
+   =================================================================== */
+
+function normalizeHex(hex) {
+  if (!hex) return null;
+  let h = String(hex).trim().toLowerCase().replace(/^#/, '');
+  if (!/^[0-9a-f]+$/.test(h)) return null;
+  if (h.length === 3) h = h.split('').map(c => c + c).join('');
+  if (h.length === 8) h = h.slice(0, 6);   // strip alpha
+  if (h.length !== 6) return null;
+  return '#' + h;
+}
+
+function deKebab(s) {
+  return String(s)
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function parsePalette(text) {
+  text = String(text || '').trim();
+  if (!text) throw new Error('Empty input.');
+
+  // 0. Coolors URL — https://coolors.co/0d1b2a-1b263b-415a77-…
+  const coolorsMatch = text.match(/coolors\.co\/(?:palette\/)?([a-fA-F0-9-]+)/i);
+  if (coolorsMatch) {
+    const hexes = coolorsMatch[1].split('-').filter(Boolean);
+    const swatches = hexes
+      .map((h, i) => ({ name: `Color ${i + 1}`, hex: normalizeHex(h) }))
+      .filter(s => s.hex);
+    if (swatches.length) return { format: 'coolors-url', swatches };
+  }
+
+  // 1-3. JSON variants
+  try {
+    const parsed = JSON.parse(text);
+    if (Array.isArray(parsed)) {
+      if (parsed.length && typeof parsed[0] === 'object' && parsed[0] !== null && 'hex' in parsed[0]) {
+        const sw = parsed
+          .map(s => ({ name: s.name || '', hex: normalizeHex(s.hex) }))
+          .filter(s => s.hex);
+        if (sw.length) return { format: 'extended-array', swatches: sw };
+      }
+      if (parsed.length && typeof parsed[0] === 'string') {
+        const sw = parsed
+          .map((h, i) => ({ name: `Color ${i + 1}`, hex: normalizeHex(h) }))
+          .filter(s => s.hex);
+        if (sw.length) return { format: 'array', swatches: sw };
+      }
+    } else if (parsed && typeof parsed === 'object') {
+      const sw = Object.entries(parsed)
+        .map(([name, hex]) => ({ name: deKebab(name), hex: normalizeHex(hex) }))
+        .filter(s => s.hex);
+      if (sw.length) return { format: 'object', swatches: sw };
+    }
+  } catch (e) { /* not JSON, fall through */ }
+
+  // 4. XML — <color name="…" hex="…"/>
+  const xmlRe = /<color\s+(?:[^>]*\bname\s*=\s*["']([^"']*)["'][^>]*)?\bhex\s*=\s*["']([^"']+)["'][^>]*\/?>/gi;
+  const xmlSw = [];
+  let xm;
+  while ((xm = xmlRe.exec(text)) !== null) {
+    const hex = normalizeHex(xm[2]);
+    if (hex) xmlSw.push({ name: xm[1] || '', hex });
+  }
+  if (xmlSw.length) return { format: 'xml', swatches: xmlSw };
+
+  // 5. CSS hex — --name: #hex;
+  const cssMatches = [...text.matchAll(/--([a-zA-Z][\w-]*)\s*:\s*#?([a-fA-F0-9]{3,8})\s*;?/g)];
+  if (cssMatches.length) {
+    const sw = cssMatches
+      .map(m => ({ name: deKebab(m[1]), hex: normalizeHex(m[2]) }))
+      .filter(s => s.hex);
+    if (sw.length) return { format: 'css-hex', swatches: sw };
+  }
+
+  // 6. SCSS hex — $name: #hex;
+  const scssMatches = [...text.matchAll(/\$([a-zA-Z][\w-]*)\s*:\s*#?([a-fA-F0-9]{3,8})\s*;?/g)];
+  if (scssMatches.length) {
+    const sw = scssMatches
+      .map(m => ({ name: deKebab(m[1]), hex: normalizeHex(m[2]) }))
+      .filter(s => s.hex);
+    if (sw.length) return { format: 'scss-hex', swatches: sw };
+  }
+
+  // 7. CSV / bare list of hex
+  const hexRe = /#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})\b/g;
+  const csvSw = [];
+  let cm;
+  while ((cm = hexRe.exec(text)) !== null) {
+    const hex = normalizeHex(cm[1]);
+    if (hex) csvSw.push({ name: `Color ${csvSw.length + 1}`, hex });
+  }
+  if (csvSw.length) return { format: 'csv', swatches: csvSw };
+
+  throw new Error('No recognizable palette format detected.');
+}
+
+const NEUTRAL_ROLES_DARK  = ['bg', 'surface', 'surface_2', 'hover', 'border_muted', 'border', 'text_subtle', 'text_muted', 'text'];
+const ACCENT_ROLES        = ['primary', 'secondary', 'tertiary'];
+
+function guessRoles(swatches, modeOverride) {
+  const enriched = swatches.map((s, idx) => {
+    const rgb = hexToRgb(s.hex);
+    const oklch = rgb ? rgbToOklch(rgb) : { l: 0, c: 0, h: 0 };
+    return { ...s, idx, oklch, suggestedRole: '' };
+  });
+
+  const avgL = enriched.reduce((sum, s) => sum + s.oklch.l, 0) / Math.max(1, enriched.length);
+  const mode = modeOverride || (avgL > 50 ? 'light' : 'dark');
+
+  // Top 3 by chroma → primary/secondary/tertiary (only if c > 0.04)
+  const accentPool = enriched
+    .filter(s => s.oklch.c > 0.04)
+    .sort((a, b) => b.oklch.c - a.oklch.c)
+    .slice(0, 3);
+  const accentSet = new Set(accentPool.map(a => a.idx));
+  accentPool.forEach((s, i) => { s.suggestedRole = ACCENT_ROLES[i]; });
+
+  // Remaining → neutrals by lightness (asc for dark, desc for light)
+  const neutralPool = enriched
+    .filter(s => !accentSet.has(s.idx))
+    .sort((a, b) => mode === 'dark' ? a.oklch.l - b.oklch.l : b.oklch.l - a.oklch.l);
+  neutralPool.forEach((s, i) => {
+    if (i < NEUTRAL_ROLES_DARK.length) s.suggestedRole = NEUTRAL_ROLES_DARK[i];
+  });
+
+  return { mode, swatches: enriched };
+}
+
+function applyPaletteToVariation(parsed) {
+  const variation = v();
+  variation.mode = parsed.mode;
+
+  // Strategy auto-derived from accent slot population
+  const byRole = (r) => parsed.swatches.find(s => s.suggestedRole === r);
+  const hasPri = !!byRole('primary');
+  const hasSec = !!byRole('secondary');
+  const hasTer = !!byRole('tertiary');
+
+  if (hasTer)      variation.strategy = 'triadic';
+  else if (hasSec) variation.strategy = 'analogous';
+  else             variation.strategy = 'mono';
+
+  // Build new accents
+  const newAccents = {};
+  for (const role of ACCENT_ROLES) {
+    const s = byRole(role);
+    if (s) newAccents[role] = { l: s.oklch.l, c: s.oklch.c, h: s.oklch.h };
+  }
+  // Fallback: keep existing primary if the palette had no accents at all
+  if (!newAccents.primary) newAccents.primary = variation.accents.primary;
+  // Strip excess slots per strategy
+  if (variation.strategy === 'mono') { delete newAccents.secondary; delete newAccents.tertiary; }
+  if (variation.strategy === 'analogous') { /* secondary kept; tertiary optional */ }
+  variation.accents = newAccents;
+
+  // Update neutrals from any swatch with a neutral role
+  for (const s of parsed.swatches) {
+    if (NEUTRAL_ROLES_DARK.includes(s.suggestedRole)) {
+      variation.neutrals[s.suggestedRole] = s.hex;
+    }
+  }
+  variation.neutrals.border_accent = 'var(--color-accent)';
+
+  render();
+}
+
+/* ---- palette dialog UI ---- */
+let _currentPalette = null;
+
+function renderPalettePreview(parsed) {
+  _currentPalette = parsed;
+  document.getElementById('palette-preview-wrap').style.display = 'block';
+  document.getElementById('palette-fmt').textContent = parsed.format.replace(/-/g, ' ');
+  document.getElementById('palette-count').textContent =
+    `${parsed.swatches.length} swatch${parsed.swatches.length === 1 ? '' : 'es'}`;
+
+  // mode toggle
+  const tog = document.getElementById('palette-mode-toggle');
+  for (const b of tog.querySelectorAll('button')) {
+    b.classList.toggle('active', b.dataset.mode === parsed.mode);
+  }
+
+  const container = document.getElementById('palette-preview');
+  container.innerHTML = '';
+
+  const allRoles = [
+    ['', '(skip)'],
+    ['primary', 'primary (accent)'],
+    ['secondary', 'secondary (accent)'],
+    ['tertiary', 'tertiary (accent)'],
+    ['bg', 'bg'],
+    ['surface', 'surface'],
+    ['surface_2', 'surface_2'],
+    ['hover', 'hover'],
+    ['border', 'border'],
+    ['border_muted', 'border_muted'],
+    ['text', 'text'],
+    ['text_muted', 'text_muted'],
+    ['text_subtle', 'text_subtle'],
+  ];
+
+  for (const s of parsed.swatches) {
+    const sw = el('div', { class: 'palette-swatch-lg', style: `background: ${s.hex}` });
+    const name = el('div', { class: 'palette-name' }, s.name || '(unnamed)');
+    const stats = el('div', { class: 'palette-stats' },
+      `${s.hex} · L${s.oklch.l.toFixed(0)} C${s.oklch.c.toFixed(2)} H${Math.round(s.oklch.h)}°`
+    );
+    const meta = el('div', {}, [name, stats]);
+
+    const select = el('select', { class: 'palette-role' });
+    for (const [val, label] of allRoles) {
+      const o = el('option', { value: val }, label);
+      if (val === s.suggestedRole) o.selected = true;
+      select.appendChild(o);
+    }
+    select.addEventListener('change', e => { s.suggestedRole = e.target.value; });
+
+    container.appendChild(el('div', { class: 'palette-row' }, [sw, meta, select]));
+  }
+
+  document.getElementById('btn-palette-apply').disabled = false;
+}
+
+
+
+function exportTheme() {
+  const variation = v();
+  const accentsCode = (() => {
+    const lines = [`        primary:   ${tripleStr(variation.accents.primary)},`];
+    if (variation.accents.secondary) lines.push(`        secondary: ${tripleStr(variation.accents.secondary)},`);
+    if (variation.accents.tertiary)  lines.push(`        tertiary:  ${tripleStr(variation.accents.tertiary)},`);
+    return lines.join('\n');
+  })();
+
+  // Serialize icon overrides if any exist on this variation
+  const iconsBlock = (() => {
+    const ic = variation.icons || {};
+    const names = Object.keys(ic);
+    if (!names.length) return '';
+    const entries = names.map(n => {
+      const ov = ic[n];
+      const parts = [];
+      if (ov.svg)      parts.push(`svg: ${JSON.stringify(ov.svg)}`);
+      if (ov.text)     parts.push(`text: ${JSON.stringify(ov.text)}`);
+      if (ov.font)     parts.push(`font: ${JSON.stringify(ov.font)}`);
+      if (ov.fallback) parts.push(`fallback: ${JSON.stringify(ov.fallback)}`);
+      return `        ${JSON.stringify(n)}: { ${parts.join(', ')} },`;
+    }).join('\n');
+    return `\n      icons: {\n${entries}\n      },`;
+  })();
+
+  const familyIcon = theme.icon || 'palette';
+  const p = DEFAULT_PERSONALITY;
+
+  const code =
+`// Save as: ${theme.id}.js
+// Place at: client/src/anvil/themes/defaults/${theme.id}.js
+const def = {
+  id:               '${theme.id}',
+  name:             '${theme.name.replace(/'/g, "\\'")}',
+  family:           '${theme.family}',
+  icon:             '${familyIcon}',
+  defaultVariation: '${activeVar}',
+  readOnly:         ${theme.readOnly ? 'true' : 'false'},
+
+  // Family-shared personality (sane defaults — edit by hand to taste)
+  typography: {
+    fonts: {
+      display: ${JSON.stringify(p.typography.fonts.display)},
+      body:    ${JSON.stringify(p.typography.fonts.body)},
+      mono:    ${JSON.stringify(p.typography.fonts.mono)},
+    },
+    scale:    ${jsLit(p.typography.scale)},
+    weights:  ${jsLit(p.typography.weights)},
+    tracking: ${jsLit(p.typography.tracking)},
+  },
+  spacing: ${jsLit(p.spacing)},
+  radii:   ${jsLit(p.radii)},
+  shadow: {
+    sm:   ${JSON.stringify(p.shadow.sm)},
+    md:   ${JSON.stringify(p.shadow.md)},
+    lg:   ${JSON.stringify(p.shadow.lg)},
+    glow: ${JSON.stringify(p.shadow.glow)},
+  },
+  motion: {
+    dur:  ${jsLit(p.motion.dur)},
+    ease: { standard: ${JSON.stringify(p.motion.ease.standard)}, expressive: ${JSON.stringify(p.motion.ease.expressive)} },
+  },
+  ring: { width: ${p.ring.width}, color: ${JSON.stringify(p.ring.color)} },
+
+  variations: {
+    '${activeVar}': {
+      mode:     '${variation.mode}',
+      strategy: '${variation.strategy}',
+      neutrals: {
+        bg:            '${variation.neutrals.bg}',
+        surface:       '${variation.neutrals.surface}',
+        surface_2:     '${variation.neutrals.surface_2}',
+        hover:         '${variation.neutrals.hover}',
+        border:        '${variation.neutrals.border}',
+        border_muted:  '${variation.neutrals.border_muted}',
+        border_accent: '${variation.neutrals.border_accent}',
+        text:          '${variation.neutrals.text}',
+        text_muted:    '${variation.neutrals.text_muted}',
+        text_subtle:   '${variation.neutrals.text_subtle}',
+      },
+      accents: {
+${accentsCode}
+      },
+      semantics: {
+        info:    ${tripleStr(variation.semantics.info)},
+        success: ${tripleStr(variation.semantics.success)},
+        warning: ${tripleStr(variation.semantics.warning)},
+        error:   ${tripleStr(variation.semantics.error)},
+      },
+      amplitude: { default: ${variation.amplitude.default.toFixed(2)}, locked: ${variation.amplitude.locked} },${iconsBlock}
+    },
+  },
+};
+
+export default def;
+`;
+  return code;
+}
+
+function tripleStr(t) {
+  return `{ l: ${t.l.toFixed(1)}, c: ${t.c.toFixed(3)}, h: ${t.h.toFixed(1)} }`;
+}
+
+/**
+ * Serialize a value as a JS literal — for source code emission.
+ * Like JSON.stringify but uses bare identifier/numeric keys so inner objects
+ * read like hand-written JS:  { 1: 2, 2: 4 }  /  { xs: '10.5px', sm: '12px' }
+ * (JSON.stringify would produce {"1":2} / {"xs":"10.5px"}.)
+ */
+function jsLit(value) {
+  if (value === null) return 'null';
+  if (value === undefined) return 'undefined';
+  if (typeof value === 'string') return JSON.stringify(value);
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (Array.isArray(value)) {
+    return '[' + value.map(jsLit).join(', ') + ']';
+  }
+  if (typeof value === 'object') {
+    const entries = Object.entries(value).map(([k, v]) => {
+      const isIdent = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(k);
+      const isNum   = /^\d+$/.test(k);
+      const keyStr = (isIdent || isNum) ? k : JSON.stringify(k);
+      return `${keyStr}: ${jsLit(v)}`;
+    });
+    return '{ ' + entries.join(', ') + ' }';
+  }
+  return JSON.stringify(value);
+}
+
+function generateCSS() {
+  const tokens = buildTokenMap();
+  const lines = [];
+  lines.push(`/* Generated by Anvil Theme Lab — paste of applyTheme() output for ${theme.id}/${activeVar} */`);
+  lines.push(`:root[data-theme="${theme.id}"][data-theme-variation="${activeVar}"] {`);
+
+  // Group tokens for readability
+  const groups = [
+    ['Neutral', k => /^--color-(bg|surface|hover|border|text)/.test(k) && !k.includes('accent')],
+    ['Accent',  k => k.startsWith('--color-accent')],
+    ['Semantic',k => /^--color-(info|success|warning|error)/.test(k)],
+    ['Amplitude', k => k === '--theme-amplitude'],
+    ['Typography', k => /^--font-|^--fs-|^--fw-|^--tracking-/.test(k)],
+    ['Layout',  k => /^--radius-|^--ring-|^--space-|^--shadow-|^--dur-|^--ease-/.test(k)],
+  ];
+  const seen = new Set();
+  for (const [label, pred] of groups) {
+    const matched = Object.keys(tokens).filter(k => pred(k) && !seen.has(k));
+    if (!matched.length) continue;
+    lines.push(`  /* ${label} */`);
+    for (const k of matched) {
+      lines.push(`  ${k}: ${tokens[k]};`);
+      seen.add(k);
+    }
+  }
+  // Anything not classified
+  const rest = Object.keys(tokens).filter(k => !seen.has(k));
+  if (rest.length) {
+    lines.push(`  /* Other */`);
+    for (const k of rest) lines.push(`  ${k}: ${tokens[k]};`);
+  }
+  lines.push('}');
+  return lines.join('\n');
+}
+
+function importTheme(text) {
+  // Strip comments + imports, then convert `export default X` → `return X`.
+  // The whole thing runs inside a Function body whose return value we capture.
+  const cleaned = text
+    .replace(/\/\*[\s\S]*?\*\//g, '')              // /* … */ comments
+    .replace(/^\s*\/\/.*$/gm, '')                  // // line comments
+    .replace(/^\s*import\s[^;\n]*;?\s*$/gm, '')    // import lines
+    .replace(/^\s*export\s+default\s+/m, 'return ');
+
+  let obj;
+  // Path A: full module with `const def = {…}; export default def;`
+  try {
+    obj = (new Function(`"use strict";\n${cleaned}`))();
+  } catch (e1) {
+    // Path B: user pasted just an object literal — wrap and return it.
+    try {
+      obj = (new Function(`"use strict"; return (${text});`))();
+    } catch (e2) {
+      throw new Error('Could not parse theme module: ' + e1.message);
+    }
+  }
+  if (!obj || typeof obj !== 'object') {
+    throw new Error('Module did not produce a theme object.');
+  }
+  return obj;
+}
+
+/* ===================================================================
+   EVENTS
+   =================================================================== */
+
+document.getElementById('theme-name').addEventListener('input', e => {
+  theme.name = e.target.value;
+  if (!theme._idLocked) {
+    theme.id = e.target.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/^-+|-+$/g, '') || 'theme';
+    theme.family = theme.id;
+  }
+  sync();
+  renderMock();  // update title in mock without rebuilding controls (preserves input focus)
+});
+
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (confirm('Reset theme to default? Unsaved changes will be lost.')) {
+    theme = DEFAULT_THEME();
+    activeVar = 'dark';
+    document.getElementById('theme-name').value = theme.name;
+    render();
+  }
+});
+
+document.getElementById('btn-export').addEventListener('click', () => {
+  const code = exportTheme();
+  document.getElementById('export-text').value = code;
+  document.getElementById('export-msg').textContent = '';
+
+  // Show warning if name/id is still the placeholder
+  const isPlaceholder = theme.name === 'My Theme' || theme.id === 'my-theme';
+  document.getElementById('export-warning').style.display = isPlaceholder ? 'block' : 'none';
+
+  // Update filename hint to match current id
+  document.getElementById('export-filename').textContent =
+    `client/src/anvil/themes/defaults/${theme.id}.js`;
+
+  document.getElementById('dlg-export').showModal();
+});
+document.getElementById('btn-copy').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(document.getElementById('export-text').value);
+    document.getElementById('export-msg').textContent = 'Copied.';
+    document.getElementById('export-msg').className = 'dlg-msg ok';
+  } catch (e) {
+    document.getElementById('export-msg').textContent = 'Clipboard unavailable — select the text manually.';
+    document.getElementById('export-msg').className = 'dlg-msg';
+  }
+});
+
+document.getElementById('btn-css').addEventListener('click', () => {
+  document.getElementById('css-text').value = generateCSS();
+  document.getElementById('css-msg').textContent = '';
+  document.getElementById('dlg-css').showModal();
+});
+document.getElementById('btn-css-copy').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(document.getElementById('css-text').value);
+    document.getElementById('css-msg').textContent = 'Copied.';
+    document.getElementById('css-msg').className = 'dlg-msg ok';
+  } catch (e) {
+    document.getElementById('css-msg').textContent = 'Clipboard unavailable — select the text manually.';
+    document.getElementById('css-msg').className = 'dlg-msg';
+  }
+});
+
+document.getElementById('btn-import').addEventListener('click', () => {
+  document.getElementById('import-text').value = '';
+  document.getElementById('import-msg').textContent = '';
+  document.getElementById('dlg-import').showModal();
+});
+document.getElementById('btn-import-go').addEventListener('click', () => {
+  const text = document.getElementById('import-text').value;
+  const msg = document.getElementById('import-msg');
+  msg.className = 'dlg-msg';
+  try {
+    const obj = importTheme(text);
+    if (!obj || !obj.variations) throw new Error('Not a complete theme module.');
+    theme = obj;
+    activeVar = obj.defaultVariation && obj.variations[obj.defaultVariation] ? obj.defaultVariation : Object.keys(obj.variations)[0];
+    // ensure variation has the expected shape
+    const variation = v();
+    if (!variation.amplitude) variation.amplitude = { default: 1.0, locked: false };
+    // default missing top-level fields so the lab doesn't crash on partial themes
+    if (!theme.icon) theme.icon = 'palette';
+    theme._idLocked = true;  // imported theme has an explicit id; don't auto-derive from name
+    document.getElementById('theme-name').value = theme.name || 'Imported';
+    msg.className = 'dlg-msg ok';
+    msg.textContent = `Loaded "${theme.name}" — variation "${activeVar}".`;
+    render();
+    setTimeout(() => document.getElementById('dlg-import').close(), 600);
+  } catch (e) {
+    msg.textContent = 'Import failed: ' + e.message;
+  }
+});
+
+/* ---- palette import ---- */
+document.getElementById('btn-palette').addEventListener('click', () => {
+  document.getElementById('palette-text').value = '';
+  document.getElementById('palette-msg').textContent = '';
+  document.getElementById('palette-preview-wrap').style.display = 'none';
+  document.getElementById('btn-palette-apply').disabled = true;
+  _currentPalette = null;
+  document.getElementById('dlg-palette').showModal();
+});
+
+document.getElementById('btn-palette-parse').addEventListener('click', () => {
+  const text = document.getElementById('palette-text').value;
+  const msg = document.getElementById('palette-msg');
+  msg.className = 'dlg-msg';
+  try {
+    const parsed = parsePalette(text);
+    const guessed = guessRoles(parsed.swatches);
+    const result = { format: parsed.format, mode: guessed.mode, swatches: guessed.swatches };
+    renderPalettePreview(result);
+    msg.className = 'dlg-msg ok';
+    msg.textContent = `Detected ${parsed.format.replace(/-/g, ' ')} · ${parsed.swatches.length} swatches · ${guessed.mode} mode. Tweak the role for any swatch below before applying.`;
+  } catch (e) {
+    msg.textContent = 'Parse failed: ' + e.message;
+    document.getElementById('palette-preview-wrap').style.display = 'none';
+    document.getElementById('btn-palette-apply').disabled = true;
+  }
+});
+
+document.getElementById('palette-mode-toggle').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-mode]');
+  if (!btn || !_currentPalette) return;
+  const mode = btn.dataset.mode;
+  // re-run role guess with the user-overridden mode
+  const guessed = guessRoles(_currentPalette.swatches.map(({ idx, oklch, ...rest }) => ({ ...rest })), mode);
+  renderPalettePreview({ format: _currentPalette.format, mode: guessed.mode, swatches: guessed.swatches });
+});
+
+document.getElementById('btn-palette-apply').addEventListener('click', () => {
+  if (!_currentPalette) return;
+  applyPaletteToVariation(_currentPalette);
+  document.getElementById('dlg-palette').close();
+});
+
+document.querySelectorAll('[data-close]').forEach(b =>
+  b.addEventListener('click', () => document.getElementById(b.dataset.close).close())
+);
+
+/* ===================================================================
+   BOOT
+   =================================================================== */
+render();
+</script>
+</body>
+</html>
