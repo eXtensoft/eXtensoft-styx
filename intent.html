@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP-DB — Architecture Intent</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    /* ── Reset ────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokens ───────────────────────────────────────────────────── */
+    :root {
+      --bg:          #0d1117;
+      --surface:     #161b22;
+      --surface-2:   #21262d;
+      --border:      #30363d;
+      --text:        #c9d1d9;
+      --muted:       #8b949e;
+      --bright:      #f0f6fc;
+
+      --blue:        #58a6ff;
+      --blue-dim:    rgba(88,166,255,.12);
+      --blue-ring:   rgba(88,166,255,.25);
+
+      --green:       #3fb950;
+      --green-dim:   rgba(63,185,80,.12);
+      --green-ring:  rgba(63,185,80,.28);
+
+      --yellow:      #e3b341;
+      --yellow-dim:  rgba(227,179,65,.12);
+      --yellow-ring: rgba(227,179,65,.28);
+
+      --orange:      #ffa657;
+      --orange-dim:  rgba(255,166,87,.12);
+      --orange-ring: rgba(255,166,87,.28);
+
+      --red:         #ff7b72;
+      --red-dim:     rgba(255,123,114,.12);
+      --red-ring:    rgba(255,123,114,.28);
+
+      --purple:      #bc8cff;
+      --purple-dim:  rgba(188,140,255,.12);
+      --purple-ring: rgba(188,140,255,.28);
+
+      --lavender:    #d2a8ff;
+      --lavender-dim:  rgba(210,168,255,.12);
+      --lavender-ring: rgba(210,168,255,.28);
+
+      --cyan:        #79c0ff;
+      --cyan-dim:    rgba(121,192,255,.12);
+      --cyan-ring:   rgba(121,192,255,.28);
+
+      --teal:        #39d353;
+      --teal-dim:    rgba(57,211,83,.12);
+      --teal-ring:   rgba(57,211,83,.28);
+
+      --pink:        #f778a1;
+      --pink-dim:    rgba(247,120,161,.12);
+      --pink-ring:   rgba(247,120,161,.28);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    /* ── Navigation ───────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,17,23,.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 1280px; margin: 0 auto; padding: 0 2rem;
+    }
+    .nav-brand {
+      font-size: .875rem; font-weight: 800;
+      color: var(--bright); padding: 1rem 0; letter-spacing: .04em;
+    }
+    .nav-brand em { color: var(--blue); font-style: normal; }
+    .nav-links { display: flex; list-style: none; }
+    .nav-links a {
+      display: block; padding: .9rem 1rem;
+      color: var(--muted); text-decoration: none;
+      font-size: .8125rem; font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: color .15s, border-color .15s;
+      white-space: nowrap;
+    }
+    .nav-links a:hover { color: var(--bright); border-bottom-color: var(--blue); }
+
+    /* ── Hero ─────────────────────────────────────────────────────── */
+    .hero {
+      padding: 7rem 2rem 5.5rem;
+      text-align: center;
+      background:
+        radial-gradient(ellipse 80% 55% at 50% -5%, rgba(88,166,255,.09) 0%, transparent 65%),
+        var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .35rem 1rem; border-radius: 9999px;
+      background: var(--blue-dim); border: 1px solid var(--blue-ring);
+      color: var(--blue); font-size: .72rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; margin-bottom: 1.75rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.25rem, 5vw, 3.75rem);
+      font-weight: 800; color: var(--bright);
+      letter-spacing: -.04em; line-height: 1.1; margin-bottom: 1.25rem;
+    }
+    .hero h1 em { color: var(--blue); font-style: normal; }
+    .hero-sub {
+      font-size: 1.0625rem; color: var(--muted);
+      max-width: 660px; margin: 0 auto 2.75rem; line-height: 1.7;
+    }
+    .tech-pills {
+      display: flex; flex-wrap: wrap; gap: .625rem; justify-content: center;
+    }
+    .tech-pill {
+      padding: .3rem .9rem; border-radius: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--muted); font-size: .775rem; font-weight: 500;
+      font-family: "Cascadia Code", "JetBrains Mono", "Fira Code", monospace;
+    }
+
+    /* ── Main ─────────────────────────────────────────────────────── */
+    main { max-width: 1280px; margin: 0 auto; padding: 4.5rem 2rem; }
+
+    /* ── Section ──────────────────────────────────────────────────── */
+    .section { margin-bottom: 5.5rem; }
+    .section-hd {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 2.5rem; padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-num {
+      display: flex; align-items: center; justify-content: center;
+      width: 2.25rem; height: 2.25rem; border-radius: 8px; flex-shrink: 0;
+      background: var(--blue-dim); border: 1px solid var(--blue-ring);
+      color: var(--blue); font-size: .72rem; font-weight: 800;
+    }
+    .section-hd h2 {
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--bright); letter-spacing: -.02em;
+    }
+    .section-lead {
+      font-size: .9375rem; color: var(--muted);
+      margin-top: -1.75rem; margin-bottom: 2.5rem; max-width: 700px;
+    }
+
+    /* ── Narrative ───────────────────────────────────────────────────── */
+    .narrative { display: flex; flex-direction: column; gap: 1.25rem; }
+    .narrative-lede {
+      font-size: 1.05rem; color: var(--text); line-height: 1.8;
+      border-left: 3px solid var(--purple); padding-left: 1.375rem;
+    }
+    .narrative p { font-size: .9375rem; color: var(--muted); line-height: 1.75; margin: 0; }
+    .narrative h4 {
+      font-size: .875rem; font-weight: 700; color: var(--bright);
+      letter-spacing: .01em; margin: 1.125rem 0 .45rem;
+    }
+    .narrative h4:first-child { margin-top: 0; }
+    .narrative-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+    .narrative-col { display: flex; flex-direction: column; gap: .75rem; }
+    .narrative strong { color: var(--bright); }
+    .narrative em { color: var(--text); font-style: italic; } ────────────────────────────────────────────────── */
+    .tree-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+    }
+    .fake-bar {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .75rem 1.25rem;
+      background: var(--surface-2); border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .d-r { background: #ff5f57; }
+    .d-y { background: #febc2e; }
+    .d-g { background: #28c840; }
+    .fake-bar span {
+      font-size: .75rem; color: var(--muted); margin-left: .5rem;
+      font-family: "Cascadia Code", "JetBrains Mono", monospace;
+    }
+    .tree-wrap pre {
+      padding: 1.75rem 2rem; overflow-x: auto;
+      font-family: "Cascadia Code", "JetBrains Mono", "Fira Code", monospace;
+      font-size: .8125rem; line-height: 1.95; color: var(--text);
+    }
+    .tree-wrap pre .d  { color: var(--blue); }
+    .tree-wrap pre .t  { color: var(--cyan); }
+    .tree-wrap pre .s  { color: var(--orange); }
+    .tree-wrap pre .e  { color: var(--yellow); }
+    .tree-wrap pre .c  { color: var(--muted); font-style: italic; }
+
+    /* ── Diagram ──────────────────────────────────────────────────── */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 2.5rem 2rem;
+      overflow-x: auto;
+    }
+    .diagram-wrap svg {
+      width: 100% !important;
+      height: auto !important;
+      max-width: 100%;
+      display: block;
+    }
+
+    /* ── ADR Grid ─────────────────────────────────────────────────── */
+    .adr-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1rem;
+    }
+    .adr-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.375rem 1.5rem;
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: border-color .2s, box-shadow .2s;
+      /* per-card accent tokens supplied via inline style */
+    }
+    .adr-card::before {
+      content: ''; position: absolute;
+      left: 0; top: 0; bottom: 0; width: 3px;
+      background: var(--a, var(--blue));
+    }
+    .adr-card:hover {
+      border-color: var(--a, var(--blue));
+      box-shadow: 0 4px 28px rgba(0,0,0,.35);
+    }
+    .adr-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: .75rem;
+    }
+    .adr-n {
+      font-size: .7rem; font-weight: 700;
+      color: var(--muted); letter-spacing: .08em; text-transform: uppercase;
+    }
+    .adr-tag {
+      font-size: .65rem; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: .2rem .6rem; border-radius: 4px; border: 1px solid;
+      color: var(--a, var(--blue));
+      background: var(--a-dim, var(--blue-dim));
+      border-color: var(--a-ring, var(--blue-ring));
+    }
+    .adr-card h3 {
+      font-size: .9375rem; font-weight: 700;
+      color: var(--bright); margin-bottom: .625rem; line-height: 1.3;
+    }
+    .adr-ctx {
+      font-size: .8125rem; color: var(--muted);
+      margin-bottom: .875rem; line-height: 1.55;
+    }
+    .adr-sel {
+      display: flex; align-items: baseline; gap: .5rem;
+      padding: .6rem .875rem; border-radius: 6px;
+      background: var(--a-dim, var(--blue-dim));
+      margin-bottom: .875rem;
+    }
+    .adr-sel-lbl {
+      font-size: .68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--a, var(--blue)); flex-shrink: 0;
+    }
+    .adr-sel-val {
+      font-size: .8125rem; font-weight: 600;
+      color: var(--bright);
+      font-family: "Cascadia Code", "JetBrains Mono", monospace;
+    }
+    .adr-ram {
+      font-size: .8rem; color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: .75rem; margin-top: auto; line-height: 1.6;
+    }
+
+    /* ── Ensemble ─────────────────────────────────────────────────── */
+    .ensemble-blurb {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 3px solid var(--purple);
+      border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 2rem;
+    }
+    .ensemble-blurb p { font-size: .9375rem; color: var(--muted); line-height: 1.7; }
+    .ensemble-blurb strong { color: var(--bright); }
+
+    .roles-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1rem; margin-bottom: 2.5rem;
+    }
+    .role-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.75rem 1.5rem; text-align: center;
+    }
+    .role-icon { font-size: 2.25rem; margin-bottom: .875rem; }
+    .role-title {
+      font-size: .9375rem; font-weight: 700;
+      color: var(--bright); margin-bottom: .2rem;
+    }
+    .role-type {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted); margin-bottom: .875rem;
+    }
+    .role-desc { font-size: .8125rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── Footer ───────────────────────────────────────────────────── */
+    footer {
+      text-align: center; padding: 3rem 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted); font-size: .8125rem;
+    }
+
+    /* ── Responsive ───────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .roles-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero { padding: 4rem 1.5rem 3.5rem; }
+      main { padding: 3rem 1.5rem; }
+      .adr-grid { grid-template-columns: 1fr; }
+      .roles-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ──────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand"><em>MCP</em>-DB</div>
+    <ul class="nav-links">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#structure">Structure</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#decisions">Decisions</a></li>
+      <li><a href="#ensemble">Ensemble</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── Hero ────────────────────────────────────────────────────────── -->
+<header class="hero">
+  <div class="hero-badge">Architecture Intent</div>
+  <h1>MCP-DB <em>Server</em></h1>
+  <p class="hero-sub">
+    A hexagonal, strategy-pattern MCP server for multi-database metadata
+    interrogation — purpose-built to expose the physical–logical impedance
+    mismatch between relational schemas and domain models.
+  </p>
+  <div class="tech-pills">
+    <span class="tech-pill">TypeScript</span>
+    <span class="tech-pill">Hexagonal Architecture</span>
+    <span class="tech-pill">MCP · Stdio</span>
+    <span class="tech-pill">SQL Server · Postgres · Oracle · MySQL · DB2</span>
+    <span class="tech-pill">pnpm Workspaces</span>
+    <span class="tech-pill">ESM · NodeNext</span>
+  </div>
+</header>
+
+<!-- ── Main ────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- ══ 00 Overview ════════════════════════════════════════════════ -->
+  <section class="section" id="overview">
+    <div class="section-hd">
+      <div class="section-num">00</div>
+      <h2>Overview</h2>
+    </div>
+    <p class="section-lead">
+      What MCP-DB is, why it exists, and how it fits the broader design model.
+    </p>
+    <div class="narrative-cols">
+      <div class="narrative-col narrative">
+        <h4>What is MCP-DB?</h4>
+        <p>Most database tools answer operational questions: <em>Is the service up? How many rows are in that table?</em> MCP-DB asks a different kind of question — the kind a senior architect asks when handed an unfamiliar legacy system: <em>What does this database actually reveal about the business domain? Where does the physical structure betray the logical intent?</em></p>
+        <p>MCP-DB is a Model Context Protocol server that gives LLMs direct, structured access to relational database metadata across any supported engine. It speaks the language every major database understands — DDL catalogs, statistical profiles, file capacity — and translates that raw information into a normalized, dialect-neutral payload that an evaluating LLM can reason over without needing to understand engine-specific quirks.</p>
+
+        <h4>The Problem It Solves</h4>
+        <p>Brownfield systems accumulate a particular kind of debt that code metrics cannot capture: the gap between how a database was physically built and what the business actually needed. Tables named after implementation decisions rather than domain concepts. Foreign keys enforcing relationships the domain abandoned a decade ago. Columns with null rates above 90% that no one dare remove. This is <strong>physical–logical impedance mismatch</strong> — and it is invisible to tools that only report structure without context.</p>
+        <p>MCP-DB surfaces this mismatch by pairing three independently-queryable metadata tiers, each with its own volatility and cost profile:</p>
+        <ul style="margin:.5rem 0 0 1rem;padding:0;color:var(--muted);font-size:.9375rem;line-height:1.85;list-style:disc inside;">
+          <li><strong>Schema</strong> — LOW volatility. The <em>shape</em> of the data: DDL, columns, constraints, relationships, stored procs.</li>
+          <li><strong>Profile</strong> — MEDIUM volatility. The <em>behaviour</em> of the data: row counts, null rates, cardinality, value distributions.</li>
+          <li><strong>Capacity</strong> — HIGH volatility. The <em>health</em> of the deployment: file sizes, growth settings, auto-grow history.</li>
+        </ul>
+      </div>
+      <div class="narrative-col narrative">
+        <h4>How It Works</h4>
+        <p>An LLM connects to MCP-DB via stdio transport and calls one of four tools, supplying a connection string and dialect identifier for the target database. The request flows through a hexagonal architecture:</p>
+        <ol style="margin:.5rem 0 0 1rem;padding:0;color:var(--muted);font-size:.9375rem;line-height:1.85;list-style:decimal inside;">
+          <li>A Zod-validated <strong>McpServerAdapter</strong> receives the JSON-RPC call</li>
+          <li><strong>MetadataService</strong> resolves the correct <strong>IDatabaseStrategy</strong> from its registry using the dialect discriminator</li>
+          <li>The adapter executes dialect-specific catalog SQL, maps native types through a <strong>NormalizedType</strong> vocabulary, and returns a clean structured payload</li>
+          <li>A short-lived SHA-256-keyed TTL cache absorbs burst reads from concurrent evaluators</li>
+        </ol>
+        <p>No credentials are stored server-side. The caller owns its secrets and supplies them on every call.</p>
+
+        <h4>The Bigger Picture</h4>
+        <p class="narrative-lede">MCP-DB is the AS-IS interrogation layer in the <strong>Three-Ring Design Model</strong>.</p>
+        <p>It feeds a council of LLM evaluators — the <em>ensemble</em> — which extracts the technology-neutral domain model (WHAT-IT-IS) that the database was always meant to represent. A Mediator reconciles their independent findings; a human expert (the Grey Beard) holds final authority.</p>
+        <p>The result is not a migration plan. It is a <strong>clarity instrument</strong> — making the gap between what was built and what was intended explicit, auditable, and correctable.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 01 Project Structure ═══════════════════════════════════════ -->
+  <section class="section" id="structure">
+    <div class="section-hd">
+      <div class="section-num">01</div>
+      <h2>Project Structure</h2>
+    </div>
+    <p class="section-lead">
+      Filesystem layout reflecting the hexagonal layering — core, primary adapter,
+      and secondary adapters, each with clear responsibility boundaries.
+    </p>
+
+    <div class="tree-wrap">
+      <div class="fake-bar">
+        <div class="dot d-r"></div>
+        <div class="dot d-y"></div>
+        <div class="dot d-g"></div>
+        <span>mcp-db-server/</span>
+      </div>
+      <pre>
+<span class="d">mcp-db-server/</span>
+├── <span class="d">src/</span>
+│   ├── <span class="d">core/</span>                                                <span class="c">the hexagon (pure logic)</span>
+│   │   ├── <span class="d">ports/</span>                                           <span class="c">interfaces</span>
+│   │   │   └── <span class="t">IDatabaseStrategy.ts</span>
+│   │   ├── <span class="d">services/</span>                                        <span class="c">application logic</span>
+│   │   │   ├── <span class="t">MetadataService.ts</span>                           <span class="c">strategy registry, cache integration, lifecycle</span>
+│   │   │   └── <span class="t">MetadataCache.ts</span>                             <span class="c">keyed TTL cache — per-tier TTLs, SHA-256 keys, LRU eviction</span>
+│   │   └── <span class="d">types/</span>                                           <span class="c">data contracts (volatility-decomposed)</span>
+│   │       ├── <span class="t">NormalizedType.ts</span>                            <span class="c">canonical cross-dialect type vocabulary</span>
+│   │       ├── <span class="t">SchemaMetadata.ts</span>                            <span class="c">LOW  — DDL, columns, constraints</span>
+│   │       ├── <span class="t">DataProfile.ts</span>                               <span class="c">MED  — row counts, null rates, cardinality</span>
+│   │       └── <span class="t">CapacitySnapshot.ts</span>                          <span class="c">HIGH — file sizes, growth, auto-grow history</span>
+│   ├── <span class="d">adapters/</span>                                            <span class="c">the plugs</span>
+│   │   ├── <span class="d">primary/</span>                                         <span class="c">driving: MCP Server (Driving Port)</span>
+│   │   │   ├── <span class="t">McpServerAdapter.ts</span>                          <span class="c">tool registration, dispatch, error mapping</span>
+│   │   │   └── <span class="t">schemas.ts</span>                                   <span class="c">Zod schemas — 4 tools, shared ConnectionInput base</span>
+│   │   └── <span class="d">secondary/</span>                                       <span class="c">driven: Database Adapters (Driven Ports)</span>
+│   │       ├── <span class="t">loadScript.ts</span>                                <span class="c">ESM SQL file loader — import.meta.url-relative</span>
+│   │       ├── <span class="t">sql-analysis.txt</span>                             <span class="c">analysis notes &amp; scratch SQL</span>
+│   │       ├── <span class="t">SqlServerAdapter.ts</span>
+│   │       │   ├── <span class="d">resources/</span>                               <span class="c">TypeScript assets</span>
+│   │       │   │   ├── <span class="t">typeMap.ts</span>                           <span class="c">SQL Server → NormalizedType</span>
+│   │       │   │   └── <span class="t">queries.ts</span>                           <span class="c">constants → '../scripts/*.sql'</span>
+│   │       │   └── <span class="d">scripts/</span>                                 <span class="c">SQL dialect assets</span>
+│   │       │       ├── <span class="s">Discovery.Tables.sql</span>                 <span class="c">table/view/column metadata</span>
+│   │       │       ├── <span class="s">Discovery.Views.sql</span>                  <span class="c">views query</span>
+│   │       │       ├── <span class="s">Discovery.StoredProcedures.sql</span>       <span class="c">stored-proc signatures</span>
+│   │       │       ├── <span class="s">profile.sql</span>                          <span class="c">statistical data profiling (DataProfile)</span>
+│   │       │       ├── <span class="s">get-inventory.sql</span>                    <span class="c">instance capacity (CapacitySnapshot)</span>
+│   │       │       └── <span class="s">capacity.sql</span>                         <span class="c">volume free-disk summary (CapacitySnapshot.freeDiskMb)</span>
+│   │       ├── <span class="t">PostgresAdapter.ts</span>
+│   │       │   └── <span class="d">resources/</span>
+│   │       │       ├── <span class="t">typeMap.ts</span>                           <span class="c">Postgres → NormalizedType</span>
+│   │       │       └── <span class="t">queries.ts</span>
+│   │       ├── <span class="t">OracleAdapter.ts</span>
+│   │       │   └── <span class="d">resources/</span>
+│   │       │       ├── <span class="t">typeMap.ts</span>                           <span class="c">Oracle → NormalizedType</span>
+│   │       │       └── <span class="t">queries.ts</span>
+│   │       ├── <span class="t">MySqlAdapter.ts</span>
+│   │       │   ├── <span class="d">resources/</span>
+│   │       │   │   ├── <span class="t">typeMap.ts</span>                           <span class="c">MySQL → NormalizedType</span>
+│   │       │   │   └── <span class="t">queries.ts</span>
+│   │       │   └── <span class="d">scripts/</span>
+│   │       │       └── <span class="s">Discovery.Tables.MySql.sql</span>           <span class="c">table/view/column metadata</span>
+│   │       └── <span class="t">DB2Adapter.ts</span>
+│   │           └── <span class="d">resources/</span>
+│   │               ├── <span class="t">typeMap.ts</span>                           <span class="c">DB2 → NormalizedType</span>
+│   │               └── <span class="t">queries.ts</span>
+│   ├── <span class="t">main.ts</span>                                              <span class="c">composition root (DI setup)</span>
+│   └── <span class="t">config.ts</span>                                            <span class="c">LLM API keys only</span>
+├── <span class="e">.env</span>                                                     <span class="c">LLM API keys only (git-ignored)</span>
+├── <span class="t">package.json</span>
+├── <span class="t">tsconfig.json</span>
+└── <span class="t">README.md</span>
+      </pre>
+    </div>
+  </section>
+
+  <!-- ══ 02 Architecture Diagram ════════════════════════════════════ -->
+  <section class="section" id="architecture">
+    <div class="section-hd">
+      <div class="section-num">02</div>
+      <h2>Architecture Diagram</h2>
+    </div>
+    <p class="section-lead">
+      Hexagonal topology — the LLM client drives inward through the MCP adapter;
+      domain logic routes outward to the correct database strategy at runtime.
+    </p>
+    <div class="diagram-wrap">
+      <div id="diag-arch-out"></div>
+    </div>
+  </section>
+
+  <!-- ══ 03 Architecture Decisions ══════════════════════════════════ -->
+  <section class="section" id="decisions">
+    <div class="section-hd">
+      <div class="section-num">03</div>
+      <h2>Architecture Decisions</h2>
+    </div>
+    <p class="section-lead">
+      13 pivotal decisions — each with context, selection rationale, and ramifications.
+    </p>
+
+    <div class="adr-grid">
+
+      <!-- 01 TypeScript -->
+      <div class="adr-card" style="--a:var(--blue);--a-dim:var(--blue-dim);--a-ring:var(--blue-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 01</span>
+          <span class="adr-tag">Technology</span>
+        </div>
+        <h3>Implementation Language</h3>
+        <p class="adr-ctx">Deep .NET experience, but the target ecosystem is the MCP Server SDK — a Node-first world.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">TypeScript</span>
+        </div>
+        <p class="adr-ram">Opens the door to the official <code>@modelcontextprotocol/sdk</code>. Closes the door on reusing existing C# DLLs without a bridge.</p>
+      </div>
+
+      <!-- 02 Hexagonal -->
+      <div class="adr-card" style="--a:var(--purple);--a-dim:var(--purple-dim);--a-ring:var(--purple-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 02</span>
+          <span class="adr-tag">Pattern</span>
+        </div>
+        <h3>Architectural Pattern: Hexagonal</h3>
+        <p class="adr-ctx">Need to support multiple DB dialects and multiple UI heads (MCP Server &amp; Electron) from a single core.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Hexagonal (Ports &amp; Adapters)</span>
+        </div>
+        <p class="adr-ram">Strictly decouples "Database Interrogation Logic" from "MCP Protocol." Stdio can be swapped for IPC (Electron) or REST without touching the SQL strategies.</p>
+      </div>
+
+      <!-- 03 Manual DI -->
+      <div class="adr-card" style="--a:var(--green);--a-dim:var(--green-dim);--a-ring:var(--green-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 03</span>
+          <span class="adr-tag">Packaging</span>
+        </div>
+        <h3>Bootstrapper: Manual Composition Root</h3>
+        <p class="adr-ctx">NestJS is familiar to ASP.NET developers (decorators) but carries high overhead that hides the simple Stdio lifecycle.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Manual Root (main.ts)</span>
+        </div>
+        <p class="adr-ram">Retains a "Pure Node" footprint. No reflection/decorator performance hit. Easy to debug the startup sequence in a restricted environment.</p>
+      </div>
+
+      <!-- 04 SQL Files -->
+      <div class="adr-card" style="--a:var(--yellow);--a-dim:var(--yellow-dim);--a-ring:var(--yellow-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 04</span>
+          <span class="adr-tag">Strategy Asset Management</span>
+        </div>
+        <h3>SQL Externalization: .sql Files via QueryLoader</h3>
+        <p class="adr-ctx">Dialect-specific "Base" queries must be managed independently — syntax highlighting and isolated testing are requirements.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Strategy-specific resource folders</span>
+        </div>
+        <p class="adr-ram">Enables SQL syntax highlighting and independent query testing. Precludes heavy ORMs (EF/Prisma) in favor of raw performance and metadata precision.</p>
+      </div>
+
+      <!-- 05 Air-Gapped -->
+      <div class="adr-card" style="--a:var(--orange);--a-dim:var(--orange-dim);--a-ring:var(--orange-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 05</span>
+          <span class="adr-tag">Environment</span>
+        </div>
+        <h3>Deployment: In-House / Air-Gapped</h3>
+        <p class="adr-ctx">No external registry or cloud access. Running on high-spec local hardware with intentional network isolation.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Local Stdio + Offline pnpm Workspace</span>
+        </div>
+        <p class="adr-ram">Dictates flattened Zod schemas for local LLMs (Ollama) that have lower reasoning density than Claude. Requires manual caching of Node binary dependencies.</p>
+      </div>
+
+      <!-- 06 Lazy Pool -->
+      <div class="adr-card" style="--a:var(--teal);--a-dim:var(--teal-dim);--a-ring:var(--teal-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 06</span>
+          <span class="adr-tag">Resource Management</span>
+        </div>
+        <h3>Connection Lifecycle: Lazy-Initialized Pooling</h3>
+        <p class="adr-ctx">The server supports many RDBMS types, but only one is used per session. Static boot-time connections are wasteful and fragile.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Lazy Singleton Pool per Strategy</span>
+        </div>
+        <p class="adr-ram">The system is "self-healing." If an in-house DB goes offline and recovers, the adapter reconnects automatically on the next tool call — no restart required.</p>
+      </div>
+
+      <!-- 07 Secrets -->
+      <div class="adr-card" style="--a:var(--red);--a-dim:var(--red-dim);--a-ring:var(--red-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 07</span>
+          <span class="adr-tag">Security</span>
+        </div>
+        <h3>Secret Management: Local Environment Variables</h3>
+        <p class="adr-ctx">Cloud API keys (Claude/OpenAI) and local DB credentials must never be committed to source control.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">.env files for LLM keys only — see ADR 16 for DB credentials</span>
+        </div>
+        <p class="adr-ram">LLM API keys stay in <code>.env</code> (git-ignored). Database connection strings are <em>not stored on the server</em> — they are supplied per-call by the consumer. The server holds no DB credentials at rest.</p>
+      </div>
+
+      <!-- 08 ESM Build -->
+      <div class="adr-card" style="--a:var(--green);--a-dim:var(--green-dim);--a-ring:var(--green-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 08</span>
+          <span class="adr-tag">Packaging</span>
+        </div>
+        <h3>Build Output: ESM via pnpm Workspaces</h3>
+        <p class="adr-ctx">The shared core must be compatible with both the modern MCP SDK and the Electron Main process.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">NodeNext / ESM</span>
+        </div>
+        <p class="adr-ram">Requires explicit file extensions on all imports (e.g., <code>./file.js</code>). Provides the most future-proof path for both Node and Electron targets.</p>
+      </div>
+
+      <!-- 09 Monorepo -->
+      <div class="adr-card" style="--a:var(--green);--a-dim:var(--green-dim);--a-ring:var(--green-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 09</span>
+          <span class="adr-tag">Packaging</span>
+        </div>
+        <h3>Consumer Pattern: Local Monorepo</h3>
+        <p class="adr-ctx">The core (db-core) must be shared between the MCP Server and a Desktop Tool (Electron) without publishing to any registry.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Symlinked Workspaces (workspace:*)</span>
+        </div>
+        <p class="adr-ram">Enables "live editing" — changes in the core are immediately reflected in both consumers. Precludes versioning overhead during greenfield development.</p>
+      </div>
+
+      <!-- 10 Stdio -->
+      <div class="adr-card" style="--a:var(--cyan);--a-dim:var(--cyan-dim);--a-ring:var(--cyan-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 10</span>
+          <span class="adr-tag">Connectivity</span>
+        </div>
+        <h3>LLM Agnostic Bridge: Stdio Transport</h3>
+        <p class="adr-ctx">Must support both local LLMs (Ollama) and cloud LLMs (Claude/OpenAI) while keeping all code and data strictly in-house.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Stdio Transport exclusively</span>
+        </div>
+        <p class="adr-ram">Maintains maximum privacy. Cloud LLMs interact only through a local host (e.g., Claude Desktop). No inbound ports are opened; the server remains invisible to the internet.</p>
+      </div>
+
+      <!-- 11 ESM Module System -->
+      <div class="adr-card" style="--a:var(--blue);--a-dim:var(--blue-dim);--a-ring:var(--blue-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 11</span>
+          <span class="adr-tag">Technology</span>
+        </div>
+        <h3>Module System: Pure ES Modules</h3>
+        <p class="adr-ctx">Modern Node.js requirements for MCP SDKs and future-proofing the shared core library demand a clear module stance.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">"type": "module" + NodeNext resolution</span>
+        </div>
+        <p class="adr-ram">Requires strict ESM syntax (file extensions in imports). Ensures seamless integration with the official MCP SDK, which is increasingly ESM-first.</p>
+      </div>
+
+      <!-- 12 Core Purpose -->
+      <div class="adr-card" style="--a:var(--lavender);--a-dim:var(--lavender-dim);--a-ring:var(--lavender-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 12</span>
+          <span class="adr-tag">Strategic Intent</span>
+        </div>
+        <h3>Core Purpose: Domain-Physical Fitness Evaluation</h3>
+        <p class="adr-ctx">This is not a generic DB admin tool. It is designed to expose the "friction" between DB-centric E/R models and domain-centric designs.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Normalized Metadata Enrichment</span>
+        </div>
+        <p class="adr-ram">Every base query must return heuristics (size, uniqueness, constraints) rather than just names. Output is optimized for LLM structural auditing against a companion MCP-FS context.</p>
+      </div>
+
+      <!-- 16 Credential Model -->
+      <div class="adr-card" style="--a:var(--red);--a-dim:var(--red-dim);--a-ring:var(--red-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 16</span>
+          <span class="adr-tag">Security</span>
+        </div>
+        <h3>Credential Model: Per-Request Connection Strings</h3>
+        <p class="adr-ctx">The server must support multiple callers connecting to different databases without storing any credentials at rest. The original single-connection <code>.env</code> model is too rigid for a multi-consumer interrogation tool.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Connection string passed by caller on every invocation</span>
+        </div>
+        <p class="adr-ram">The server is stateless with respect to credentials. Every tool call carries a <code>connectionString</code> + dialect discriminator. Ad hoc queries follow the same model. Builders must enforce read-only access at the DB permission level, not in application code.</p>
+      </div>
+
+      <!-- 21 Connection String Formats -->
+      <div class="adr-card" style="--a:var(--cyan);--a-dim:var(--cyan-dim);--a-ring:var(--cyan-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 21</span>
+          <span class="adr-tag">Reference</span>
+        </div>
+        <h3>Connection String Formats per Dialect</h3>
+        <p class="adr-ctx"><code>IDatabaseStrategy</code> and <code>ConnectionInput</code> accept an opaque <code>connectionString: string</code>. Each adapter expects a specific format. Callers must supply the correct format for the target dialect — the server does no format translation.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Formats</span>
+          <span class="adr-sel-val">ADO.NET &middot; PostgreSQL URL &middot; Oracle EZConnect &middot; MySQL URL &middot; DB2 DSN</span>
+        </div>
+        <p class="adr-ram">
+          <strong>sqlserver</strong> — ADO.NET key=value:<br>
+          <code>Server=host,1433;Database=db;User Id=u;Password=p;TrustServerCertificate=True</code><br><br>
+          <strong>postgres</strong> — RFC 3986 URL:<br>
+          <code>postgresql://user:pass@host:5432/dbname</code><br><br>
+          <strong>oracle</strong> — EZConnect or TNS descriptor:<br>
+          <code>user/pass@host:1521/service_name</code><br><br>
+          <strong>mysql</strong> — RFC 3986 URL (mysql2 driver):<br>
+          <code>mysql://user:pass@host:3306/dbname</code><br><br>
+          <strong>db2</strong> — ibm_db DSN key=value:<br>
+          <code>DATABASE=db;HOSTNAME=host;PORT=50000;PROTOCOL=TCPIP;UID=u;PWD=p</code><br><br>
+          Builder note: validate format in the adapter’s <code>normalise()</code> helper before attempting a connection. A malformed string should throw <code>AdapterException { kind: &apos;validation&apos; }</code> before any socket is opened.
+        </p>
+      </div>
+
+      <!-- 22 SQL Script Loader -->
+      <div class="adr-card" style="--a:var(--lavender);--a-dim:var(--lavender-dim);--a-ring:var(--lavender-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 22</span>
+          <span class="adr-tag">Infrastructure</span>
+        </div>
+        <h3>SQL Script Loader: ESM import.meta.url Pattern</h3>
+        <p class="adr-ctx">In ESM / NodeNext, <code>.sql</code> files cannot be statically imported. Paths resolved via <code>process.cwd()</code> or a hardcoded base break when the process is launched from a different working directory (MCP host, test runner, etc.).</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val"><code>loadScript(dir, filename)</code> with <code>import.meta.url</code>-relative resolution</span>
+        </div>
+        <p class="adr-ram"><code>loadScript.ts</code> at <code>src/adapters/secondary/</code> exposes a single async function. Each adapter’s <code>queries.ts</code> derives <code>scriptDir</code> via <code>fileURLToPath(new URL(&apos;../scripts/&apos;, import.meta.url))</code> — anchored to the source file’s location, immune to cwd and symlinks. Each <code>Queries</code> entry is a thunk (<code>() =&gt; Promise&lt;string&gt;</code>) for lazy loading. <code>loadScript</code> does not cache internally — result caching is handled at the <code>MetadataCache</code> level. Missing scripts surface as <code>AdapterException { kind: &apos;validation&apos; }</code> (a deployment configuration error).</p>
+      </div>
+
+      <!-- 19 MetadataService -->
+      <div class="adr-card" style="--a:var(--blue);--a-dim:var(--blue-dim);--a-ring:var(--blue-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 19</span>
+          <span class="adr-tag">Architecture</span>
+        </div>
+        <h3>MetadataService: Strategy Registry &amp; Adapter Lifecycle</h3>
+        <p class="adr-ctx">The hexagon needs a single coordination point that resolves the correct database adapter at runtime, integrates the cache layer, and owns adapter lifecycle — without coupling core logic to any specific driver or MCP protocol detail.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Registry <code>Map&lt;dialect, IDatabaseStrategy&gt;</code> injected at composition root</span>
+        </div>
+        <p class="adr-ram">Strategy instances are long-lived singletons registered in <code>main.ts</code>. Each adapter manages its own internal connection pool keyed by connection string; no adapter holds an idle connection. An unknown dialect throws <code>AdapterException { kind: &apos;validation&apos; }</code> before any DB call is attempted. <code>dispose()</code> uses <code>Promise.allSettled</code> so one failing adapter cannot prevent others from cleaning up. <code>executeQuery</code> bypasses the cache entirely — ad hoc results are caller-defined and unpredictable.</p>
+      </div>
+
+      <!-- 20 MetadataCache -->
+      <div class="adr-card" style="--a:var(--green);--a-dim:var(--green-dim);--a-ring:var(--green-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 20</span>
+          <span class="adr-tag">Performance</span>
+        </div>
+        <h3>MetadataCache: Keyed TTL Cache with Per-Tier TTLs</h3>
+        <p class="adr-ctx">Multiple evaluators may call the same tool against the same database within seconds of each other. Re-running expensive catalog queries or full-table profile scans for each caller is wasteful and slow. A shared in-process cache absorbs burst reads.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">In-process <code>Map</code> with SHA-256 keys, lazy TTL eviction, LRU overflow</span>
+        </div>
+        <p class="adr-ram">TTLs mirror volatility tiers: <code>SCHEMA</code> 1 hour, <code>PROFILE</code> 15 minutes, <code>CAPACITY</code> 5 minutes (set to 0 to disable). Keys are SHA-256 digests of <code>[tier, dialect, connectionString, database?, tables?]</code> — credentials never appear as plain-text map keys. Eviction is lazy (on read) plus insertion-order LRU overflow at <code>maxEntries</code> (default 256). <code>invalidate(key)</code> supports targeted eviction after a known DDL change. Scoped to the current process — if mcp-db is ever deployed multi-instance, replace with a shared store.</p>
+      </div>
+
+      <!-- 18 MCP Tool Surface -->
+      <div class="adr-card" style="--a:var(--teal);--a-dim:var(--teal-dim);--a-ring:var(--teal-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 18</span>
+          <span class="adr-tag">Interface Design</span>
+        </div>
+        <h3>MCP Tool Surface: Four-Tool Design</h3>
+        <p class="adr-ctx">The LLM caller needs a complete but minimal surface to interrogate any supported database. Too many tools create ambiguity; too few collapse distinct volatility concerns into a single call, forcing callers to overfetch or re-call to re-profile.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Four tools — one per <code>IDatabaseStrategy</code> method</span>
+        </div>
+        <p class="adr-ram">Tools: <code>get_schema_metadata</code> (LOW), <code>get_data_profile</code> (MEDIUM), <code>get_capacity_snapshot</code> (HIGH), <code>execute_query</code> (ad hoc). All share a <code>ConnectionInput</code> base (<code>dialect</code> + <code>connectionString</code>) per ADR 16. Zod validates at the port entry — <code>ZodError</code> is immediately wrapped as <code>AdapterException { kind: &apos;validation&apos; }</code>. <code>McpServerAdapter</code> is the sole catch point for all errors; <code>AdapterException.error.message</code> is returned as <code>isError: true</code> MCP content — the <code>cause</code> field is never forwarded. Successful results are JSON-serialised as a single text content block.</p>
+      </div>
+
+      <!-- 17 Error Taxonomy -->
+      <div class="adr-card" style="--a:var(--orange);--a-dim:var(--orange-dim);--a-ring:var(--orange-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 17</span>
+          <span class="adr-tag">Error Handling</span>
+        </div>
+        <h3>Port Error Contract: AdapterError Taxonomy</h3>
+        <p class="adr-ctx">Raw driver exceptions (mssql, pg, oracledb) must not cross hexagonal port boundaries in their native form — each driver has its own error shape, codes, and vocabulary. McpServerAdapter needs a stable, driver-neutral error vocabulary to generate safe MCP error responses without leaking internal details.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Discriminated union <code>AdapterError</code> + <code>AdapterException</code> wrapper</span>
+        </div>
+        <p class="adr-ram">Six error kinds cover all failure modes at the boundary: <code>connection</code>, <code>not_found</code>, <code>permission</code>, <code>query</code>, <code>timeout</code>, <code>validation</code>, <code>unknown</code>. The <code>message</code> field is safe for LLM consumption. The <code>cause</code> field preserves the original driver error for local logging and is never forwarded to the caller. Core services do not catch <code>AdapterException</code> — they let it propagate to the primary adapter boundary. Each adapter implements a private <code>normalise()</code> helper mapping driver-specific codes to <code>AdapterErrorKind</code>.</p>
+      </div>
+
+      <!-- 13 Pluralistic Consensus -->
+      <div class="adr-card" style="--a:var(--pink);--a-dim:var(--pink-dim);--a-ring:var(--pink-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 13</span>
+          <span class="adr-tag">Philosophy</span>
+        </div>
+        <h3>Evaluation Model: Pluralistic Consensus</h3>
+        <p class="adr-ctx">Single-perspective analysis is prone to bias and hallucination. Fitness evaluation requires independent "eyes" to correlate findings.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">Strategy Pattern for Evaluators[]</span>
+        </div>
+        <p class="adr-ram">Must support "Blind Audits" — N evaluators process the same MCP-DB/FS context without seeing each other's work. A Mediator stage identifies the Intersection (Common Truth) and the Delta (Divergent Opinions).</p>
+      </div>
+
+      <!-- 14 Design Documentation Format -->
+      <div class="adr-card" style="--a:var(--yellow);--a-dim:var(--yellow-dim);--a-ring:var(--yellow-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 14</span>
+          <span class="adr-tag">Philosophy</span>
+        </div>
+        <h3>Design Documentation Format</h3>
+        <p class="adr-ctx">Design artifacts must be consumable by LLMs and humans alike, validatable by machines, and renderable into multiple output formats. A code-first format is too narrow; a document-first format must be the source of truth.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">YAML · JSON Schema · Transform Pipeline</span>
+        </div>
+        <p class="adr-ram">TypeScript interfaces and code contracts become <em>derived output</em> from YAML design documents — not the source of truth. A core vocabulary of primitives (ADR, DataContract, Role, Principle) is extended per domain (DataStorage, AppDesign, WebApp) and rendered to any target format without modifying the source.</p>
+      </div>
+
+      <!-- 15 Three-Ring Design Model -->
+      <div class="adr-card" style="--a:var(--orange);--a-dim:var(--orange-dim);--a-ring:var(--orange-ring)">
+        <div class="adr-meta">
+          <span class="adr-n">ADR 15</span>
+          <span class="adr-tag">Philosophy</span>
+        </div>
+        <h3>Three-Ring Design Model</h3>
+        <p class="adr-ctx">Brownfield migrations fail when AS-WILL-BE is designed against the AS-IS implementation rather than the underlying domain model — inheriting legacy accidents alongside legacy intent.</p>
+        <div class="adr-sel">
+          <span class="adr-sel-lbl">Selected</span>
+          <span class="adr-sel-val">AS-IS → WHAT-IT-IS → AS-WILL-BE</span>
+        </div>
+        <p class="adr-ram">MCP-DB and MCP-FS interrogate the AS-IS. The Evaluator ensemble extracts the technology-neutral WHAT-IT-IS domain model. AS-WILL-BE is then designed against that clean model — making fitness friction explicit and correctable rather than inherited. A ColdFusion system and a .NET system can share the same WHAT-IT-IS ring; the delta between them becomes auditable.</p>
+      </div>
+
+    </div><!-- /adr-grid -->
+  </section>
+
+  <!-- ══ 04 Ensemble Design ══════════════════════════════════════════ -->
+  <section class="section" id="ensemble">
+    <div class="section-hd">
+      <div class="section-num">04</div>
+      <h2>Ensemble Design: The Fitness Audit</h2>
+    </div>
+    <p class="section-lead">
+      Using MCP-DB and MCP-FS together to evaluate physical vs. logical impedance mismatch.
+    </p>
+
+    <div class="ensemble-blurb">
+      <p>
+        The audit is not a single-model pass. It is a <strong>council</strong> — multiple independent
+        LLM instances each ingest the same raw metadata and domain context in isolation, then
+        a Mediator correlates their findings. A human expert ("the Grey Beard") holds final
+        authority on the verdict.
+      </p>
+    </div>
+
+    <div class="roles-grid">
+      <div class="role-card">
+        <div class="role-icon">🔍</div>
+        <div class="role-title">The Evaluators</div>
+        <div class="role-type">N independent LLM instances</div>
+        <p class="role-desc">
+          Multiple independent LLM instances (LLaMA 3, Command R, etc.) ingest raw metadata
+          from MCP-DB and source code from MCP-FS. They identify "Friction Points" where the
+          DB structure contradicts or hinders the Domain Intent.
+        </p>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">⚖️</div>
+        <div class="role-title">The Mediator</div>
+        <div class="role-type">Specialized LLM role</div>
+        <p class="role-desc">
+          Tasked with Consensus Building. Does not look at the DB directly — it reads the N
+          reports from the Evaluators. It highlights universal truths and identifies where
+          the experts disagree.
+        </p>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">🧔</div>
+        <div class="role-title">The Grey Beard</div>
+        <div class="role-type">Human-in-the-Loop (HITL)</div>
+        <p class="role-desc">
+          Reviews the mediated report. Evaluates the "Quality of the Evaluation" itself.
+          Provides the final verdict: Refactor, Accept, or Re-audit.
+        </p>
+      </div>
+    </div>
+
+    <div class="diagram-wrap">
+      <div id="diag-seq-out"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>MCP-DB Server &nbsp;·&nbsp; Architecture Intent &nbsp;·&nbsp; <time datetime="2026">2026</time></p>
+</footer>
+
+<!-- ── Diagram definitions (not parsed as HTML) ────────────────────── -->
+<script type="text/plain" id="diag-arch-def">
+graph TB
+    subgraph External_World [External System]
+        LLM[Claude / LLM Client]
+        SQL[(SQL Server)]
+        PG[(Postgres)]
+        ORA[(Oracle)]
+        MY[(MySQL)]
+        DB2[(DB2)]
+    end
+
+    subgraph Primary_Adapter [Primary Adapter - Driving]
+        direction TB
+        MCP_Server["McpServerAdapter\n(StdioServerTransport)"]
+        Zod_Schemas["Zod Schemas\n(Tool Definitions)"]
+    end
+
+    subgraph Core_Hexagon [Core - The Domain]
+        direction TB
+        subgraph Services
+            Coord["MetadataService\n(Strategy Selector)"]
+        end
+        subgraph Ports
+            IDB["IDatabaseStrategy\n(Interface / Contract)"]
+        end
+    end
+
+    subgraph Secondary_Adapters [Secondary Adapters - Driven]
+        direction LR
+        SQL_Adapter["SqlServerAdapter\n(mssql / tedious)"]
+        PG_Adapter["PostgresAdapter\n(pg)"]
+        ORA_Adapter["OracleAdapter\n(oracledb)"]
+        MY_Adapter["MySqlAdapter\n(mysql2)"]
+        DB2_Adapter["DB2Adapter\n(ibm_db)"]
+    end
+
+    LLM <== "JSON-RPC stdio" ==> MCP_Server
+    MCP_Server -- "1 · Validate Args" --> Zod_Schemas
+    MCP_Server -- "2 · Call Service" --> Coord
+    Coord -- "3 · Resolve Strategy" --> IDB
+    SQL_Adapter -. "implements" .-> IDB
+    PG_Adapter -. "implements" .-> IDB
+    ORA_Adapter -. "implements" .-> IDB
+    MY_Adapter -. "implements" .-> IDB
+    DB2_Adapter -. "implements" .-> IDB
+    SQL_Adapter -- "Pool / Query" --> SQL
+    PG_Adapter -- "Pool / Query" --> PG
+    ORA_Adapter -- "Pool / Query" --> ORA
+    MY_Adapter -- "Pool / Query" --> MY
+    DB2_Adapter -- "Pool / Query" --> DB2
+
+    style IDB stroke-dasharray: 5 5
+    style Core_Hexagon stroke:#bc8cff,stroke-width:2px
+    style Primary_Adapter stroke:#58a6ff,stroke-width:2px
+    style Secondary_Adapters stroke:#3fb950,stroke-width:2px
+</script>
+
+<script type="text/plain" id="diag-seq-def">
+sequenceDiagram
+    autonumber
+    participant H as Grey-Beard (Human)
+    participant M as Mediator (LLM)
+    participant E as Evaluators [N] (LLMs)
+    participant DB as MCP-DB (Physical)
+    participant FS as MCP-FS (Logical)
+
+    H->>E: Initiate Fitness Audit
+
+    par Evaluator 1 to N
+        E->>DB: Query Base Metadata (size, stats, PKs, FKs)
+        DB-->>E: Raw Physical Reality
+        E->>FS: Query Domain Models (Entities, Repos)
+        FS-->>E: Identify Friction / Mismatch
+    end
+
+    E->>M: Submit Independent Findings (Blind)
+
+    M->>M: Correlate Findings
+    M->>M: Identify Consensus vs. Dissent
+
+    M->>H: Present Evaluation of the Evaluations
+
+    H->>H: Grey-Beard Review
+    Note over H: Verdict: Refactor, Accept, or Re-audit
+</script>
+
+<!-- ── Mermaid bootstrap ────────────────────────────────────────────── -->
+<script>
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'base',
+    themeVariables: {
+      background:           '#161b22',
+      primaryColor:         '#21262d',
+      primaryTextColor:     '#c9d1d9',
+      primaryBorderColor:   '#30363d',
+      secondaryColor:       '#1a1d27',
+      tertiaryColor:        '#1a1d27',
+      lineColor:            '#58a6ff',
+      edgeLabelBackground:  '#21262d',
+      clusterBkg:           '#0d1117',
+      clusterBorder:        '#30363d',
+      titleColor:           '#f0f6fc',
+      /* sequence */
+      actorBkg:             '#21262d',
+      actorBorder:          '#58a6ff',
+      actorTextColor:       '#c9d1d9',
+      actorLineColor:       '#30363d',
+      signalColor:          '#79c0ff',
+      signalTextColor:      '#c9d1d9',
+      labelBoxBkgColor:     '#21262d',
+      labelBoxBorderColor:  '#30363d',
+      labelTextColor:       '#c9d1d9',
+      loopTextColor:        '#c9d1d9',
+      noteBorderColor:      '#58a6ff',
+      noteBkgColor:         '#21262d',
+      noteTextColor:        '#c9d1d9',
+      activationBorderColor:'#58a6ff',
+      activationBkgColor:   '#1a1d27',
+      sequenceNumberColor:  '#0d1117',
+    }
+  });
+
+  async function renderDiagrams() {
+    const pairs = [
+      { defId: 'diag-arch-def', outId: 'diag-arch-out', svgId: 'arch-svg' },
+      { defId: 'diag-seq-def',  outId: 'diag-seq-out',  svgId: 'seq-svg'  },
+    ];
+    for (const { defId, outId, svgId } of pairs) {
+      try {
+        const def = document.getElementById(defId).textContent.trim();
+        const { svg } = await mermaid.render(svgId, def);
+        const container = document.getElementById(outId);
+        container.innerHTML = svg;
+        const svgEl = container.querySelector('svg');
+        if (svgEl) {
+          svgEl.removeAttribute('width');
+          svgEl.removeAttribute('height');
+          svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        }
+      } catch (err) {
+        document.getElementById(outId).textContent = 'Diagram render error: ' + err.message;
+      }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', renderDiagrams);
+</script>
+
+</body>
+</html>
