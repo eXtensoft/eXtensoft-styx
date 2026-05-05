@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Architecture & Nervous System - 30K View</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { color: #2c3e50; margin-bottom: 10px; }
+        p { color: #7f8c8d; max-width: 800px; text-align: center; line-height: 1.6; }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .legend {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .box { width: 15px; height: 15px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>The Business Nervous System</h1>
+    <p>30,000 Ft View: Connecting Business Architecture "Sans-Tech" to the AI-Driven Orchestration Layer.</p>
+
+    <div class="container">
+        <pre class="mermaid">
+graph TD
+    %% Global Source of Truth (The Graph)
+    subgraph KB [Unified Knowledge Base / Graph]
+        direction TB
+        CM(Capability Map)
+        VS(Value Stream Map)
+        IM(Information Map)
+        OM(Organization Map)
+        PM(Policy/Strategy Map)
+    end
+
+    %% The Nervous System / Orchestration
+    subgraph NS [Event-Driven Nervous System]
+        Events{Event Stream / Thresholds}
+        FR[(Flight Recorder / State Persistence)]
+    end
+
+    %% AI Nodes / Roles
+    subgraph AI [AI Nodes]
+        Arch(Archaeologist: MCP-DB/FS)
+        Torq(Torquemada: Interrogator)
+        Analyst(Competing Analysts)
+        CoS(Chief of Staff / Assistant)
+    end
+
+    %% Human in the Middle
+    subgraph HITM [Cockpit: HITM Greybeard]
+        MapV(Spatial Map View)
+        ListV(High-Density List View)
+    end
+
+    %% Relationships
+    KB <--> Events
+    Events <--> AI
+    AI <--> FR
+    FR <--> KB
+    
+    %% Workflows
+    Arch -->|Raw Evidence| Analyst
+    Analyst -->|Discrepancies| CoS
+    CoS -->|Decision Brief| HITM
+    HITM -->|Intent/Approval| Events
+    Torq <-->|SME Interaction| Events
+    
+    %% Styling
+    style KB fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    style NS fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style AI fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    style HITM fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+        </pre>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="box" style="background: #e1f5fe; border: 1px solid #01579b;"></div> Living Documentation (Source of Truth)</div>
+        <div class="legend-item"><div class="box" style="background: #fff3e0; border: 1px solid #e65100;"></div> Execution & State Memory</div>
+        <div class="legend-item"><div class="box" style="background: #f3e5f5; border: 1px solid #4a148c;"></div> AI Agent Roles</div>
+        <div class="legend-item"><div class="box" style="background: #e8f5e9; border: 1px solid #1b5e20;"></div> Human Governance (Cockpit)</div>
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    </script>
+</body>
+</html>

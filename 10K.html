@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Business Architecture - 10K Ft Schema View</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #eceff1; padding: 40px; }
+        .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #37474f; text-align: center; }
+        .mermaid { display: flex; justify-content: center; }
+    </style>
+</head>
+<body>
+    <h1>10,000 Ft: The Blueprint Schema</h1>
+    <div class="card">
+        <pre class="mermaid">
+classDiagram
+    class BusinessCapability {
+        +String ID
+        +String Name
+        +Enum Tier [Strategic|Core|Supporting]
+        +Integer MaturityLevel [1..5]
+        +List~Policy~ Constraints
+        +mapToValueStage()
+    }
+
+    class ValueStreamStage {
+        +String Name
+        +String TriggeringEvent
+        +String EntranceCriteria
+        +String ExitCriteria
+        +List~ValueItem~ DeliveredValue
+        +requiresCapability()
+    }
+
+    class BusinessObject {
+        +String ConceptName
+        +String Definition
+        +List~Attribute~ SimpleAttributes
+        +Enum Sensitivity [Public|Private|Restricted]
+        +StateModel Lifecycle
+    }
+
+    class OrganizationUnit {
+        +String UnitName
+        +Enum Type [Internal|Partner|Vendor]
+        +List~Role~ ActiveRoles
+        +ownsCapability()
+    }
+
+    class EventNode {
+        +Timestamp OccurredAt
+        +String OriginatingNodeID
+        +JSON Payload
+        +Threshold TargetValue
+    }
+
+    %% Relationships (The 10K Connective Tissue)
+    ValueStreamStage "1" --> "*" BusinessCapability : "Activated By"
+    BusinessCapability "1" --> "*" BusinessObject : "Manipulates"
+    OrganizationUnit "1" --> "*" BusinessCapability : "Accountable For"
+    EventNode "*" --> "1" ValueStreamStage : "Triggers Stage"
+    EventNode "*" --> "1" BusinessObject : "Reflects State Change"
+        </pre>
+    </div>
+</body>
+</html>
