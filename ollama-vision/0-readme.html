@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ollama Vision — Secure Image Analysis</title>
+<style>
+  :root {
+    --surface: #f8f9ff;
+    --surface-container: #e5eeff;
+    --surface-container-low: #eff4ff;
+    --surface-container-high: #dce9ff;
+    --surface-container-highest: #d3e4fe;
+    --on-surface: #0b1c30;
+    --on-surface-variant: #45464d;
+    --primary: #4a4d56;
+    --secondary: #0051d5;
+    --secondary-deep: #1e3a8a;
+    --outline: #76777d;
+    --outline-variant: #c6c6cd;
+    --error: #ba1a1a;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    color: var(--on-surface);
+    background: var(--surface);
+    line-height: 1.55;
+    font-feature-settings: "tnum" 1, "ss01" 1;
+  }
+
+  code, pre, .mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+
+  /* ========== HERO ========== */
+  .hero {
+    position: relative;
+    background: linear-gradient(180deg, #0a1d4a 0%, #1e3a8a 35%, #2a4480 70%, var(--primary) 100%);
+    color: white;
+    padding: 64px 32px 0;
+    overflow: hidden;
+  }
+
+  .hero-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .wordmark {
+    font-size: clamp(38px, 6vw, 64px);
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px 0;
+    line-height: 1;
+    color: white;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .tagline {
+    font-size: clamp(16px, 2.2vw, 22px);
+    font-weight: 400;
+    opacity: 0.85;
+    margin: 0 0 24px 0;
+    max-width: 620px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--secondary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 16px rgba(0, 81, 213, 0.3);
+  }
+
+  .badge::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  }
+
+  .mountains {
+    display: block;
+    width: 100%;
+    height: 80px;
+    margin-top: 48px;
+  }
+
+  /* ========== SECTION ========== */
+  section {
+    padding: 56px 32px;
+  }
+
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  .label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--secondary);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  h2 {
+    font-size: clamp(24px, 3.5vw, 34px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px 0;
+    color: var(--on-surface);
+  }
+
+  p.lead {
+    font-size: 17px;
+    color: var(--on-surface-variant);
+    max-width: 720px;
+    margin: 0 0 16px 0;
+  }
+
+  /* ========== PIPELINE ========== */
+  .pipeline {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 12px;
+    align-items: stretch;
+    margin-top: 32px;
+  }
+
+  .pipeline-step {
+    background: white;
+    border: 1px solid var(--outline-variant);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pipeline-step.input { border-top: 3px solid var(--secondary-deep); }
+  .pipeline-step.guidance { border-top: 3px solid var(--secondary); }
+  .pipeline-step.output { border-top: 3px solid #0a8c3f; }
+
+  .pipeline-tag {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--secondary);
+    margin-bottom: 14px;
+  }
+
+  .pipeline-step h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: var(--on-surface);
+  }
+
+  .pipeline-step p {
+    font-size: 13px;
+    color: var(--on-surface-variant);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .pipeline-step code {
+    background: var(--surface-container);
+    padding: 1px 5px;
+    font-size: 0.85em;
+    border-radius: 2px;
+    color: var(--on-surface);
+  }
+
+  .pipeline-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: var(--secondary);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  @media (max-width: 768px) {
+    .pipeline { grid-template-columns: 1fr; }
+    .pipeline-arrow { transform: rotate(90deg); padding: 4px 0; }
+  }
+
+  /* ========== WORKED EXAMPLE ========== */
+  .example-title {
+    font-size: clamp(20px, 2.6vw, 24px);
+    font-weight: 700;
+    margin: 56px 0 6px 0;
+    color: var(--on-surface);
+  }
+
+  .example-lead {
+    font-size: 15px;
+    color: var(--on-surface-variant);
+    margin: 0 0 20px 0;
+    max-width: 720px;
+  }
+
+  .example {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .code-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .code-label .filename {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    text-transform: none;
+    letter-spacing: 0;
+    opacity: 0.65;
+    font-weight: 500;
+  }
+
+  .code-block {
+    background: #0b1c30;
+    color: #dbe1ff;
+    padding: 16px;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    font-size: 12px;
+    overflow-x: auto;
+    white-space: pre;
+    line-height: 1.55;
+    margin: 0;
+    border-left: 3px solid var(--secondary);
+  }
+
+  .example-followup {
+    font-size: 15px;
+    color: var(--on-surface-variant);
+    margin-top: 28px;
+    max-width: 760px;
+  }
+
+  .example-followup strong { color: var(--secondary-deep); }
+
+  @media (max-width: 768px) {
+    .example { grid-template-columns: 1fr; }
+  }
+
+  /* ========== PILLARS ========== */
+  .pillars {
+    background: var(--surface-container);
+  }
+
+  .pillar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .pillar {
+    background: white;
+    border: 1px solid var(--outline-variant);
+    padding: 24px;
+    position: relative;
+  }
+
+  .pillar-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--secondary);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .pillar h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    color: var(--on-surface);
+  }
+
+  .pillar p {
+    font-size: 14px;
+    color: var(--on-surface-variant);
+    margin: 0;
+  }
+
+  /* ========== FEATURES ========== */
+  .feature-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 28px;
+  }
+
+  .feature {
+    border-left: 3px solid var(--secondary);
+    padding: 0 0 4px 16px;
+  }
+
+  .feature-name {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin: 0 0 4px 0;
+  }
+
+  .feature-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    color: var(--on-surface);
+  }
+
+  .feature p {
+    font-size: 14px;
+    color: var(--on-surface-variant);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* ========== HOW IT WORKS ========== */
+  .how-it-works {
+    background: var(--surface-container-low);
+  }
+
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .step {
+    background: white;
+    border: 1px solid var(--outline-variant);
+    padding: 20px;
+    position: relative;
+  }
+
+  .step-num {
+    position: absolute;
+    top: -14px;
+    left: 16px;
+    background: var(--primary);
+    color: white;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  .step h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 8px 0 6px 0;
+    color: var(--on-surface);
+  }
+
+  .step p {
+    font-size: 13px;
+    color: var(--on-surface-variant);
+    margin: 0;
+  }
+
+  /* ========== BUILT WITH ========== */
+  .built-with {
+    background: var(--primary);
+    color: white;
+  }
+
+  .built-with .label { color: #b0d4ff; }
+
+  .built-with h2 { color: white; }
+
+  .built-with p.lead { color: rgba(255, 255, 255, 0.8); }
+
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .chip {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  /* ========== CLOSER ========== */
+  .closer {
+    text-align: center;
+    padding: 80px 32px 60px;
+    background: var(--surface-container-highest);
+  }
+
+  .closer h2 {
+    font-style: italic;
+    font-weight: 900;
+    color: var(--secondary-deep);
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .closer p {
+    font-size: 14px;
+    color: var(--on-surface-variant);
+    margin: 0;
+  }
+
+  /* ========== FOOTER ========== */
+  footer {
+    background: var(--primary);
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    padding: 24px 32px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  footer span {
+    color: white;
+  }
+
+  /* ========== UTIL ========== */
+  .pull-quote {
+    margin: 24px 0 0 0;
+    padding: 16px 20px;
+    background: var(--surface-container-high);
+    border-left: 4px solid var(--secondary);
+    color: var(--on-surface);
+    font-size: 15px;
+  }
+
+  .pull-quote strong { color: var(--secondary-deep); }
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-inner">
+    <h1 class="wordmark">Ollama Vision</h1>
+    <p class="tagline">Turn images into structured data. AI-powered extraction guided by your own templates. Completely private, completely local.</p>
+    <span class="badge">Powered by Local LLMs</span>
+  </div>
+  <svg class="mountains" viewBox="0 0 1200 80" preserveAspectRatio="none" aria-hidden="true">
+    <polygon points="0,80 80,40 160,58 250,18 360,52 470,12 580,44 680,22 800,48 910,18 1010,42 1120,20 1200,38 1200,80" fill="#0a1d4a" opacity="0.65"/>
+    <polygon points="0,80 60,55 140,65 240,38 350,62 460,32 580,58 700,40 820,60 940,32 1080,55 1200,42 1200,80" fill="#0a1d4a"/>
+  </svg>
+</header>
+
+<!-- ============ WHAT IT DOES ============ -->
+<section>
+  <div class="container">
+    <span class="label">What it is</span>
+    <h2>Turn any image into clean, machine-readable data.</h2>
+    <p class="lead">
+      Ollama Vision uses local AI vision models to read what's in your
+      photos — text, objects, scenes, fields, structure — and hand back the
+      result as <strong>structured JSON</strong>. Not a wall of text. Not a
+      generic caption. Real, queryable data, shaped exactly the way you asked
+      for it.
+    </p>
+    <p class="lead">
+      You decide what gets extracted by writing a small <strong>instruction
+      template</strong> — a markdown file with a schema. The AI follows the
+      template. The output drops into a searchable library you can filter,
+      export, and feed into anything else. Every photo, every result, every
+      template stays on your hardware.
+    </p>
+  </div>
+</section>
+
+<!-- ============ PIPELINE + WORKED EXAMPLE ============ -->
+<section style="background: var(--surface);">
+  <div class="container">
+    <span class="label">The engine room</span>
+    <h2>From pixels to structured data.</h2>
+    <p class="lead">
+      Most apps treat a photo as a JPEG. Ollama Vision treats it as a dataset
+      waiting to be extracted. The leap happens via a small template you
+      write — a markdown file with a JSON schema — that tells the AI exactly
+      what to pull out and what shape it should come back in.
+    </p>
+
+    <div class="pipeline">
+      <div class="pipeline-step input">
+        <span class="pipeline-tag">01 · Input</span>
+        <h3>An image</h3>
+        <p>Any photo, screenshot, scan, or video frame. Receipts, recipes, business cards, whiteboard snaps — anything visual.</p>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step guidance">
+        <span class="pipeline-tag">02 · Guidance</span>
+        <h3>An instruction template</h3>
+        <p>A small markdown file with a schema. Tells the AI <em>what</em> to extract — <code>ingredients</code>, <code>merchant</code>, <code>tags</code> — and what shape the output should take.</p>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step output">
+        <span class="pipeline-tag">03 · Output</span>
+        <h3>Machine-readable JSON</h3>
+        <p>Clean, validated JSON matching your schema. Searchable in the library, exportable to disk, importable to a spreadsheet or database.</p>
+      </div>
+    </div>
+
+    <h3 class="example-title">Walked through: a recipe card.</h3>
+    <p class="example-lead">
+      You snap or scan a recipe — handwritten card, magazine page, cookbook
+      spread, doesn't matter. Ollama Vision applies your <code>recipe</code>
+      template, the AI looks at the image, and clean, structured fields drop
+      out the other side.
+    </p>
+
+    <div class="example">
+      <div>
+        <span class="code-label">Instruction template <span class="filename">recipe.md</span></span>
+<pre class="code-block">---
+name: Recipe extractor
+description: Pull title, yield, ingredients, and steps from a recipe image.
+model: llava
+jsonSchema:
+  type: object
+  properties:
+    title:        { type: string }
+    yield:        { type: string }
+    prepTime:     { type: string }
+    cookTime:     { type: string }
+    ingredients:  { type: array, items: { type: string } }
+    steps:        { type: array, items: { type: string } }
+    tags:         { type: array, items: { type: string } }
+  required: [title, ingredients, steps]
+---
+You are looking at a recipe. Extract the title, the yield,
+the prep and cook times if visible, every ingredient with
+its full quantity, and every step in cooking order. Tag
+the recipe by cuisine and dish type.</pre>
+      </div>
+      <div>
+        <span class="code-label">Result <span class="filename">grandmas-apple-pie.recipe.json</span></span>
+<pre class="code-block">{
+  "title": "Grandma's Apple Pie",
+  "yield": "8 servings",
+  "prepTime": "20 minutes",
+  "cookTime": "55 minutes",
+  "ingredients": [
+    "6 large apples, peeled and sliced",
+    "3/4 cup granulated sugar",
+    "2 tbsp lemon juice",
+    "1 tsp ground cinnamon",
+    "2 prepared 9-inch pie crusts",
+    "2 tbsp unsalted butter"
+  ],
+  "steps": [
+    "Preheat oven to 375°F.",
+    "Toss apples with sugar, lemon juice, cinnamon.",
+    "Line pie plate with bottom crust; fill with apples.",
+    "Dot with butter; cover with top crust and seal edges.",
+    "Cut steam vents; bake 50–55 minutes until golden."
+  ],
+  "tags": ["dessert", "American", "pie", "fall"]
+}</pre>
+      </div>
+    </div>
+
+    <p class="example-followup">
+      Multiply that across a binder of family recipes, a folder of receipts,
+      a year of screenshots, a vault of photographed business cards.
+      <strong>Same idea every time: image in, structured data out — shaped by a template you control.</strong>
+    </p>
+  </div>
+</section>
+
+<!-- ============ THREE PILLARS ============ -->
+<section class="pillars">
+  <div class="container">
+    <span class="label">Why it's different</span>
+    <h2>Three things matter. Privacy. Power. Yours.</h2>
+    <div class="pillar-grid">
+      <div class="pillar">
+        <div class="pillar-icon">P</div>
+        <h3>Private by design</h3>
+        <p>No cloud uploads. No subscriptions. No data egress. The AI engine runs on your computer, not someone else's server.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">M</div>
+        <h3>Multi-model</h3>
+        <p>Use any vision model from the Ollama ecosystem — LLaVA, Moondream, BakLLaVA, Qwen, and more. Swap models per task.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">{ }</div>
+        <h3>Template-driven precision</h3>
+        <p>You define the schema; the AI fills it in. Want a specific set of fields? Specific types? A required list? Write it once, run it on a thousand images.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section>
+  <div class="container">
+    <span class="label">What it does</span>
+    <h2>Built for the way real people use their photos.</h2>
+    <div class="feature-list">
+      <div class="feature">
+        <p class="feature-name">Instruction sets</p>
+        <h3 class="feature-title">Templates that teach the AI</h3>
+        <p>Define the fields, the types, what's required. The AI follows the schema and returns validated JSON. One template, infinite images. Edit them by hand, or use the built-in AI helper to draft and refine.</p>
+      </div>
+      <div class="feature">
+        <p class="feature-name">Discovery</p>
+        <h3 class="feature-title">Pick what to analyze</h3>
+        <p>Browse your folders. Pick individual images, pick whole directories, pick a thousand at once. Queue it up.</p>
+      </div>
+      <div class="feature">
+        <p class="feature-name">Configuration</p>
+        <h3 class="feature-title">Choose your engine</h3>
+        <p>Pick which model to use. Tune how many images to process at once. Set how the results are exported. All controls, no friction.</p>
+      </div>
+      <div class="feature">
+        <p class="feature-name">Library</p>
+        <h3 class="feature-title">Search what you've found</h3>
+        <p>Every analysis lands in a searchable library. Filter by date, by model, by tag. Click any record to see the original alongside what the AI saw.</p>
+      </div>
+      <div class="feature">
+        <p class="feature-name">Brain</p>
+        <h3 class="feature-title">A workspace for thinking</h3>
+        <p>Chat freely with a local model. Draft notes, sketch diagrams, jot ideas — and pin the AI's output as tabs in a personal scratchpad.</p>
+      </div>
+      <div class="feature">
+        <p class="feature-name">Archive</p>
+        <h3 class="feature-title">Time-travel your work</h3>
+        <p>Every job is preserved. Re-run, re-export, compare results from different models. Nothing is forgotten.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="how-it-works">
+  <div class="container">
+    <span class="label">How it works</span>
+    <h2>Local AI, in plain English.</h2>
+    <p class="lead">
+      Ollama is a small program that runs AI models directly on your computer —
+      the same kinds of models behind tools like ChatGPT, but the actual brain
+      of it lives on your hardware. Ollama Vision is the friendly companion
+      that talks to it. Instead of sending your pictures to a cloud, it asks
+      the AI running right here to take a look.
+    </p>
+
+    <div class="flow">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h4>Pick your images</h4>
+        <p>Browse to a folder. Tick the photos you want analyzed, or grab the whole directory.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h4>Choose what to ask</h4>
+        <p>Pick an instruction set — describe-the-scene, transcribe-text, find-objects, extract-recipe — or write your own.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h4>Pick a model</h4>
+        <p>Different models are good at different things. Pick one. The app handles loading and warming it up.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h4>Run it</h4>
+        <p>The AI looks at each image and reports back. Live progress shows what's happening, image by image.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <h4>Browse results</h4>
+        <p>Everything lands in your library. Search, filter, export. Click any image to see what the AI saw alongside the original.</p>
+      </div>
+    </div>
+
+    <div class="pull-quote">
+      <strong>The big idea:</strong> the AI never leaves your computer. There's
+      no cloud. There's no subscription. There's no data being collected,
+      anywhere, by anyone. Your photos stay yours.
+    </div>
+  </div>
+</section>
+
+<!-- ============ BUILT WITH ============ -->
+<section class="built-with">
+  <div class="container">
+    <span class="label">Architecture</span>
+    <h2>Modern web, classic engineering.</h2>
+    <p class="lead">
+      A single-page web application running in your browser, talking to an
+      Ollama service running in the background on your computer. No accounts,
+      no servers, no telemetry. Just two pieces of software cooperating quietly
+      on your hardware.
+    </p>
+    <div class="stack">
+      <span class="chip">React</span>
+      <span class="chip">TypeScript</span>
+      <span class="chip">Vite</span>
+      <span class="chip">Tailwind CSS</span>
+      <span class="chip">Ollama runtime</span>
+      <span class="chip">Local HTTP API</span>
+      <span class="chip">100% offline-capable</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CLOSER ============ -->
+<section class="closer">
+  <div class="container">
+    <h2>Your photos. Your AI. Your machine.</h2>
+    <p>That's it. That's the whole pitch.</p>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <span>OLLAMA VISION</span> · v0.2.0 · LOCAL-FIRST
+</footer>
+
+</body>
+</html>
