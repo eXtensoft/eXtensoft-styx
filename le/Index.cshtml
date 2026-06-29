@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Log Explorer";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/log-explorer.css" asp-append-version="true" />
+}
+
+<div id="log-explorer-root"></div>
+
+@section Scripts {
+    <script type="module">
+        import { LogExplorer } from '/js/log-explorer/log-explorer.mjs';
+        new LogExplorer('log-explorer-root').init();
+    </script>
+}

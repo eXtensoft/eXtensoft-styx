@@ -1,0 +1,75 @@
+{
+  "version": 2,
+  "logSources": [
+    {
+      "id": "contoso-website-prod-web01",
+      "application": "Contoso",
+      "type": "website",
+      "stage": "prod",
+      "server": "WEB01",
+      "instance": "W3SVC1",
+      "logPath": "C:\\github\\ai\\logexplorer\\sample-logs\\WEB01\\W3SVC1",
+      "tags": []
+    },
+    {
+      "id": "contoso-website-prod-web02",
+      "application": "Contoso",
+      "type": "website",
+      "stage": "prod",
+      "server": "WEB02",
+      "instance": "W3SVC1",
+      "logPath": "C:\\github\\ai\\logexplorer\\sample-logs\\WEB02\\W3SVC1",
+      "tags": []
+    },
+    {
+      "id": "contoso-api-prod-web01",
+      "application": "Contoso",
+      "type": "api",
+      "stage": "prod",
+      "server": "WEB01",
+      "instance": "W3SVC2",
+      "logPath": "C:\\github\\ai\\logexplorer\\sample-logs\\WEB01\\W3SVC2",
+      "tags": []
+    },
+    {
+      "id": "contoso-api-prod-web02",
+      "application": "Contoso",
+      "type": "api",
+      "stage": "prod",
+      "server": "WEB02",
+      "instance": "W3SVC2",
+      "logPath": "C:\\github\\ai\\logexplorer\\sample-logs\\WEB02\\W3SVC2",
+      "tags": []
+    },
+    {
+      "id": "contoso-website-uat-stg01",
+      "application": "Contoso",
+      "type": "website",
+      "stage": "uat",
+      "server": "STG01",
+      "instance": "W3SVC1",
+      "logPath": "C:\\github\\ai\\logexplorer\\sample-logs\\STG01\\W3SVC1",
+      "tags": []
+    },
+    {
+      "id": "contoso-website-val-stg01",
+      "application": "Contoso",
+      "type": "website",
+      "stage": "val",
+      "server": "STG01",
+      "instance": "W3SVC3",
+      "logPath": "C:\\github\\ai\\logexplorer\\sample-logs\\STG01\\W3SVC3",
+      "tags": []
+    },
+    {
+      "id": "fabrikam-website-prod-web03",
+      "application": "Fabrikam",
+      "type": "website",
+      "stage": "prod",
+      "server": "WEB03",
+      "instance": "W3SVC1",
+      "logPath": "C:\\github\\ai\\logexplorer\\sample-logs\\WEB03\\W3SVC1",
+      "tags": []
+    }
+  ]
+}
