@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asynchronous Collaboration Protocol</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'dark', themeVariables: { primaryColor: '#1f2937', secondaryColor: '#2dd4bf', tertiaryColor: '#facc15', lineColor: '#38bf8c', textColor: '#ffffff' } });
+    </script>
+    </head>
+<body>
+    <header>
+        <div class="hero">
+            <p class="eyebrow">Event-Driven Workshop Design</p>
+            <h1>Asynchronous Collaboration Protocol</h1>
+            <p class="hero-copy">A mode-aware collaboration system focused here on ideation: capturing early ideas as structured, reviewable artifacts while keeping the runtime extensible for implementation planning, negotiation, troubleshooting, and other directed conversations.</p>
+        </div>
+    </header>
+    <main>
+        <nav class="panel section-index" aria-label="Section index">
+            <p class="index-label">Contents</p>
+            <div class="index-links">
+                <a href="#overview">Protocol</a>
+                <a href="#glance">At a Glance</a>
+                <a href="#facet-structure">Facet Structure</a>
+                <a href="#modes">Modes</a>
+                <a href="#mode-packs">Mode Packs</a>
+                <a href="#method">Ideation Contract</a>
+                <a href="#packet">Idea Packet</a>
+                <a href="#participants">Participants</a>
+                <a href="#domains">Domain Facets</a>
+                <a href="#examples">Worked Examples</a>
+                <a href="#workbench">Workbench</a>
+                <a href="#maturity">Maturity</a>
+                <a href="#handoff">Handoff</a>
+                <a href="#architecture">Architecture</a>
+                <a href="#flow">Flow</a>
+                <a href="#implementation">Implementation</a>
+                <a href="#knowledge">Knowledge Graph</a>
+                <a href="#roadmap">Vector Roadmap</a>
+            </div>
+        </nav>
+
+        <section class="panel intro-panel" id="overview">
+            <h2>What the Protocol Does</h2>
+            <p>This protocol reframes collaboration as a stream of structured state changes rather than an unbounded chat transcript. In this document, the active conversation type is ideation: surfacing what the idea is, why it matters, who benefits, and whether it is coherent enough to hand to a decision-maker for championing and funding.</p>
+            <div class="summary-grid">
+                <article class="summary-card">
+                    <h3>Young ideas, not implementation plans</h3>
+                    <p>The goal is to produce a sufficiently formed idea packet, not to solve delivery, sizing, architecture, or execution details inside the same conversation.</p>
+                </article>
+                <article class="summary-card">
+                    <h3>Directed conversation</h3>
+                    <p>The runtime constrains discussion to the questions that belong to the current mode, which keeps ideation from collapsing prematurely into planning or analysis.</p>
+                </article>
+                <article class="summary-card">
+                    <h3>Multifaceted judgment</h3>
+                    <p>Good enough is not a single score. Any human or AI actor may form an opinion across value, plausibility, strategic fit, sponsor appetite, or domain-specific facets.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="panel glance-panel" id="glance">
+            <h2>At a Glance</h2>
+            <p class="glance-copy">Compressed view of the current ideation model.</p>
+
+            <div class="glance-grid">
+                <div class="glance-block">
+                    <h3>Core Packet</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Idea identity</li>
+                        <li>Target type</li>
+                        <li>Que Bene</li>
+                        <li>Benefit / pain relief</li>
+                        <li>Value proposition</li>
+                        <li>Motivating context</li>
+                        <li>Champion framing</li>
+                    </ul>
+                </div>
+
+                <div class="glance-block">
+                    <h3>Optional Notes</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Light feasibility</li>
+                        <li>Complexity / size / effort feel</li>
+                        <li>World-fit classification</li>
+                        <li>Precedent landscape</li>
+                        <li>Competing alternatives</li>
+                        <li>Differential claim</li>
+                        <li>Risks / objections</li>
+                        <li>Domain overlay</li>
+                    </ul>
+                </div>
+
+                <div class="glance-block">
+                    <h3>Participant Layers</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Brain / model</li>
+                        <li>Competency</li>
+                        <li>Bias / interests</li>
+                        <li>Persona wrapper</li>
+                        <li>Charge</li>
+                    </ul>
+                </div>
+
+                <div class="glance-block">
+                    <h3>Gate</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Champion-worthy?</li>
+                        <li>Funding path?</li>
+                        <li>Good enough to advance?</li>
+                        <li>Not full specification</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="matrix-table glance-table">
+                    <thead>
+                        <tr>
+                            <th>Stable core</th>
+                            <th>Varies by domain</th>
+                            <th>Varies by participant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Packet shape</td>
+                            <td>Facet weight</td>
+                            <td>Judgment style</td>
+                        </tr>
+                        <tr>
+                            <td>Mode boundary</td>
+                            <td>Vocabulary</td>
+                            <td>Bias profile</td>
+                        </tr>
+                        <tr>
+                            <td>Que Bene</td>
+                            <td>Overlay facets</td>
+                            <td>Charge</td>
+                        </tr>
+                        <tr>
+                            <td>Champion-worthiness</td>
+                            <td>Sponsor type</td>
+                            <td>Authority</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="venn-strip">
+                <div class="venn-card">
+                    <h3>Universal</h3>
+                    <p>Idea. Beneficiary. Value. Context. Champion.</p>
+                </div>
+                <div class="venn-card">
+                    <h3>Frequent Overlay</h3>
+                    <p>Feasibility. Complexity feel. World-fit class. Precedent. Alternatives. Differential claim. Objections.</p>
+                </div>
+                <div class="venn-card">
+                    <h3>Domain-Specific</h3>
+                    <p>Pedagogy. Novelty. Market story. Diagnostic framing. Architecture hints.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel facet-panel" id="facet-structure">
+            <h2>Facet Structure</h2>
+            <p class="glance-copy">Three levels: universal required, universal optional, and mode-specific overlays.</p>
+
+            <div class="mermaid">
+graph TD
+    U[Universal Required]
+    O[Universal Optional]
+    M[Mode Overlay]
+
+    U --> I[Ideation]
+    U --> A[APPSPEC]
+    U --> F[Future Modes]
+
+    O --> I
+    O --> A
+    O --> F
+
+    M --> IR[Ideation Required and Optional]
+    M --> AR[APPSPEC Required and Optional]
+    M --> FR[Future Mode Packs]
+
+    style U fill:#1f2937,stroke:#38bf8c,stroke-width:2px;
+    style O fill:#1f2937,stroke:#f4b942,stroke-width:2px;
+    style M fill:#1f2937,stroke:#2dd4bf,stroke-width:2px;
+            </div>
+
+            <div class="facet-columns">
+                <article class="facet-card">
+                    <h3>Universal Required</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Idea identity</li>
+                        <li>Target type</li>
+                        <li>Beneficiaries</li>
+                        <li>Benefit / pain-relief pathway</li>
+                        <li>Value proposition</li>
+                        <li>Motivating context</li>
+                        <li>Champion framing</li>
+                    </ul>
+                </article>
+
+                <article class="facet-card">
+                    <h3>Universal Optional</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Light feasibility</li>
+                        <li>Complexity / size / effort feel</li>
+                        <li>World-fit classification</li>
+                        <li>Precedent landscape</li>
+                        <li>Competing alternatives</li>
+                        <li>Differential claim</li>
+                        <li>Risks / objections</li>
+                    </ul>
+                </article>
+
+                <article class="facet-card">
+                    <h3>Mode Overlay</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Mode-specific required fields</li>
+                        <li>Mode-specific optional fields</li>
+                        <li>Mode-specific vocabulary</li>
+                        <li>Mode-specific gates</li>
+                        <li>Mode-specific participant mix</li>
+                    </ul>
+                </article>
+            </div>
+
+            <div class="table-wrap">
+                <table class="matrix-table glance-table">
+                    <thead>
+                        <tr>
+                            <th>Mode</th>
+                            <th>Required overlay facets</th>
+                            <th>Optional overlay facets</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Ideation</td>
+                            <td>Que Bene emphasis, sponsor-worthiness framing, domain overlay if needed</td>
+                            <td>Light feasibility, complexity feel, world-fit, comparative landscape, objections</td>
+                        </tr>
+                        <tr>
+                            <td>APPSPEC</td>
+                            <td>Scope, functional requirements, nonfunctional requirements, risk, interfaces, constraints, delivery shape</td>
+                            <td>Cost ranges, staffing assumptions, implementation options, architectural alternatives</td>
+                        </tr>
+                        <tr>
+                            <td>Future modes</td>
+                            <td>Defined by the mode pack</td>
+                            <td>Defined by the mode pack</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="venn-strip">
+                <div class="venn-card">
+                    <h3>Key</h3>
+                    <p>Universal required: always present. Universal optional: portable notes. Mode overlay: each mode adds its own required and optional facets.</p>
+                </div>
+                <div class="venn-card">
+                    <h3>Reading Rule</h3>
+                    <p>Every packet starts with the same core. Modes do not replace the core; they add overlay structure.</p>
+                </div>
+                <div class="venn-card">
+                    <h3>Design Goal</h3>
+                    <p>Variation should happen through overlays, not by redefining the packet each time.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel methodology-panel" id="modes">
+            <h2>Directed Conversation Types</h2>
+            <p>Not all structured conversations are solving the same problem. The system should treat each conversation type as a mode with its own goals, valid questions, decision gates, and output contract.</p>
+
+            <div class="phase-grid">
+                <article class="phase-card">
+                    <h3>1. Ideation</h3>
+                    <p>This is the current scope of the document. The conversation stays focused on the idea itself: what it is, why it matters, who benefits, and why it may deserve sponsorship.</p>
+                    <ul class="compact-list">
+                        <li>Output: a young but coherent idea packet.</li>
+                        <li>Decision gate: is the packet good enough for one or more champions to engage?</li>
+                        <li>Avoid: implementation detail, cost decomposition, and detailed solution design.</li>
+                    </ul>
+                </article>
+
+                <article class="phase-card">
+                    <h3>2. APPSPEC</h3>
+                    <p>For software work, the immediate follow-on conversation after ideation is APPSPEC: application specification. This is where the chosen idea is elaborated through formal categories such as scope, risk, functional requirements, nonfunctional requirements, interfaces, cost, and delivery shape.</p>
+                    <ul class="compact-list">
+                        <li>Output: a plan or design package that can be executed.</li>
+                        <li>Decision gate: can this be delivered responsibly?</li>
+                        <li>APPSPEC is a concrete real-world mode for software, not just a generic placeholder.</li>
+                    </ul>
+                </article>
+
+                <article class="phase-card">
+                    <h3>3. Future Modes</h3>
+                    <p>The same runtime should be able to support other directed conversations, including non-software implementation planning, business negotiation, root-cause analysis, and domain-specific design work, without rewriting the engine around one personal use case.</p>
+                    <ul class="compact-list">
+                        <li>Shared layer: event model, routing, traceability, schema enforcement.</li>
+                        <li>Variable layer: prompts, categories, scoring rules, and handoff criteria.</li>
+                        <li>Design principle: mode packs should extend the core rather than fork it.</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="panel mode-pack-panel" id="mode-packs">
+            <h2>Mode Packs</h2>
+            <p>A mode pack is a compositional object that defines how one directed conversation works. It does not replace the universal packet. It tells the runtime how to use the packet, what to emphasize, what to forbid, how to judge progress, and where to hand off next.</p>
+
+            <div class="table-wrap">
+                <table class="matrix-table glance-table">
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>What it defines</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Identity</td>
+                            <td>Name, purpose, and boundaries of the mode.</td>
+                        </tr>
+                        <tr>
+                            <td>Packet usage</td>
+                            <td>Which universal facets are required, optional, or reweighted.</td>
+                        </tr>
+                        <tr>
+                            <td>Mode-specific facets</td>
+                            <td>New required or optional fields added by the mode.</td>
+                        </tr>
+                        <tr>
+                            <td>Participant strategy</td>
+                            <td>What participant mix, competencies, and bias profiles are useful.</td>
+                        </tr>
+                        <tr>
+                            <td>Facilitation policy</td>
+                            <td>How the facilitator should shape tone, pressure, and sequencing.</td>
+                        </tr>
+                        <tr>
+                            <td>Judgment model</td>
+                            <td>How good-enoughness is assessed in this mode.</td>
+                        </tr>
+                        <tr>
+                            <td>Handoff</td>
+                            <td>What artifact exits the mode and what next mode it flows into.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="idea-grid example-grid">
+                <article class="idea-card example-card">
+                    <h3>Mode Pack: IDEATION</h3>
+                    <p><strong>Identity:</strong> Shape a young idea into a sponsor-readable packet.</p>
+                    <p><strong>Packet usage:</strong> Universal required facets are active. Optional facets are welcome as lightweight context.</p>
+                    <p><strong>Mode-specific facets:</strong> Que Bene emphasis, world-fit classification, sponsor-worthiness framing.</p>
+                    <p><strong>Participant strategy:</strong> Seek constructive tension, divergent perspectives, and early sponsor-sense.</p>
+                    <p><strong>Facilitation policy:</strong> Expand, compare, sharpen, but do not collapse into detailed design.</p>
+                    <p><strong>Judgment model:</strong> Is the idea coherent, valuable, championable, and sufficiently framed to advance?</p>
+                    <p><strong>Handoff:</strong> Idea packet to APPSPEC or another next mode.</p>
+                </article>
+
+                <article class="idea-card example-card">
+                    <h3>Mode Pack: APPSPEC</h3>
+                    <p><strong>Identity:</strong> Turn a championed software idea into an application specification.</p>
+                    <p><strong>Packet usage:</strong> Universal core still applies, but now it is supplemented by formal specification categories.</p>
+                    <p><strong>Mode-specific facets:</strong> Scope, functional requirements, nonfunctional requirements, interfaces, constraints, risks, delivery shape.</p>
+                    <p><strong>Participant strategy:</strong> Favor technical depth, product clarity, operational realism, and architectural judgment.</p>
+                    <p><strong>Facilitation policy:</strong> Converge, decompose, make constraints explicit, and surface tradeoffs.</p>
+                    <p><strong>Judgment model:</strong> Is the specification clear, feasible, bounded, and strong enough to guide implementation decisions?</p>
+                    <p><strong>Handoff:</strong> Application specification to design, planning, estimation, or execution workflows.</p>
+                </article>
+            </div>
+
+            <div class="table-wrap">
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>IDEATION</th>
+                            <th>APPSPEC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Primary goal</td>
+                            <td>Discover whether the idea deserves sponsorship.</td>
+                            <td>Define the software application well enough to guide responsible implementation.</td>
+                        </tr>
+                        <tr>
+                            <td>Main question</td>
+                            <td>What is worth pursuing?</td>
+                            <td>What exactly must be built or satisfied?</td>
+                        </tr>
+                        <tr>
+                            <td>Tone</td>
+                            <td>Exploratory and comparative.</td>
+                            <td>Clarifying, convergent, and explicit.</td>
+                        </tr>
+                        <tr>
+                            <td>Feasibility</td>
+                            <td>Lightweight and non-gating.</td>
+                            <td>Directly examined and structurally important.</td>
+                        </tr>
+                        <tr>
+                            <td>Output</td>
+                            <td>Idea packet.</td>
+                            <td>Application specification package.</td>
+                        </tr>
+                        <tr>
+                            <td>Failure mode</td>
+                            <td>Premature solutioning.</td>
+                            <td>False precision or missing requirements.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <pre class="code-block"><code>{
+  "mode_id": "IDEATION|APPSPEC",
+  "identity": {
+    "name": "...",
+    "purpose": "...",
+    "boundaries": ["..."]
+  },
+  "packet_usage": {
+    "universal_required": ["..."],
+    "universal_optional": ["..."],
+    "reweighted_facets": ["..."]
+  },
+  "mode_specific_facets": {
+    "required": ["..."],
+    "optional": ["..."]
+  },
+  "participant_strategy": {
+    "preferred_roles": ["..."],
+    "preferred_bias_mix": ["..."],
+    "charges": ["..."]
+  },
+  "facilitation_policy": {
+    "style": "...",
+    "do": ["..."],
+    "avoid": ["..."]
+  },
+  "judgment_model": {
+    "facets": ["..."],
+    "threshold": "..."
+  },
+  "handoff": {
+    "output": "...",
+    "next_modes": ["..."]
+  }
+}</code></pre>
+        </section>
+
+        <section class="panel" id="method">
+            <h2>Ideation Conversation Contract</h2>
+            <p>Ideation is intentionally narrow. It is a conversation for shaping a young idea until it is understandable, valuable, and sufficiently formed to be evaluated by a decision-maker. It is not yet the conversation where the team proves implementation efficacy, but it may carry forward light feasibility observations as part of the packet.</p>
+
+            <div class="callout">
+                <h3>Que Bene Lens</h3>
+                <p>A strong entry into ideation is Que Bene: who benefits? That question does more than identify a target user. It exposes desire, pain avoidance, motivation, and stakeholder interest. Once the beneficiaries are clearer, the conversation can more sharply ask why the idea matters, what kind of value it creates, and how the idea itself should evolve.</p>
+            </div>
+
+            <div class="phase-grid">
+                <article class="phase-card">
+                    <h3>In scope</h3>
+                    <p>Questions that help the idea become legible and compelling belong here.</p>
+                    <ul class="compact-list">
+                        <li>What is the idea?</li>
+                        <li>Why does it matter?</li>
+                        <li>Who benefits, who is affected, and what change does it create?</li>
+                        <li>Are the targets individuals, organizations, or both? What types of individuals or organizations are they?</li>
+                        <li>What pain is reduced, what desire is served, or what motivation is activated for those beneficiaries?</li>
+                        <li>Where does this idea fit in the world: game changer, pain reducer, friction smoother, mold breaker, moonshot, or something more pedestrian?</li>
+                        <li>What is the intuitive feel of the idea's complexity, size, or expected effort?</li>
+                        <li>What light feasibility signals or obvious concerns should accompany the packet?</li>
+                    </ul>
+                </article>
+
+                <article class="phase-card">
+                    <h3>Useful shaping moves</h3>
+                    <p>The runtime should help participants make the idea stronger without switching modes or turning feasibility into a veto.</p>
+                    <ul class="compact-list">
+                        <li>Use Que Bene to clarify assumptions, beneficiaries, motivating pain points, and value pathways.</li>
+                        <li>Ask participants to classify the idea's world-fit before defending details; classification often sharpens the value conversation.</li>
+                        <li>Ask each participant for a fast intuitive read on complexity, size, or effort and inspect strong outliers.</li>
+                        <li>Compare adjacent idea variants without diving into build mechanics.</li>
+                        <li>Capture rationale, examples, sponsor-facing framing, and light feasibility notes for later modes.</li>
+                    </ul>
+                </article>
+
+                <article class="phase-card">
+                    <h3>Out of scope</h3>
+                    <p>These topics belong to the next conversation type unless they are needed only at a headline level.</p>
+                    <ul class="compact-list">
+                        <li>Detailed scope definition and work breakdown.</li>
+                        <li>Formal risk analysis, nonfunctional requirements, and architectural decomposition.</li>
+                        <li>Detailed sizing, costing, sequencing, and delivery planning.</li>
+                    </ul>
+                </article>
+
+                <article class="phase-card">
+                    <h3>Success condition</h3>
+                    <p>An ideation conversation succeeds when it produces an artifact that can be handed to a sponsor, champion, or decision-maker for the next gate.</p>
+                    <ul class="compact-list">
+                        <li>The idea is coherent and distinct enough to advocate for.</li>
+                        <li>The value case is clear enough to discuss sponsorship or funding.</li>
+                        <li>Light feasibility signals are attached as context, not as disqualifying proof obligations.</li>
+                        <li>The next conversation can start from a stable idea packet instead of a vague concept.</li>
+                    </ul>
+                </article>
+            </div>
+
+            <p class="section-note">This document is intentionally specific to ideation. Extensibility comes from keeping the core runtime generic and moving conversation-specific rules into mode definitions rather than coupling the engine to software architecture, gardening, education, negotiation, or any other one domain.</p>
+        </section>
+
+        <section class="panel" id="packet">
+            <h2>Canonical Ideation Packet</h2>
+            <p>The packet is the minimum portable work product of ideation. It should be readable by a sponsor, champion, or evaluator without forcing the conversation to become specification. The shape should stay stable across domains while overlays and facet weights vary.</p>
+
+            <div class="packet-outline">
+                <article class="outline-card">
+                    <h3>1. Identity</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Idea identity</li>
+                    </ul>
+                </article>
+
+                <article class="outline-card">
+                    <h3>2. Targets</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Target type</li>
+                        <li>Beneficiaries</li>
+                    </ul>
+                </article>
+
+                <article class="outline-card">
+                    <h3>3. Value</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Benefit / pain-relief pathway</li>
+                        <li>Value proposition</li>
+                    </ul>
+                </article>
+
+                <article class="outline-card">
+                    <h3>4. Context</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Motivating context</li>
+                        <li>Champion framing</li>
+                    </ul>
+                </article>
+
+                <article class="outline-card">
+                    <h3>5. Optional Signals</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Feasibility</li>
+                        <li>Complexity / size / effort</li>
+                        <li>World-fit</li>
+                        <li>Risks / objections</li>
+                    </ul>
+                </article>
+
+                <article class="outline-card">
+                    <h3>6. Comparative View</h3>
+                    <ul class="compact-list dense-list">
+                        <li>Precedent landscape</li>
+                        <li>Competing alternatives</li>
+                        <li>Differential claim</li>
+                        <li>Domain overlay</li>
+                    </ul>
+                </article>
+            </div>
+
+            <div class="table-wrap">
+                <table class="matrix-table packet-table">
+                    <thead>
+                        <tr>
+                            <th>Facet</th>
+                            <th>Status</th>
+                            <th>Purpose in ideation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Idea identity</td>
+                            <td>Required</td>
+                            <td>States what the proposed thing, change, direction, or hypothesis actually is.</td>
+                        </tr>
+                        <tr>
+                            <td>Value proposition</td>
+                            <td>Required</td>
+                            <td>Explains why the idea matters and what benefit or advantage it may create.</td>
+                        </tr>
+                        <tr>
+                            <td>Beneficiary and affected parties</td>
+                            <td>Required</td>
+                            <td>Makes clear who gains, who is impacted, and who may need to care.</td>
+                        </tr>
+                        <tr>
+                            <td>Target type</td>
+                            <td>Required</td>
+                            <td>Specifies whether the idea is aimed at individuals, organizations, or both, and what kinds of individuals or organizations are in scope.</td>
+                        </tr>
+                        <tr>
+                            <td>Benefit or pain-relief pathway</td>
+                            <td>Required</td>
+                            <td>Explains how the identified beneficiaries actually experience value, relief, motivation, advantage, or avoided harm.</td>
+                        </tr>
+                        <tr>
+                            <td>Motivating context</td>
+                            <td>Required</td>
+                            <td>Captures the problem, opportunity, timing, or trigger that makes the idea relevant now.</td>
+                        </tr>
+                        <tr>
+                            <td>Champion-facing framing</td>
+                            <td>Required</td>
+                            <td>Gives a sponsor or evaluator a concise reason to engage further.</td>
+                        </tr>
+                        <tr>
+                            <td>Light feasibility notes</td>
+                            <td>Optional passthrough</td>
+                            <td>Flags plausibility signals, obvious constraints, or reasons a prototype may still be worth sponsoring.</td>
+                        </tr>
+                        <tr>
+                            <td>Complexity, size, and effort feel</td>
+                            <td>Optional passthrough</td>
+                            <td>Captures fast intuitive judgments about relative complexity, scale, or effort. Large outliers are valuable because they often reveal hidden perspectives, assumptions, or risks.</td>
+                        </tr>
+                        <tr>
+                            <td>World-fit classification</td>
+                            <td>Optional passthrough</td>
+                            <td>Provides a fast category for how the idea seems to function in the world, such as game changer, pain reducer, friction smoother, mold breaker, moonshot, or pedestrian improvement.</td>
+                        </tr>
+                        <tr>
+                            <td>Precedent landscape</td>
+                            <td>Optional passthrough</td>
+                            <td>Records relevant existing examples, prior art, current practice, or known precedents that shape how the idea will be understood.</td>
+                        </tr>
+                        <tr>
+                            <td>Competing alternatives</td>
+                            <td>Optional passthrough</td>
+                            <td>Names adjacent ideas, rival approaches, or substitute solutions that this concept may need to outperform or reframe.</td>
+                        </tr>
+                        <tr>
+                            <td>Differential claim</td>
+                            <td>Optional passthrough</td>
+                            <td>States what is meaningfully different about this idea and why that difference deserves attention from a sponsor or champion.</td>
+                        </tr>
+                        <tr>
+                            <td>Risks, objections, or tensions</td>
+                            <td>Optional passthrough</td>
+                            <td>Preserves early concerns without forcing the session into formal analysis mode.</td>
+                        </tr>
+                        <tr>
+                            <td>Domain overlay facets</td>
+                            <td>Configurable</td>
+                            <td>Adds domain-specific detail such as pedagogy, novelty, market story, or diagnostic framing.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <pre class="code-block"><code>{
+  "mode": "IDEATION",
+  "domain": "SOFTWARE|SYLLABUS|RESEARCH|VENTURE|TROUBLESHOOTING",
+  "idea_identity": "...",
+  "value_proposition": "...",
+  "beneficiaries": ["..."],
+    "target_type": {
+        "individuals": ["optional types"],
+        "organizations": ["optional types"]
+    },
+    "benefit_or_pain_relief_pathway": "...",
+  "motivating_context": "...",
+  "champion_framing": "...",
+  "light_feasibility_notes": ["optional"],
+    "complexity_size_effort_feel": {
+        "complexity": "optional intuitive signal",
+        "size": "optional intuitive signal",
+        "effort": "optional intuitive signal",
+        "outlier_explanations": ["optional"]
+    },
+    "world_fit_classification": {
+        "class": "optional",
+        "reason": "optional"
+    },
+    "comparative_landscape": {
+        "existing_examples": ["optional"],
+        "competing_ideas_or_alternatives": ["optional"],
+        "differential_claim": "optional"
+    },
+  "risks_or_objections": ["optional"],
+  "domain_overlay": {
+    "...": "mode and domain specific facets"
+  },
+  "judgment_facets": {
+    "value": "open",
+    "plausibility": "open",
+    "strategic_fit": "open",
+    "sponsor_interest": "open"
+  }
+}</code></pre>
+        </section>
+
+        <section class="panel" id="participants">
+            <h2>Participant Model</h2>
+            <p>A participant is more than a speaker slot. Each participant combines a thinking substrate, an intrinsic competency profile, a bias or interest profile, and a role-specific charge that may be assigned by a facilitator or aggregator. That layering is what makes participant selection a design act rather than a staffing detail.</p>
+
+            <div class="phase-grid participant-grid">
+                <article class="phase-card participant-card">
+                    <h3>1. Brain or model</h3>
+                    <p>The base intelligence can be human or AI. This layer determines raw reasoning style, training priors, expressive capacity, and baseline limitations.</p>
+                    <ul class="compact-list">
+                        <li>Human examples: artist, underwriter, architect, principal investigator.</li>
+                        <li>AI examples: GPT-family model, Gemma-family model, Qwen-family model, specialist local model.</li>
+                    </ul>
+                </article>
+
+                <article class="phase-card participant-card">
+                    <h3>2. Intrinsic competency</h3>
+                    <p>Competency reflects what the participant is especially good at noticing, judging, or synthesizing because of history, training, education, practice, or model specialization.</p>
+                    <ul class="compact-list">
+                        <li>Examples: technical depth, narrative skill, risk detection, pedagogy, financial judgment.</li>
+                        <li>This is where domain knowledge and specific skill matter most.</li>
+                    </ul>
+                </article>
+
+                <article class="phase-card participant-card">
+                    <h3>3. Interests and biases</h3>
+                    <p>No participant is neutral. Some optimize for safety, some for novelty, some for elegance, some for cost containment, and some for sponsor excitement.</p>
+                    <ul class="compact-list">
+                        <li>Examples: conservative, security-conscious, skeptical, dreamer, risk-taker, systems thinker.</li>
+                        <li>Bias is useful when it is explicit and composable rather than hidden.</li>
+                    </ul>
+                </article>
+
+                <article class="phase-card participant-card">
+                    <h3>4. Persona wrapper and charge</h3>
+                    <p>A facilitator can wrap a participant in a persona and then assign a charge that narrows what to look for in the current conversation.</p>
+                    <ul class="compact-list">
+                        <li>Example persona: deep thinker around FABLE, technical expert around GPT-5.6.</li>
+                        <li>Example charge: stress-test value claims, surface sponsor objections, defend the unconventional variant.</li>
+                    </ul>
+                </article>
+            </div>
+
+            <div class="callout">
+                <h3>Selection Principle</h3>
+                <p>You do not select participants only for domain coverage. You select them for constructive tension. A strong ideation room includes different competencies, different bias profiles, and different likely champion reactions so the packet is shaped by multiple perspectives before it reaches a formal sponsor gate.</p>
+            </div>
+        </section>
+
+        <section class="panel" id="domains">
+            <h2>Domain Facet Matrix</h2>
+            <p>To keep the ideation model honest, it should survive domains that are wildly different in vocabulary, stakeholders, and success criteria. This working set intentionally spans product, instruction, research, venture formation, and diagnostic reasoning so the abstraction is pressured from multiple directions.</p>
+
+            <div class="callout">
+                <h3>Working Domain Set</h3>
+                <p>Software, syllabus design, graduate research, business venture design, and troubleshooting were chosen because they do not merely vary in topic. They vary in the shape of value, the likely champions, the participant mix, and the meaning of plausibility. If the same packet survives all five, the ideation core is probably real.</p>
+            </div>
+
+            <div class="table-wrap">
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th>Domain</th>
+                            <th>Required ideation facets</th>
+                            <th>Optional or passthrough facets</th>
+                            <th>High-weight judgments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Software application</td>
+                            <td>Value proposition, user need, beneficiary, workflow change, differentiator</td>
+                            <td>Light feasibility, likely architecture shape, integration concerns, comparable tools, sponsor objections</td>
+                            <td>User value, strategic fit, maintainability intuition, sponsor appetite</td>
+                        </tr>
+                        <tr>
+                            <td>Calculus I syllabus</td>
+                            <td>Learning outcome, student population, instructional value, curricular gap, educational philosophy</td>
+                            <td>Delivery format, assessment ideas, faculty load, comparable curricula, accreditation notes</td>
+                            <td>Pedagogical value, accessibility, institutional fit, learner benefit</td>
+                        </tr>
+                        <tr>
+                            <td>Graduate research project</td>
+                            <td>Research question, novelty claim, significance, target community, possible contribution</td>
+                            <td>Method hints, feasibility caveats, ethical concerns, literature precedents, resource assumptions</td>
+                            <td>Novelty, intellectual value, plausibility, advisor or funder interest</td>
+                        </tr>
+                        <tr>
+                            <td>Shark Tank-style business plan</td>
+                            <td>Customer pain, offering concept, market story, founder advantage, revenue premise</td>
+                            <td>Operational constraints, unit-economics signals, competitor analogs, pilot strategy, regulatory notes</td>
+                            <td>Market desirability, narrative strength, sponsor excitement, asymmetric upside</td>
+                        </tr>
+                        <tr>
+                            <td>Root-cause troubleshooting</td>
+                            <td>Observed problem, affected system, candidate framing, impact surface, initial hypothesis value</td>
+                            <td>Evidence gaps, suspected constraints, prior incidents, diagnostic dead ends, first-pass remedial ideas</td>
+                            <td>Explanatory usefulness, plausibility, urgency, investigator or operator buy-in</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="summary-grid">
+                <article class="summary-card">
+                    <h3>Likely universal core</h3>
+                    <p>Value proposition, beneficiary, motivating context, idea identity, and some notion of champion-worthiness appear to recur across all five domains.</p>
+                </article>
+                <article class="summary-card">
+                    <h3>Likely optional overlay</h3>
+                    <p>Light feasibility, ethical concerns, precedent landscape, differential claim, institutional constraints, and implementation hints seem portable as passthrough notes rather than as required gates.</p>
+                </article>
+                <article class="summary-card">
+                    <h3>Likely domain weighting</h3>
+                    <p>What changes most is not the existence of facets, but their weight: novelty dominates research, pedagogy dominates syllabus design, sponsor appetite dominates venture concepts, and explanatory power dominates troubleshooting.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="panel examples-panel" id="examples">
+            <h2>Worked Ideation Examples</h2>
+            <p>These are deliberately domain-specific sketches using the same ideation packet logic. They are not meant to be finished proposals. They are examples of what a young but sponsor-ready packet might look like before deeper planning begins.</p>
+
+            <div class="idea-grid example-grid">
+                <article class="idea-card example-card">
+                    <h3>Software Application</h3>
+                    <p><strong>Idea identity:</strong> A quiet-background meeting assistant for distributed engineering teams that turns spoken architecture discussions into editable decision records.</p>
+                    <p><strong>Target type:</strong> Individuals and organizations. Individual targets include engineering leads, architects, and new developers; organizational targets include engineering organizations that need better design traceability.</p>
+                    <p><strong>Value proposition:</strong> Reduce the loss of design reasoning that usually disappears after meetings, especially when decisions are made informally in calls or chat threads.</p>
+                    <p><strong>Beneficiaries:</strong> Engineering leads, platform teams, new team members, and architects who need traceable rationale.</p>
+                    <p><strong>Benefit pathway:</strong> Less lost reasoning, faster onboarding, and fewer repeated debates about prior decisions.</p>
+                    <p><strong>Motivating context:</strong> Teams routinely revisit prior decisions because the reasoning was never captured in a reusable form.</p>
+                    <p><strong>Champion framing:</strong> If successful, this could shorten onboarding, reduce architectural drift, and improve governance with minimal process overhead.</p>
+                    <p><strong>World-fit:</strong> Friction smoother with some game-changing upside for teams with high coordination load.</p>
+                    <p><strong>Light feasibility notes:</strong> Speech-to-text and summarization are tractable, but trust and editability will matter more than transcription accuracy alone.</p>
+                    <p><strong>Domain overlay:</strong> Integration points, privacy constraints, and decision-record workflow compatibility.</p>
+                </article>
+
+                <article class="idea-card example-card">
+                    <h3>Calculus I Syllabus</h3>
+                    <p><strong>Idea identity:</strong> A Calculus I syllabus designed around modeling and interpretation first, with symbolic technique introduced in service of real phenomena.</p>
+                    <p><strong>Target type:</strong> Individuals and organizations. Individual targets include first-year students and instructors; organizational targets include mathematics departments and teaching colleges.</p>
+                    <p><strong>Value proposition:</strong> Make first-year calculus more intelligible and less alienating for students who can manipulate formulas but do not yet see what the mathematics is for.</p>
+                    <p><strong>Beneficiaries:</strong> First-year college students, especially mixed-preparation learners, and instructors seeking stronger conceptual retention.</p>
+                    <p><strong>Benefit pathway:</strong> Students gain conceptual entry points and persistence; instructors gain a more coherent teaching frame for mixed-readiness cohorts.</p>
+                    <p><strong>Motivating context:</strong> Many calculus courses filter students aggressively without building durable intuition or transfer into science and engineering use cases.</p>
+                    <p><strong>Champion framing:</strong> This could support retention, conceptual understanding, and institutional goals around access without abandoning rigor.</p>
+                    <p><strong>World-fit:</strong> Pain reducer and friction smoother within a high-stakes gateway course.</p>
+                    <p><strong>Light feasibility notes:</strong> Existing textbooks may not align perfectly, and assessment redesign would likely be necessary, but the concept is compatible with many current course structures.</p>
+                    <p><strong>Domain overlay:</strong> Learning outcomes, assessment philosophy, student readiness assumptions, and accreditation alignment.</p>
+                </article>
+
+                <article class="idea-card example-card">
+                    <h3>Graduate Research Project</h3>
+                    <p><strong>Idea identity:</strong> A research project exploring whether explanation-aware tutoring prompts improve the transfer of conceptual knowledge in introductory physics students.</p>
+                    <p><strong>Target type:</strong> Individuals and organizations. Individual targets include researchers, instructors, and students; organizational targets include labs, departments, and potential funders.</p>
+                    <p><strong>Value proposition:</strong> Contribute evidence to the question of whether AI-supported instruction can move beyond answer generation toward deeper learning transfer.</p>
+                    <p><strong>Beneficiaries:</strong> Physics education researchers, instructors, instructional designers, and students in conceptually demanding gateway courses.</p>
+                    <p><strong>Benefit pathway:</strong> Better evidence could improve how AI is used in teaching and help educators distinguish shallow performance gains from durable learning.</p>
+                    <p><strong>Motivating context:</strong> AI learning tools are proliferating faster than careful evidence about their effect on conceptual understanding.</p>
+                    <p><strong>Champion framing:</strong> The project sits at the intersection of educational effectiveness, AI adoption, and research novelty, making it attractive to advisors or funders interested in learning science.</p>
+                    <p><strong>World-fit:</strong> Potential mold breaker in a research niche where novelty and rigor are both heavily weighted.</p>
+                    <p><strong>Light feasibility notes:</strong> Study design and instrumentation would need later refinement, but the research question is timely, plausible, and testable.</p>
+                    <p><strong>Domain overlay:</strong> Novelty claim, literature gap, ethical review implications, and methodological options.</p>
+                </article>
+
+                <article class="idea-card example-card">
+                    <h3>Shark Tank-Style Venture</h3>
+                    <p><strong>Idea identity:</strong> A regional mobile micro-bakery that produces culturally specific breads on a rotating neighborhood schedule, coordinated through subscription drops and community hosts.</p>
+                    <p><strong>Target type:</strong> Individuals and organizations. Individual targets include customers, bakers, and hosts; organizational targets include local retail partners or community-market sponsors.</p>
+                    <p><strong>Value proposition:</strong> Deliver fresh, distinctive baked goods with lower storefront overhead while turning neighborhood demand into recurring micro-markets.</p>
+                    <p><strong>Beneficiaries:</strong> Customers seeking distinctive local food, immigrant bakers wanting a lower-barrier path to market, and community hosts who gain foot traffic.</p>
+                    <p><strong>Benefit pathway:</strong> Customers get access and novelty, bakers gain a lower-cost route to market, and hosts gain community traffic and identity.</p>
+                    <p><strong>Motivating context:</strong> Many talented food makers cannot afford a permanent storefront, yet hyper-local demand is increasingly discoverable through social platforms and subscription behavior.</p>
+                    <p><strong>Champion framing:</strong> The concept combines story, margin potential, local identity, and scalable testing through low-cost pilots.</p>
+                    <p><strong>World-fit:</strong> Pot-of-gold style venture bet with practical pilotability rather than a pure moonshot.</p>
+                    <p><strong>Light feasibility notes:</strong> Food safety, licensing, and logistics are real constraints, but the model can be piloted in a narrow geography before scale.</p>
+                    <p><strong>Domain overlay:</strong> Market story, founder advantage, local brand narrative, and early revenue premise.</p>
+                </article>
+
+                <article class="idea-card example-card">
+                    <h3>Root-Cause Troubleshooting</h3>
+                    <p><strong>Idea identity:</strong> A structured diagnostic initiative to explain why a hospital’s patient discharge process regularly stalls late in the day despite adequate staffing on paper.</p>
+                    <p><strong>Target type:</strong> Individuals and organizations. Individual targets include discharge nurses, coordinators, and patients; organizational targets include hospital operations leadership and care-delivery units.</p>
+                    <p><strong>Value proposition:</strong> If the real bottlenecks can be framed accurately, the hospital could improve throughput, reduce patient frustration, and relieve staff pressure without immediately assuming headcount is the answer.</p>
+                    <p><strong>Beneficiaries:</strong> Patients, discharge nurses, care coordinators, bed managers, and hospital operations leadership.</p>
+                    <p><strong>Benefit pathway:</strong> Better framing can reduce blame, focus investigation, and unlock interventions with operational and patient-flow benefits.</p>
+                    <p><strong>Motivating context:</strong> Persistent late-day discharge delays create downstream congestion, but existing explanations are fragmented and often blame the wrong team.</p>
+                    <p><strong>Champion framing:</strong> A clearer diagnostic framing could justify a focused investigation or pilot intervention with measurable operational impact.</p>
+                    <p><strong>World-fit:</strong> Friction smoother and pain reducer, with value concentrated in operational clarity rather than novelty.</p>
+                    <p><strong>Light feasibility notes:</strong> Data may be incomplete and politically sensitive, but an initial hypothesis map and evidence-gap inventory would already be useful.</p>
+                    <p><strong>Domain overlay:</strong> Impact surface, candidate causal framing, evidence gaps, and operational stakeholder sensitivity.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="panel workbench-panel" id="workbench">
+            <h2>Brainstorming Workbench</h2>
+            <p>This is the structure of the working session itself. We are not only brainstorming ideas inside a mode; we are also refining the model that defines how ideation should work across multiple domains. The useful move is to hold a small set of stable layers constant, then test where each domain stretches them.</p>
+
+            <div class="mermaid">
+graph TD
+    Core[Core Ideation Model] --> Packet[Idea Packet]
+    Core --> Participants[Participant Design]
+    Core --> Gate[Champion-Worthiness]
+    Core --> Overlays[Domain Overlays]
+
+    Participants --> Brain[Brain or Model]
+    Participants --> Competency[Competency]
+    Participants --> Bias[Bias and Interests]
+    Participants --> Charge[Persona and Charge]
+
+    Overlays --> D1[Software]
+    Overlays --> D2[Syllabus]
+    Overlays --> D3[Research]
+    Overlays --> D4[Business Venture]
+    Overlays --> D5[Troubleshooting or Analysis]
+
+    Gate --> Facets[Facet Weights]
+    Facets --> Value[Value]
+    Facets --> Plausibility[Plausibility]
+    Facets --> Sponsor[Sponsor Appetite]
+    Facets --> DomainFit[Domain-Specific Fit]
+
+    style Core fill:#1f2937,stroke:#38bf8c,stroke-width:2px;
+    style Participants fill:#1f2937,stroke:#2dd4bf,stroke-width:2px;
+    style Overlays fill:#1f2937,stroke:#f4b942,stroke-width:2px;
+    style Gate fill:#1f2937,stroke:#facc15,stroke-width:2px;
+            </div>
+
+            <div class="table-wrap">
+                <table class="matrix-table workbench-table">
+                    <thead>
+                        <tr>
+                            <th>Layer</th>
+                            <th>What should stay stable?</th>
+                            <th>What is allowed to vary?</th>
+                            <th>Test question for the session</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Core ideation model</td>
+                            <td>Idea packet, champion-worthiness, passthrough feasibility, mode boundary</td>
+                            <td>Facet weighting and domain vocabulary</td>
+                            <td>Can the same packet shape survive across all chosen domains?</td>
+                        </tr>
+                        <tr>
+                            <td>Participant design</td>
+                            <td>Brain, competency, bias profile, persona wrapper, charge</td>
+                            <td>Exact personas, roles, and authority mix</td>
+                            <td>What participant mix generates the most useful constructive tension for a given domain?</td>
+                        </tr>
+                        <tr>
+                            <td>Domain overlay</td>
+                            <td>Universal ideation facets such as value proposition and beneficiary</td>
+                            <td>Required domain facets, optional passthrough notes, facet priorities</td>
+                            <td>Which facets are truly universal, and which are domain overlays only?</td>
+                        </tr>
+                        <tr>
+                            <td>Maturity test</td>
+                            <td>The rule that new domains should extend, not structurally rewrite, the model</td>
+                            <td>Examples, counterexamples, and failure cases</td>
+                            <td>When a domain resists the model, is the domain special or is the abstraction still impure?</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel" id="maturity">
+            <h2>Concept Maturity and Good-Enoughness</h2>
+            <p>Neither ideas nor frameworks mature along a single axis. The system should treat readiness as a multifaceted judgment made by participants with different roles, standards, and domain expectations. That applies both to ideation packets and to the abstraction of the protocol itself.</p>
+
+            <div class="summary-grid">
+                <article class="summary-card">
+                    <h3>Value clarity</h3>
+                    <p>Can the concept explain why it matters, to whom, and what meaningful change it might create?</p>
+                </article>
+                <article class="summary-card">
+                    <h3>Plausibility signals</h3>
+                    <p>Are there enough light feasibility cues, assumptions, or constraints attached to make the artifact responsible to discuss further?</p>
+                </article>
+                <article class="summary-card">
+                    <h3>Championability</h3>
+                    <p>Could a human or AI actor plausibly advocate for this as worth further thought, sponsorship, prototyping, or funding?</p>
+                </article>
+            </div>
+
+            <div class="phase-grid">
+                <article class="phase-card">
+                    <h3>For ideation packets</h3>
+                    <p>A packet is maturing when it becomes easier to champion without becoming overloaded with premature specification.</p>
+                    <ul class="compact-list">
+                        <li>The value proposition is legible.</li>
+                        <li>The beneficiaries and motivating context are explicit.</li>
+                        <li>Risks or feasibility concerns are visible as notes, not gates.</li>
+                    </ul>
+                </article>
+
+                <article class="phase-card">
+                    <h3>For the protocol abstraction</h3>
+                    <p>Our conceptual model is maturing when it survives variation without structural change.</p>
+                    <ul class="compact-list">
+                        <li>It can describe software design, a syllabus, a research proposal, and a business plan with the same core concepts.</li>
+                        <li>New domains require overlays, not a rewritten engine.</li>
+                        <li>New modes require configuration, not conceptual patchwork.</li>
+                    </ul>
+                </article>
+
+                <article class="phase-card">
+                    <h3>Assessment questions</h3>
+                    <p>These questions help test whether the abstraction is pure enough to keep.</p>
+                    <ul class="compact-list">
+                        <li>Can we express the work product, gate, and participant mix without naming a single domain-specific structure?</li>
+                        <li>When a new domain appears, do we add overlay data or invent a new core concept?</li>
+                        <li>Does light feasibility enrich ideation without hijacking it into planning mode?</li>
+                    </ul>
+                </article>
+
+                <article class="phase-card">
+                    <h3>Maturity heuristic</h3>
+                    <p>A concept is good enough when multiple actors can disagree about it in useful, structured ways without first needing to redefine what the artifact is.</p>
+                    <ul class="compact-list">
+                        <li>If every new example forces a new object shape, the abstraction is immature.</li>
+                        <li>If examples differ only in overlays, actors, and facet weights, the abstraction is stabilizing.</li>
+                        <li>If the next improvement is variation rather than structural surgery, the concept is ready.</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="panel diagram-panel handoff-panel" id="handoff">
+            <h2>Ideation-to-Planning Handoff</h2>
+            <p>The output of ideation is not an execution plan. It is an idea artifact that moves through a sponsorship gate. The packet may include light feasibility notes, but those notes travel as context rather than as a blocking proof burden. Only after sponsorship interest is real should the runtime shift into a follow-on specification mode with different prompts, categories, and evaluation rules. For software ideas, that next mode is APPSPEC.</p>
+            <div class="mermaid">
+graph LR
+    Prompt[Need or Opportunity] --> Frame[What is it? Why now? Who benefits?]
+    Frame --> Variants[Idea Variants and Rationale]
+    Variants --> Feasibility[Light Feasibility Notes]
+    Feasibility --> Packet[Idea Packet]
+    Packet --> Gate{Champion Interest and Funding Path?}
+    Gate -->|Yes| PlanMode[APPSPEC or Next Mode]
+    Gate -->|No| Archive[Archive, Reframe, or Rework]
+
+    Packet --> Schema[Mode-Aware Schema Encoder]
+    Schema --> Resolver[State Resolver]
+    Resolver --> Dashboard[Decision Dashboard]
+
+    style Feasibility fill:#1f2937,stroke:#94a3b8,stroke-width:2px;
+    style Schema fill:#1f2937,stroke:#38bf8c,stroke-width:2px;
+    style Resolver fill:#1f2937,stroke:#2dd4bf,stroke-width:2px;
+    style Gate fill:#1f2937,stroke:#facc15,stroke-width:2px;
+    style Archive fill:#090d16,stroke:#f87187,stroke-width:2px;
+            </div>
+        </section>
+
+        <section class="panel" id="architecture">
+            <h2>System Architecture</h2>
+            <p>The runtime is designed for mixed human and AI participation, but its core abstractions should remain mode-agnostic. Messages act as mutations on a shared session state, while mode definitions determine which schemas, prompts, limits, and scoring rules apply to the active conversation.</p>
+            <div class="callout">
+                <h3>Core Versus Mode Layer</h3>
+                <p>The engine should own routing, traceability, validation, replay, and state resolution. The conversation mode should own topic taxonomies, handoff criteria, prompt sets, domain-specific categories, and decision gates. That separation keeps the system reusable across software design, gardening plans, course design, negotiations, and troubleshooting.</p>
+            </div>
+        </section>
+
+        <section class="panel diagram-panel" id="flow">
+            <h2>Interaction Flow</h2>
+            <p>This flow shows how human and AI participants publish ideas into the same event stream, pass through shared orchestration, and split into review and interface channels only after governance checks are applied.</p>
+<div class="mermaid">
+    graph TD
+        %% Nodes Def
+        H[Human Client] -->|1. Ingests Idea| Bus[Central Event Bus]
+        A[Creative AI Agent] -->|1. Ingests Idea| Bus
+
+        Bus -->|2. Broadcasts Event| Orch[Orchestrator Engine & Resolver]
+        
+        Orch -->|3. Runs Metrics & Limits| SL{Stop-Loss Tripped?}
+        SL -->|Yes| Term[Programmatic Session Stop]
+        SL -->|No| Router[Reactive Event Router]
+        
+        Router -->|4. routes by Key| Pattern1[Channel: Session.alpha.ingest]
+        Router -->|4. routes by Key| Pattern2[Channel: Session.alpha.evaluation]
+
+        Pattern1 --> Agent1[Analytical Reviewer AI Agent]
+
+        Pattern2 --> UI[Live Human Dashboard UI]
+
+        Agent1 -->|5. emits auto-Filter Event| Bus
+
+        %% Styling
+        style Bus fill:#1f2937,stroke:#38bf8c,stroke-width:2px;
+        style Orch fill:#1f2937,stroke:#2dd4bf,stroke-width:2px;
+        style SL fill:#1f2937,stroke:#facc15,stroke-width:2px;
+        style Term fill:#090d16,stroke:#f87187,stroke-width:2px;
+</div>
+        </section>
+
+
+        <section class="panel" id="implementation">
+            <h2>Implementation Priorities</h2>
+            <p>To move from concept to production, the next layer of work should harden routing, decision rights, and the operator experience while preserving the separation between generic engine behavior and mode-specific conversation packs.</p>
+            <div class="summary-grid">
+                <article class="summary-card">
+                    <h3>Mode registry</h3>
+                    <p>Define each conversation type as a configurable package containing prompts, schemas, required categories, and handoff rules rather than embedding those rules directly into the engine.</p>
+                </article>
+                <article class="summary-card">
+                    <h3>Event infrastructure</h3>
+                    <p>Use a Node.js or Python service with Redis Pub/Sub or Kafka topics to manage routing keys, delivery guarantees, and mode-aware event streams.</p>
+                </article>
+                <article class="summary-card">
+                    <h3>Decision and review surfaces</h3>
+                    <p>Expose dashboards where submissions, validations, interventions, sponsorship gates, and human overrides are visible in one place.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="panel knowledge-panel" id="knowledge">
+            <h2>Knowledge Graph and Vector Layer</h2>
+            <p>The collaboration graph should evolve beyond a static mind map into a dual-layer system: one layer for explicit structural relationships and another for semantic proximity. This allows the runtime to reason about both what participants said and how closely new ideas relate to the rest of the session.</p>
+
+            <ol class="number-list">
+                <li><strong>Real-time autonomous clustering.</strong> Incoming concepts are converted into 1536-dimensional vectors. The engine computes cosine similarity, and when a cluster tightens, it promotes the region into a higher-level CLUSTER node.</li>
+                <li><strong>Vector-driven stop loss.</strong> When the spatial variance of recent nodes approaches zero, the system can detect echo-chamber behavior and inject a prompt from an orthogonal direction.</li>
+                <li><strong>Topological graph analytics.</strong> By combining human-authored branches with AI-derived semantic links, the system can flag structural execution risks such as orphaned or contradictory idea chains.</li>
+            </ol>
+
+            <div class="callout schema-callout">
+                <h3>State Contract</h3>
+                <p>The schema below defines the minimum shape of a replayable ideation graph, including node metadata, vector payloads, and typed relationships.</p>
+            </div>
+
+            <div class="schema-layout">
+                <div class="schema-notes">
+                    <article class="schema-note-card">
+                        <h3>Session envelope</h3>
+                        <p>The top-level object binds a session identifier to the full graph so the runtime can replay or compare sessions over time.</p>
+                    </article>
+                    <article class="schema-note-card">
+                        <h3>Node model</h3>
+                        <p>Each node carries both human-readable content and vector payloads, allowing semantic clustering without losing authored meaning.</p>
+                    </article>
+                    <article class="schema-note-card">
+                        <h3>Relationship model</h3>
+                        <p>Edges distinguish explicit structure from semantic similarity so the graph can reason about intent and affinity separately.</p>
+                    </article>
+                </div>
+
+                <pre class="code-block"><code>
+    {
+        "$schema":"https://json-schema.org",
+        "title": "IdeationGraphState",
+        "type":"object",
+        "required":["session_id","nodes","edges"],
+        "properties":{
+            "session_id":{"type":"string"},
+            "nodes":{
+                "type":"array",
+                "items":{
+                    "type":"object",
+                    "required":["id","type","label","vector_embedding","content","vector"],
+                    "properties":{
+                        "id":{"type":"string"},
+                        "type":{"type":"string","enum":["ROOT","CLUSTER","IDEA"]},
+                        "author_type":{"type":"string","enum":["HUMAN","AI_AGENT","SYSTEM"]},
+                        "status": { "type":"string","enum":["ACTIVE","REJECTED","MERGED","ORPHANED"]},
+                        "content":{"type":"string"},
+                        "vector_embedding":{"type":"array","items":{"type":"number"},"minItems":1536,"maxItems":1536},
+                        "vector":{"type":"array","items":{"type":"number"},"minItems":3,"maxItems":3}
+                    }
+                }
+            },
+            "edges":{
+                "type":"array",
+                "items":{
+                    "type":"object",
+                    "required":["id","source","target","relationship_type"],
+                    "properties":{
+                        "id":{"type":"string"},
+                        "source":{"type":"string"},
+                        "target":{"type":"string"},
+                        "relationship_type":{"type":"string","enum":["STRUCTURED_BRANCH","SEMANTIC_SIMILARITY","CROSS_DEPENDENCY"]},
+                        "weight":{"type":"number","minimum":0,"maximum":1}
+                    }
+                }
+            }   
+        }
+    }
+                </code></pre>
+            </div>
+        </section>
+
+        <section class="panel vector-roadmap" id="roadmap">
+            <h2>Advance the Vector Engine</h2>
+            <p>To extend the vector engine further, treat it less like a passive embedding store and more like an active reasoning substrate. The next wave of capability should improve semantic precision, intervention quality, and auditability without slowing the live session experience.</p>
+
+            <div class="idea-grid">
+                <article class="idea-card">
+                    <h3>Adaptive embedding strategy</h3>
+                    <p>Route different message types through different embedding pipelines. High-level strategy notes, regulatory constraints, and technical implementation details often benefit from separate vector spaces rather than one universal representation.</p>
+                </article>
+
+                <article class="idea-card">
+                    <h3>Semantic anomaly detection</h3>
+                    <p>Flag ideas that are unusually distant from the active cluster but still structurally important. Those outliers may represent breakthrough directions, hidden risks, or misunderstood requirements that deserve human review instead of automatic suppression.</p>
+                </article>
+
+                <article class="idea-card">
+                    <h3>Memory compaction and replay</h3>
+                    <p>Periodically compress dense idea neighborhoods into canonical summary nodes while preserving replay logs. That gives the system a shorter active context window without losing the ability to reconstruct why a decision path emerged.</p>
+                </article>
+
+                <article class="idea-card">
+                    <h3>Counterfactual prompt generation</h3>
+                    <p>When the graph begins converging too hard on one direction, generate prompts from inverse or orthogonal vectors. This helps the system ask better questions, expose blind spots, and keep exploration from collapsing into premature consensus.</p>
+                </article>
+            </div>
+
+            <p class="section-note">A mature version of this engine would eventually support live embedding drift alerts, retrieval scoring dashboards, and simulation mode so new orchestration rules can be tested against historical sessions before they affect real participants.</p>
+        </section>
+
+    </main>
+
+</body>
+</html>
