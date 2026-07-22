@@ -1,0 +1,96 @@
+<style>
+  :root {
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Code", "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+    --bg:#F4EEE1; --surface:#FBF7EE; --ink:#2C2620; --muted:#6E6455;
+    --brass:#935F14; --verd:#386659; --rust:#9E4A28; --rule:#E1D7C3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#15120E; --surface:#1D1913; --ink:#ECE3D3; --muted:#9E9279; --brass:#D0A44C; --verd:#6FAA9A; --rust:#D68C64; --rule:#2E2820; }
+  }
+  :root[data-theme="light"]{ --bg:#F4EEE1; --surface:#FBF7EE; --ink:#2C2620; --muted:#6E6455; --brass:#935F14; --verd:#386659; --rust:#9E4A28; --rule:#E1D7C3; }
+  :root[data-theme="dark"]{ --bg:#15120E; --surface:#1D1913; --ink:#ECE3D3; --muted:#9E9279; --brass:#D0A44C; --verd:#6FAA9A; --rust:#D68C64; --rule:#2E2820; }
+
+  * { box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{ background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.68; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap{ max-width:700px; margin:0 auto; padding:clamp(1.5rem,5vw,4rem) clamp(1.1rem,5vw,2rem) 5rem; }
+
+  .eyebrow{ font-family:var(--mono); font-size:0.72rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--brass); margin:0 0 1rem; }
+  h1{ font-family:var(--serif); font-weight:600; font-size:clamp(2.1rem,6vw,3.2rem); line-height:1.07; letter-spacing:-0.015em; text-wrap:balance; margin:0 0 1.1rem; }
+  .lede{ font-size:clamp(1.06rem,2.5vw,1.24rem); color:var(--ink); max-width:60ch; margin:0; }
+
+  .rule{ height:1px; border:0; background:linear-gradient(90deg,var(--brass) 0 3rem,var(--rule) 3rem); margin:2.4rem 0; }
+
+  .kicker{ font-family:var(--mono); font-size:0.68rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--verd); margin:2.6rem 0 0.3rem; }
+  h2{ font-family:var(--serif); font-weight:600; font-size:clamp(1.45rem,3.4vw,1.9rem); line-height:1.16; letter-spacing:-0.01em; text-wrap:balance; margin:0.2rem 0 0.85rem; }
+  p{ margin:0 0 1.05rem; max-width:63ch; }
+  strong{ font-weight:650; } a{ color:var(--brass); }
+  ul{ max-width:63ch; padding-left:1.15rem; } ul li{ margin:0.35rem 0; } ul li::marker{ color:var(--brass); }
+
+  /* the folder-contents box */
+  .box{ background:var(--surface); border:1px solid var(--rule); border-radius:8px; padding:1rem 1.2rem 1.1rem; margin:1.2rem 0; }
+  .box .h{ font-family:var(--mono); font-size:0.66rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--muted); margin:0 0 0.7rem; }
+  .box .row{ display:flex; gap:0.7rem; align-items:baseline; padding:0.4rem 0; border-top:1px dashed var(--rule); font-size:0.94rem; }
+  .box .row:first-of-type{ border-top:0; }
+  .box .row .n{ font-family:var(--mono); font-size:0.82rem; color:var(--brass); min-width:8.5rem; flex:none; }
+
+  blockquote{ margin:2rem 0; padding:0.2rem 0 0.2rem 1.4rem; border-left:3px solid var(--brass); }
+  blockquote p{ font-family:var(--serif); font-style:italic; font-size:clamp(1.22rem,3.1vw,1.55rem); line-height:1.3; margin:0; text-wrap:balance; }
+
+  .foot{ margin-top:2.8rem; padding-top:1.1rem; border-top:1px solid var(--rule); font-family:var(--mono); font-size:0.74rem; color:var(--muted); line-height:1.7; }
+  .foot b{ color:var(--brass); }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">The dig · what you hand it</p>
+  <h1>The Dig Brief</h1>
+  <p class="lede">What you hand the Archaeologist so it can run one dig: a complete, <strong>self-contained briefing</strong> — everything it needs to read a codebase and come back with a specification, packed into a single folder.</p>
+
+  <hr class="rule" />
+
+  <p>The name is the point. You don't send an archaeologist to a site with a vague email. You hand them a <strong>brief</strong> — here's the site, here's the method, here's what to bring back.</p>
+
+  <p class="kicker">The one hard rule</p>
+  <h2>Completely self-contained.</h2>
+  <p>This is the rule everything else hangs on. A Dig Brief has <strong>no external dependencies and no external references.</strong> Everything it needs is <em>inside the folder</em> — the instructions, the standard it writes to, the tool that runs the dig, the checker that validates the result.</p>
+  <p>Any programmer knows the pain this avoids: nothing to install, no "works on my machine," no broken link to a file that moved. Drop the folder onto any machine and it just runs. <span style="color:var(--muted)">(We learned this the hard way — an early version of the instructions pointed at a document that wasn't included, and a fresh run couldn't reach it. Self-containment closes that door for good.)</span></p>
+
+  <div class="box">
+    <p class="h">What's inside a Dig Brief</p>
+    <div class="row"><span class="n">DIG-PROMPT</span><span>the instructions — how to dig, and the honest-not-confident posture</span></div>
+    <div class="row"><span class="n">schema/</span><span>the standard — the shape the output has to fit (a typed spec for a system's intent)</span></div>
+    <div class="row"><span class="n">runner/</span><span>a thin bit of code that hands the brief to the Archaeologist and collects what comes back</span></div>
+    <div class="row"><span class="n">validate.py</span><span>the checker — confirms the output conforms, zero errors</span></div>
+  </div>
+  <p>That's it: a briefing, the method, and just enough machinery to run it.</p>
+
+  <p class="kicker">Two version numbers, on purpose</p>
+  <h2>The toolkit and the standard version separately.</h2>
+  <p>A design choice a programmer will appreciate. Two things get versioned, and they're kept <em>apart</em>:</p>
+  <ul>
+    <li><strong>The standard</strong> (the shape of the output) has its own version — right now, <code>0.4.1</code>.</li>
+    <li><strong>The Dig Brief</strong> (the toolkit — the prompt, the runner) has <em>its own</em> version.</li>
+  </ul>
+  <p>Why separate? They improve on different clocks. Just recently we fixed a bug in the prompt and the validator — but the <em>standard</em> didn't change at all. If the two shared one version number, you couldn't tell those two toolkits apart. So a Brief carries its own version, and <em>pins</em> exactly which version of the standard it ships with.</p>
+
+  <p class="kicker">Versions sit side by side</p>
+  <h2>Run two of them and diff the results.</h2>
+  <p>The versions live in <strong>parallel folders, all present at once</strong> — deliberately. You can take the <em>same</em> codebase, run version 1.0 and version 1.1 against it, and <strong>diff the two results</strong>: did the newer toolkit recover more? Miss something? With ordinary version tags you'd only have one checked out at a time; here you run them head to head.</p>
+
+  <p class="kicker">Every run is stamped</p>
+  <h2>Reproducible, and comparable.</h2>
+  <p>When a dig finishes it doesn't just drop loose files. It writes an <strong>output package</strong> — the recovered spec, the notes, and a small manifest recording <em>when</em> it ran, <em>which</em> Brief version, <em>which</em> standard version, and exactly which commit of the target repo it read.</p>
+  <blockquote><p>Any dig is reproducible — you know precisely what produced it — and comparable. Nothing's a mystery six months later.</p></blockquote>
+
+  <p class="kicker">Built here, run there</p>
+  <h2>Experiment and dependence, kept apart.</h2>
+  <p>Briefs are <em>built and refined</em> in one repo (where the standard grows) and <em>run</em> in another (the everyday workspace). You tinker with the toolkit over here; you run real digs over there, against a stable, frozen version. The place you experiment and the place you depend on are kept apart on purpose.</p>
+
+  <p class="kicker">The whole point</p>
+  <h2>A dig you just run.</h2>
+  <p>Before all this, a dig was <em>a clever prompt a person had to assemble by hand every time</em> — gather the instructions, the standard, the right model, wire it up. A Dig Brief turns that into <strong>a thing you just run</strong>: hand the Archaeologist a versioned briefing, get back a stamped, validated specification. Repeatable, reproducible, and honest about its own version.</p>
+
+  <div class="foot">The flavor, not the fine print. The full spec — every folder and rule — is in <b>docs/DIG-BRIEF.md</b>.</div>
+</div>

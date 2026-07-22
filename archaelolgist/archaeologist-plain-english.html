@@ -1,0 +1,89 @@
+<style>
+  :root {
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Code", "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+    --bg:#F4EEE1; --surface:#FBF7EE; --ink:#2C2620; --muted:#6E6455;
+    --brass:#935F14; --verd:#386659; --rust:#9E4A28; --rule:#E1D7C3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#15120E; --surface:#1D1913; --ink:#ECE3D3; --muted:#9E9279; --brass:#D0A44C; --verd:#6FAA9A; --rust:#D68C64; --rule:#2E2820; }
+  }
+  :root[data-theme="light"]{ --bg:#F4EEE1; --surface:#FBF7EE; --ink:#2C2620; --muted:#6E6455; --brass:#935F14; --verd:#386659; --rust:#9E4A28; --rule:#E1D7C3; }
+  :root[data-theme="dark"]{ --bg:#15120E; --surface:#1D1913; --ink:#ECE3D3; --muted:#9E9279; --brass:#D0A44C; --verd:#6FAA9A; --rust:#D68C64; --rule:#2E2820; }
+
+  * { box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{ background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.68; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap{ max-width:700px; margin:0 auto; padding:clamp(1.5rem,5vw,4rem) clamp(1.1rem,5vw,2rem) 5rem; }
+
+  .eyebrow{ font-family:var(--mono); font-size:0.72rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--brass); margin:0 0 1rem; }
+  h1{ font-family:var(--serif); font-weight:600; font-size:clamp(2.1rem,6vw,3.2rem); line-height:1.07; letter-spacing:-0.015em; text-wrap:balance; margin:0 0 1.1rem; }
+  .lede{ font-size:clamp(1.06rem,2.5vw,1.24rem); color:var(--ink); max-width:60ch; margin:0; }
+
+  .rule{ height:1px; border:0; background:linear-gradient(90deg,var(--brass) 0 3rem,var(--rule) 3rem); margin:2.4rem 0; }
+
+  .kicker{ font-family:var(--mono); font-size:0.68rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--verd); margin:2.6rem 0 0.3rem; }
+  h2{ font-family:var(--serif); font-weight:600; font-size:clamp(1.45rem,3.4vw,1.9rem); line-height:1.16; letter-spacing:-0.01em; text-wrap:balance; margin:0.2rem 0 0.85rem; }
+  p{ margin:0 0 1.05rem; max-width:63ch; }
+  strong{ font-weight:650; } em{ } a{ color:var(--brass); }
+  ul{ max-width:63ch; padding-left:1.15rem; } ul li{ margin:0.3rem 0; } ul li::marker{ color:var(--brass); }
+
+  blockquote{ margin:2rem 0; padding:0.2rem 0 0.2rem 1.4rem; border-left:3px solid var(--brass); }
+  blockquote p{ font-family:var(--serif); font-style:italic; font-size:clamp(1.25rem,3.2vw,1.6rem); line-height:1.3; margin:0; text-wrap:balance; }
+
+  .eg{ background:var(--surface); border:1px solid var(--rule); border-radius:8px; padding:0.9rem 1.15rem 1rem; margin:1.2rem 0; }
+  .eg .t{ font-family:var(--mono); font-size:0.66rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:0.5rem; margin:0 0 0.5rem; }
+  .eg .t::before{ content:"BladeRunner"; font-family:var(--mono); font-size:0.62rem; letter-spacing:0.1em; color:var(--verd); border:1px solid var(--verd); border-radius:3px; padding:0.05rem 0.35rem; }
+  .eg p{ margin:0; font-size:0.94rem; }
+
+  .foot{ margin-top:2.8rem; padding-top:1.1rem; border-top:1px solid var(--rule); font-family:var(--mono); font-size:0.74rem; color:var(--muted); line-height:1.7; }
+  .foot a{ color:var(--brass); }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">The dig · who does it</p>
+  <h1>Meet the Archaeologist</h1>
+  <p class="lede">The AI that reads an existing codebase and recovers <strong>what the software was <em>for</em></strong> — its intent — and writes it down as clean, structured data. Not a summary of the code; the intent underneath it.</p>
+
+  <hr class="rule" />
+
+  <p>Picture a real archaeologist standing in a trench. They don't just describe the dirt — they work out what the people who built this place were trying to <em>do</em>, from what they left behind. Same job, different site. Here the trench is a code repository.</p>
+
+  <p class="kicker">Its one rule</p>
+  <h2>Honesty beats confidence.</h2>
+  <p>Point most AIs at your code and they'll hand you a confident, tidy story. The Archaeologist is built to do the opposite. Its governing rule is <strong>anti-certitude</strong>: it gives you its <em>best reading, with its confidence attached</em> — never a fake certainty.</p>
+  <p>Why so strict? A confident wrong answer here is dangerous — it becomes a blueprint someone pours concrete on. And real codebases are messy: much of what you find is debt, dead ends, and rot that no longer serves any purpose. An AI that reports clean certainty over a rotten codebase is lying. So <em>"I don't know"</em> and <em>"I'm only about 60% on this"</em> are treated as <strong>good, honest answers</strong> — not failures.</p>
+  <blockquote><p>You don't invent a story for an unlabeled potsherd. You record what you found, where, and how sure you are.</p></blockquote>
+
+  <p class="kicker">How it reads</p>
+  <h2>Two witnesses, cross-examined.</h2>
+  <p>Every system has two sources of truth, and they lie in different ways:</p>
+  <ul>
+    <li><strong>The code</strong> (plus the database and tests) — truthful about <em>what</em> the system does, but silent on <em>why</em>.</li>
+    <li><strong>The docs</strong> (READMEs, comments, tickets) — they speak to <em>why</em>, but they <strong>drift</strong>: stale, aspirational, sometimes never-true.</li>
+  </ul>
+  <p>The Archaeologist reads both, like cross-examining two witnesses. The clever part: <strong>when they disagree, the disagreement is the signal.</strong> It doesn't quietly pick one and hide the other — it keeps both sides and flags the drift.</p>
+  <div class="eg"><p class="t"></p><p>The code showed login was <em>faked</em>, while the structure implied a real security system. The Archaeologist held both and called it.</p></div>
+
+  <p class="kicker">The leap</p>
+  <h2>Putting two finds together.</h2>
+  <p>Its highest-value move — and the riskiest — is <strong>the join</strong>: reading the code and the data <em>together</em> to recover a rule that lives in neither one alone. A database table plus a class, seen side by side, reveal a business rule nobody ever wrote down. That's the real archaeology: the meaning is in the <em>relationship between the finds</em>, not any single one.</p>
+
+  <p class="kicker">It names the dead things</p>
+  <h2>Rubble gets labeled rubble.</h2>
+  <p>Codebases are full of stuff that no longer does anything — a dead table, an orphaned module, a feature someone started and walked away from. The Archaeologist has a proper way to say <strong>"this exists and appears to serve no current purpose"</strong> instead of inventing a reason for it.</p>
+  <div class="eg"><p class="t"></p><p>It turned out to be a half-finished prototype — commented-out saving, a faked login, a hardcoded developer path — and the Archaeologist said exactly that, rather than describing a working product.</p></div>
+
+  <p class="kicker">Every claim shows its receipts</p>
+  <h2>Nothing is a bare assertion.</h2>
+  <p>Each claim carries <strong>where it came from</strong> (which file, which line), <strong>the evidence</strong> (and which witness gave it), <strong>how confident</strong> it is, and a <strong>verdict</strong> field left blank on purpose for a human to fill. No receipt? It's marked <em>not asserted</em> — never quietly assumed. You can trace any statement back to the ground it came out of.</p>
+
+  <p class="kicker">Where it stops · the leash · the last word</p>
+  <h2>It recovers intent, then hands you the judgment.</h2>
+  <p>The Archaeologist recovers <strong>intent, and stops there</strong> — it doesn't design the new system, pick an architecture, or write code. Its job is a faithful picture of <em>what the thing is and why</em>, so a human can decide <em>how</em> to rebuild it.</p>
+  <p>And it works on a <strong>leash</strong>: it reads a restored, <em>offline</em> copy of any database, <em>read-only</em>, and only ever sees <strong>profiles and shapes, never the actual rows</strong> of anyone's data. Every stage is human-approved — built to be trusted right next to a real, sensitive system.</p>
+  <p>The one thing it never does is render the final verdict. It lays out the evidence — best readings, confidence, the drift, the honest unknowns — and a <strong>human rules</strong> each claim: confirmed, corrected, or still unknown. The machine does the labor; the human keeps the judgment.</p>
+
+  <div class="foot">The flavor, not the fine print. The full, exact version — every rule and edge case — lives in <b>docs/ARCHAEOLOGIST.md</b>.</div>
+</div>
