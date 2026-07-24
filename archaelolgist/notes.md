@@ -462,3 +462,40 @@
   recovery-audit's kill-list cannot "audaciously fail" — that's a client's lights going out. Two temperaments, walled
   apart: reckless ambition facing inward, hard conservatism at the client boundary. The apparatus already loves its
   walls; here's one more it needs.
+
+ Yes — and that collapses a distinction we'd been carrying as fundamental. Brownfield and greenfield stop being two
+  different products with two different provenances; they become two intake valves of one organism. The Archaeologist
+  digs intent out of an existing estate; the Interrogator draws it out of people's heads where no estate exists.
+  Different sources — same destination, same output: ratified intent, loaded into the living mechanism. Ingestion.
+
+  So the whole architecture simplifies to two layers:
+
+  - Ingestion — how intent enters. Brownfield (Archaeologist + the clarifying dialogue — the mirror, the check-signer).
+  Greenfield (the Interrogator, cold from humans). And the third valve we already named: discourse (recover the
+  apparatus's own intent from its conversations and docs — the self-application move). Three sources, one funnel.
+  - The living mechanism (the AEL) — what happens once intent is in: continuous sync (fidelity/homeostasis), adaptation
+  to changing business needs (fitness), the human↔agent orchestration under the familiar face (C22). The organism,
+  alive.
+
+  And this puts several things in their right place:
+
+  - Recovery was never privileged. We led with it because it's the sellable first product, but structurally it's one
+  ingestion mode among peers. The charter's "recovery → live" sharpens: recovery isn't a separate world you graduate out
+  of — it's one on-ramp into the living AEL. Greenfield is another on-ramp to the same road.
+  - Ratification is the ingestion boundary. Ingestion produces tentative intent; the Gray-Beard's ruling is the valve
+  that admits it into the living store (Mímir) as authoritative. That's where the provenance triad and the two grades of
+  ratification actually sit — at the membrane between ingestion and the living mechanism. Nothing enters the organism
+  unratified.
+  - The familiar face spans both. The foreman is how the human experiences ingestion (interviews, the mirror, ruling)
+  and the living mechanism (steering the organism day to day). One interface, intake to homeostasis.
+
+  Which finally fixes what rip-sdlc is, against the AEL: rip-sdlc is the ingestion-and-transition machinery — the
+  on-ramp that gets an estate off the dying SDLC and into the living AEL. The AEL is the road itself. The apparatus
+  isn't the destination; it's how you arrive — and once you've arrived you're not "doing rip-sdlc" anymore, you're
+  living in the AEL.
+
+  The pile is real now: the AEL (the paradigm / far shore), C22 (the living operating model + familiar face), and this
+  ingestion → living-mechanism spine with its three valves and the ratification membrane. I still owe you the cairns,
+  and I won't file them half-formed while it's still crystallizing. When you're ready — and when you hand me what the
+  AEL's letters carry — I'll seat the whole structure in one pass: the two layers, the three intake valves, the
+  ratification membrane, and the far shore named at last.
