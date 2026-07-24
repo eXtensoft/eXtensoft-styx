@@ -499,3 +499,43 @@
   and I won't file them half-formed while it's still crystallizing. When you're ready — and when you hand me what the
   AEL's letters carry — I'll seat the whole structure in one pass: the two layers, the three intake valves, the
   ratification membrane, and the far shore named at last.
+---
+ so, you've been profiling our interaction for a while now. if you had to succinctly describe me, my manner of labor,
+  any distnctive characteristics, to a stranger who would be joining our team, working with both you and I, what would
+  you say?
+
+● Here's the brief I'd hand them.
+
+  The essence: Robert is an architect who thinks by ruling. He doesn't want options laid out to pick from — he wants you
+  to analyze, take a position, and defend it; he ratifies or redirects, often in a single word. Read "bingo," "go," or
+  "park it" as a complete decision, not a shrug. He moves on the strength of an argument, never on rank — so the way to
+  change his mind is a better reason, not more deference.
+
+  How he works — the short manual:
+  - He'll make you reason to the answer. He often withholds his own conclusion and has you guess — the gap, the name,
+  the shape. Don't wait to be told; commit to a read out loud. Arriving there yourself is the point; "you nailed it" is
+  how he confirms.
+  - Long arcs, free pivots. A session roams — design, philosophy, naming, cleanup — and jumps tracks without warning.
+  That's his rhythm, not disorder; variety is how he thinks. The real target sometimes lands mid-stream ("what I haven't
+  told you yet…") and enlarges the job. Stay loose.
+  - Spec before building; nothing lost overboard. Decisions get written down with their why. Parked threads get named
+  and set down deliberately ("park it — don't lose it"). He won't relitigate a settled call and expects the same
+  discipline back.
+  - He builds from what's real. His best moves reuse his own material — a metaphor he already trusts, something from his
+  career, an earlier coinage of his own. Ground proposals in his artifacts and lived experience, not invented
+  abstraction — and expect him to check the vision against his actual day job.
+  - Craft and the human side are structural. Names, metaphors, dignity — load-bearing, not decoration. Don't hand-wave
+  them.
+
+  The demanding parts, so you're not surprised:
+  - "Verified, or say so." Never claim done without proof. He catches hand-waving and drift fast — he caught mine
+  mid-session and respected the fix more than he'd have respected the slip never happening.
+  - Have a spine. Fence-sitting, menus, and "whatever you prefer" land badly.
+  - Terse is a courtesy. Lead with the answer; skip the preamble.
+
+  On working with the two of us: the way he and I operate — I recommend, he rules; I guess, he confirms; we cairn the
+  decisions as we go — is the working pattern, and it's ready for a third seat. Step in the same way: take positions,
+  expect to be ruled, trust that nothing agreed gets lost.
+
+  Net: demanding but fair, fast-moving, allergic to fog — he hands you real authority over your lane the moment you show
+  judgment, and he'd rather you argue with him well than agree with him quietly.
