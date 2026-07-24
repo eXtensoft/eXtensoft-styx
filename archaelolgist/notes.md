@@ -546,5 +546,38 @@
   then the specimen became Proteus — an actor abstracted from the very performance that's now in his file as evidence.
   The apparatus grew an organ by watching itself work. When you're ready to run the second specimen — trio
   configuration, Torquemada conducting — the score is written and the performer knows his part.
+---
+  You don't want a second specimen. You want to turn Proteus on Proteus — design-by-building the system that matures the
+  protean process itself: the participants (Proteus's score, Torquemada's protocols, even the gray-beard's own
+  operating agreements) and the interactions between them (the cueing, the grapple, the ratification rhythm, the
+  capture). A prototype whose subject is the process — grown protean-ly, and honest about its own Pygmalion rule from
+  birth: it either becomes the eventual member that serves the protean process, or its yield instructs the building of
+  that member. Recovery-mode applied to a process instead of a codebase: right now the protean method's genotype lives
+  half in proteus.md and half in how we actually behaved today; the prototype is the dig.
 
+  Three things convince me this is sound and not navel-gazing:
+
+  1. The apparatus already sanctions the recursion. The self-application move is memorialized in constituents.md — the
+  apparatus using its own levers on itself. This is that move, aimed at the interrogation layer instead of the
+  uber-product.
+  2. You already run the prototype's core loop by hand. The trail-boss persona work — sessions produce evidence,
+  evidence routes to method-vs-scars, compilations get ratified into the riding sheet — is participant-maturation, done
+  manually for one participant: you. The new member generalizes that exact loop to every actor in the room and to the
+  interactions between them. Proven prior art, sitting in your own house.
+  3. Today generated the founding dataset. One full duet session with every ruling, reversal, cue, and capture
+  recoverable. The prototype has its first specimen to chew on before it's even seeded.
+
+  One design conviction I'll hold from the start, because it's the failure mode that kills tools like this: the member
+  must observe more than it directs. Today's grapple worked because capture cost nothing — markdown at the moment of the
+  strike, zero ceremony during the performance. A session harness that makes the session fill things in becomes
+  process-bureaucracy and dies of its own weight. So the bar for v0: capture must be cheaper than the ad-hoc .md files
+  were, and the maturation work — replay, critique, score-refinement, the assay bench — happens between performances,
+  not during them. The theater has a name for that place, if you want a working handle: the greenroom — where the
+  performers prepare, review, and get better between shows. Yours to rename, as ever.
+
+  The protean method itself dictates the next move, and it's yours: the seed. One page, vivid, concrete enough to be
+  wrong about — what this member is for, its spine, the quality bar, and what "seed data" means for a process-prototype
+  (I'd argue: today's session, pre-loaded as the first performance record). Give me the seed — or say the word and I'll
+  draft a provocation for you to mutilate — and we'll mint the repo, enlist it, link it, and start the grapple.
+  ---
   
