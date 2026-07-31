@@ -86,8 +86,41 @@ $CollectScriptBlock = {
             cpuSockets               = $cpu.Count
             cpuCores                 = ($cpu | Measure-Object -Property NumberOfCores -Sum).Sum
             cpuLogicalProcessors     = ($cpu | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
-            totalPhysicalMemoryBytes = $cs.TotalPhysicalMemory
         }
+    }
+
+    function Get-CensusMemory {
+        $cs = Get-CimInstance Win32_ComputerSystem
+        @{
+            totalPhysicalMemoryBytes = $cs.TotalPhysicalMemory
+            totalPhysicalMemoryGB    = [math]::Round($cs.TotalPhysicalMemory / 1GB, 1)
+        }
+    }
+
+    function Get-CensusDrives {
+        $drives = @()
+        foreach ($volume in @(Get-Volume -ErrorAction SilentlyContinue | Where-Object { $_.DriveLetter })) {
+            $sizeBytes = $volume.Size
+            $freeBytes = $volume.SizeRemaining
+            $usedBytes = if ($null -ne $sizeBytes -and $null -ne $freeBytes) { $sizeBytes - $freeBytes } else { $null }
+            $percentFree = if ($sizeBytes) { [math]::Round(($freeBytes / $sizeBytes) * 100, 1) } else { $null }
+
+            $drives += @{
+                driveLetter  = $volume.DriveLetter
+                label        = $volume.FileSystemLabel
+                fileSystem   = $volume.FileSystemType
+                driveType    = $volume.DriveType
+                healthStatus = $volume.HealthStatus
+                sizeBytes    = $sizeBytes
+                freeBytes    = $freeBytes
+                usedBytes    = $usedBytes
+                percentFree  = $percentFree
+            }
+        }
+
+        # Volumes mounted as a folder rather than a drive letter (common on SQL data
+        # volumes) are deliberately out of scope here - only lettered drives are reported.
+        @{ drives = $drives }
     }
 
     function Get-CensusOs {
@@ -165,11 +198,18 @@ $CollectScriptBlock = {
             Get-ItemProperty $Path -ErrorAction SilentlyContinue |
                 Where-Object { $_.DisplayName } |
                 ForEach-Object {
+                    # Uninstall registry entries only ever carry a date (yyyyMMdd), never a
+                    # time - there's no finer-grained install timestamp available here.
+                    $installDate = $_.InstallDate
+                    if ($installDate -match '^\d{8}$') {
+                        try { $installDate = [datetime]::ParseExact($installDate, 'yyyyMMdd', $null).ToString('yyyy-MM-dd') }
+                        catch { }
+                    }
                     [PSCustomObject]@{
                         displayName     = $_.DisplayName
                         displayVersion  = $_.DisplayVersion
                         publisher       = $_.Publisher
-                        installDate     = $_.InstallDate
+                        installDate     = $installDate
                         installLocation = $_.InstallLocation
                         systemComponent = [bool]$_.SystemComponent
                         hive            = $Hive
@@ -222,31 +262,79 @@ $CollectScriptBlock = {
             }
         }
 
-        $boundThumbprints = $sites |
-            ForEach-Object { $_.bindings } |
-            Where-Object { $_.certificateHash } |
-            ForEach-Object { $_.certificateHash } |
-            Select-Object -Unique
+        @{ sites = $sites }
+    }
 
-        $boundCertificates = @()
-        foreach ($thumbprint in $boundThumbprints) {
+    function Get-CensusCertificates {
+        param($IisResult)
+
+        # thumbprint -> list of what it's bound to, so a cert shared across IIS and RDP
+        # (or bound more than once) still shows up as a single entry.
+        $boundBySource = @{}
+        function Add-BoundThumbprint {
+            param([string]$Thumbprint, [string]$Source)
+            if (-not $Thumbprint) { return }
+            if (-not $boundBySource.ContainsKey($Thumbprint)) {
+                $boundBySource[$Thumbprint] = New-Object System.Collections.Generic.List[string]
+            }
+            if (-not $boundBySource[$Thumbprint].Contains($Source)) {
+                $boundBySource[$Thumbprint].Add($Source)
+            }
+        }
+
+        if ($IisResult.status -eq 'ok') {
+            @($IisResult.data.sites) |
+                ForEach-Object { $_.bindings } |
+                Where-Object { $_.certificateHash } |
+                ForEach-Object { Add-BoundThumbprint -Thumbprint $_.certificateHash -Source 'IIS' }
+        }
+
+        $rdpQueryError = $null
+        try {
+            $rdpSetting = Get-CimInstance -Namespace 'root\cimv2\TerminalServices' -ClassName Win32_TSGeneralSetting -ErrorAction Stop
+            Add-BoundThumbprint -Thumbprint $rdpSetting.SSLCertificateSHA1Hash -Source 'RDP'
+        }
+        catch {
+            $rdpQueryError = $_.Exception.Message
+        }
+
+        # applicationHost.config's certificateHash only covers SNI bindings. Classic,
+        # IP-based SSL bindings (still common on real IIS boxes) are registered at the
+        # HTTP.SYS layer instead and only show up here, not in the XML.
+        $httpSysQueryError = $null
+        try {
+            $httpSysOutput = & netsh.exe http show sslcert 2>&1
+            foreach ($line in $httpSysOutput) {
+                if ($line -match 'Certificate Hash\s*:\s*([0-9a-fA-F]+)') {
+                    Add-BoundThumbprint -Thumbprint $matches[1] -Source 'HTTP.SYS'
+                }
+            }
+        }
+        catch {
+            $httpSysQueryError = $_.Exception.Message
+        }
+
+        $certificates = @()
+        foreach ($thumbprint in $boundBySource.Keys) {
             $cert = Get-ChildItem 'Cert:\LocalMachine' -Recurse -ErrorAction SilentlyContinue |
                 Where-Object { $_.Thumbprint -eq $thumbprint } |
                 Select-Object -First 1
             if ($cert) {
-                $boundCertificates += @{
-                    thumbprint = $cert.Thumbprint
-                    subject    = $cert.Subject
-                    sanDnsNames = @($cert.DnsNameList | ForEach-Object { $_.Unicode })
-                    issuer     = $cert.Issuer
-                    notBefore  = $cert.NotBefore
-                    notAfter   = $cert.NotAfter
-                    keySize    = $cert.PublicKey.Key.KeySize
+                $certificates += @{
+                    thumbprint      = $cert.Thumbprint
+                    subject         = $cert.Subject
+                    sanDnsNames     = @($cert.DnsNameList | ForEach-Object { $_.Unicode })
+                    issuer          = $cert.Issuer
+                    notBefore       = $cert.NotBefore
+                    notAfter        = $cert.NotAfter
+                    keySize         = $cert.PublicKey.Key.KeySize
+                    daysUntilExpiry = [math]::Floor(($cert.NotAfter - (Get-Date)).TotalDays)
+                    boundTo         = @($boundBySource[$thumbprint])
                 }
             }
         }
 
-        @{ sites = $sites; boundCertificates = $boundCertificates }
+        @{ certificates = $certificates; rdpQueryError = $rdpQueryError; httpSysQueryError = $httpSysQueryError }
     }
 
     function Get-CensusSqlServer {
@@ -297,16 +385,21 @@ $CollectScriptBlock = {
         @{ instances = $instances }
     }
 
+    $iisResult = Invoke-CensusCategory { Get-CensusIis }
+
     $census = [ordered]@{
         schemaVersion = 1
         computerName  = $env:COMPUTERNAME
         collectedUtc  = (Get-Date).ToUniversalTime().ToString('o')
         identity      = Invoke-CensusCategory { Get-CensusIdentity }
+        memory        = Invoke-CensusCategory { Get-CensusMemory }
         os            = Invoke-CensusCategory { Get-CensusOs }
         updates       = Invoke-CensusCategory { Get-CensusUpdates }
         dotnet        = Invoke-CensusCategory { Get-CensusDotNet }
+        drives        = Invoke-CensusCategory { Get-CensusDrives }
         apps          = Invoke-CensusCategory { Get-CensusApps }
-        iis           = Invoke-CensusCategory { Get-CensusIis }
+        iis           = $iisResult
+        certificates  = Invoke-CensusCategory { Get-CensusCertificates -IisResult $iisResult }
         sqlserver     = Invoke-CensusCategory { Get-CensusSqlServer }
     }
 
