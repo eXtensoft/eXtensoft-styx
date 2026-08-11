@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise AI Governance & Monitoring Dashboard</title>
+<style>
+:root {
+    --bg-main: #f8fafc;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --accent-blue: #0284c7;
+    --accent-crimson: #be123c;
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --green-accent: #0f766e;
+    --purple-accent: #6d28d9;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 2rem 1rem;
+}
+
+.main-header {
+    max-width: 1200px;
+    margin: 0 auto 3rem auto;
+    text-align: center;
+}
+
+.main-header h1 {
+    font-size: 2.5rem;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+.main-header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+    color: #0f172a;
+}
+
+h3, h5 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+/* GRIDS */
+.grid-2col {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.grid-3col {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.grid-4col {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+
+/* CARDS */
+.card {
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 5px solid var(--border-color);
+}
+
+.high-roi {
+    background-color: #f0fdf4;
+    border-left-color: var(--green-accent);
+}
+.high-roi h3 { color: var(--green-accent); }
+
+.unsuitable {
+    background-color: #fff1f2;
+    border-left-color: var(--accent-crimson);
+}
+.unsuitable h3 { color: var(--accent-crimson); }
+
+.risk-card {
+    background: #fafafa;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.25rem;
+}
+
+.risk-card h4 {
+    color: var(--accent-crimson);
+    font-size: 1.05rem;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+ul {
+    list-style-type: none;
+}
+
+li {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    position: relative;
+    padding-left: 1.25rem;
+    color: #334155;
+}
+
+li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--text-muted);
+    font-weight: bold;
+}
+
+/* TIMELINE FRAMEWORK */
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.step-card {
+    display: flex;
+    gap: 1.5rem;
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.step-num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-blue);
+    line-height: 1;
+}
+
+.step-content h3 {
+    margin-bottom: 0.25rem;
+    color: #0f172a;
+}
+
+.step-content p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    font-style: italic;
+}
+
+/* NEW METRICS BLOCKS */
+.metric-box {
+    background: #fdfdfd;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.metric-box h5 {
+    color: var(--purple-accent);
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.metric-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #475569;
+    margin-top: 1rem;
+}
+
+.metric-box p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* INTERACTIVE CHECKLIST */
+.interactive-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.check-item:hover {
+    background: #f1f5f9;
+}
+
+.check-item input {
+    display: none;
+}
+
+.custom-box {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cbd5e1;
+    border-radius: 4px;
+    background: #fff;
+    display: inline-block;
+    flex-shrink: 0;
+    position: relative;
+    margin-top: 2px;
+}
+
+.check-item input:checked + .custom-box {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+}
+
+.check-item input:checked + .custom-box::after {
+    content: "✓";
+    position: absolute;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    left: 3px;
+    top: -2px;
+}
+
+.check-text h6 {
+    font-size: 1rem;
+    color: #0f172a;
+}
+
+.check-text p {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+.check-item input:checked ~ .check-text h6 {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+footer {
+    text-align: center;
+    margin-top: 4rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+    .step-card {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+</style>
+</head>
+<body>
+
+    <header class="main-header">
+        <h1>Enterprise AI Deployment Framework</h1>
+        <p>A strategic guide to hidden operational risks, mitigation lifecycles, and governance metrics.</p>
+    </header>
+
+    <main class="dashboard-container">
+        
+        <!-- SECTION 1: CORE AI PROCESS FIT -->
+        <section class="matrix-section">
+            <h2>1. Process Feasibility & Strategic Alignment</h2>
+            <div class="grid-2col">
+                <div class="card high-roi">
+                    <h3>Optimal High-ROI Activities</h3>
+                    <ul>
+                        <li><strong>High-Volume Data Processing:</strong> Classification, text extraction, and complex contract analysis.</li>
+                        <li><strong>Pattern Recognition & Prediction:</strong> Demand forecasting, anomaly tracking, and fraud detection.</li>
+                        <li><strong>Repetitive Digital Tasks:</strong> Automated sorting, IT service routing, and invoice matching.</li>
+                        <li><strong>Content Generation & Summary:</strong> Report summarization, email drafting, and boilerplate coding.</li>
+                        <li><strong>First-Line Support:</strong> Automating frequent, low-complexity customer queries.</li>
+                    </ul>
+                </div>
+                <div class="card unsuitable">
+                    <h3>Unsuitable / High-Risk Activities</h3>
+                    <ul>
+                        <li><strong>High-Stakes Decisions:</strong> Corporate M&A, structural pivots, and complex risk management.</li>
+                        <li><strong>Human Relationship Management:</strong> HR dispute resolution, negotiations, and crisis PR management.</li>
+                        <li><strong>Low-Data / Novel Scenarios:</strong> Navigating unprecedented black-swan events or business design.</li>
+                        <li><strong>Mission-Critical Systems:</strong> Environments where single hallucinations cause physical or legal harm.</li>
+                        <li><strong>Final Ethical Judgment:</strong> Culture definition, regulatory bounds, and core artistic vision.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: HIDDEN AI RISKS Matrix -->
+        <section class="matrix-section">
+            <h2>2. Hidden Vulnerabilities Matrix</h2>
+            <div class="grid-4col">
+                <div class="risk-card">
+                    <h4>Hidden PII & Privacy</h4>
+                    <ul>
+                        <li>Biometric profile leaks from audio/video ingestion</li>
+                        <li>Inferred identity matching across anonymous sets</li>
+                        <li>Passive training capture of background text/images</li>
+                        <li>Prompt history leaks via employee tool usage</li>
+                        <li>Indirect profile creation based on stylistic text clues</li>
+                    </ul>
+                </div>
+                <div class="risk-card">
+                    <h4>Advanced Governance</h4>
+                    <ul>
+                        <li>Model dependency lock-in to external black-box APIs</li>
+                        <li>Zombie model risk from unmonitored siloed systems</li>
+                        <li>Shadow AI sprawl through unvetted corporate SaaS</li>
+                        <li>Upstream supply toxicity via poisoned open-source data</li>
+                        <li>Technical debt accumulation from unmaintained fine-tuning</li>
+                    </ul>
+                </div>
+                <div class="risk-card">
+                    <h4>Guardrail Fractures</h4>
+                    <ul>
+                        <li>Indirect prompt injection hidden in processed data</li>
+                        <li>Data drift causing silent, un-thrown accuracy failures</li>
+                        <li>Exploratory red-teaming gaps via rare or coded language</li>
+                        <li>Output licensing traps leading to compliance violations</li>
+                        <li>Feedback loop corruption driving eventual model collapse</li>
+                    </ul>
+                </div>
+                <div class="risk-card">
+                    <h4>Operational Drag</h4>
+                    <ul>
+                        <li>Human skills atrophy from over-reliance on automation</li>
+                        <li>Regulatory whiplash from retroactive legal penalties</li>
+                        <li>Infrastructure price spikes due to unmonitored scaling</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: MITIGATION FRAMEWORK -->
+        <section class="framework-section">
+            <h2>3. Generalized Enterprise Mitigation Framework</h2>
+            <div class="timeline">
+                <div class="step-card">
+                    <div class="step-num">01</div>
+                    <div class="step-content">
+                        <h3>Discover & Audit (Ingress Control)</h3>
+                        <p>Establish perimeter defenses before data interacts with machine learning environments.</p>
+                        <ul>
+                            <li>Deploy CASB network scans to auto-detect unauthorized corporate AI endpoints.</li>
+                            <li>Route data through input-sanitization proxies to actively strip metadata and file text.</li>
+                            <li>Enforce synthetic data requirements in all non-production development environments.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">02</div>
+                    <div class="step-content">
+                        <h3>Defend & Encapsulate (In-Flight Privacy)</h3>
+                        <p>Isolate execution pipelines and prevent prompt loops from exposing proprietary intel.</p>
+                        <ul>
+                            <li>Install multi-lingual prompt firewalls to intercept complex prompt injection attempts.</li>
+                            <li>Negotiate strict corporate Zero Data Retention (ZDR) contracts with external vendors.</li>
+                            <li>Run automated licensing scanners on software and text generated by foreign LLMs.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">03</div>
+                    <div class="step-content">
+                        <h3>Monitor & Validate (Egress Governance)</h3>
+                        <p>Audit running models continuously to spot performance drift and data leakage early.</p>
+                        <ul>
+                            <li>Run automated regression checks against fixed ground-truth operational benchmarks.</li>
+                            <li>Apply structural watermarking to company exports to avoid recursive self-training.</li>
+                            <li>Implement mandatory "Human-in-the-Loop" validation for high-impact outputs.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">04</div>
+                    <div class="step-content">
+                        <h3>Govern & Insulate (Lifecycle Resilience)</h3>
+                        <p>Protect organizational structure against single-vendor failure and knowledge atrophy.</p>
+                        <ul>
+                            <li>Build multi-model abstract routing layers to easily swap underlying engine vendors.</li>
+                            <li>Execute quarterly deprecation sweeps to turn off abandoned "zombie" workflows.</li>
+                            <li>Mandate regular operations drills where human staff manually handle automated tasks.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW SECTION 4: SPECIFIC MONITORING METRICS -->
+        <section class="metrics-section">
+            <h2>4. Essential AI Monitoring Metrics</h2>
+            <div class="grid-3col">
+                <div class="metric-box">
+                    <h5>Data & Output Drift</h5>
+                    <div class="metric-label">Embedding Distance (PSI)</div>
+                    <p>Measures shift between deployment data baseline and live production inputs.</p>
+                    <div class="metric-label">Token Similarity Variance</div>
+                    <p>Tracks structural repetition changes to predict feedback loop model collapse.</p>
+                </div>
+                <div class="metric-box">
+                    <h5>Security & Compliance</h5>
+                    <div class="metric-label">PII Block Rate</div>
+                    <p>Percentage of user prompts flagged and redacted by the ingress proxy layer.</p>
+                    <div class="metric-label">Injection Attack Volume</div>
+                    <p>Frequency of malicious pattern matches caught by multi-lingual prompt firewalls.</p>
+                </div>
+                <div class="metric-box">
+                    <h5>Operational Efficiency</h5>
+                    <div class="metric-label">Cost per 1K Tokens</div>
+                    <p>Financial baseline tracking to isolate infrastructure scaling anomalies early.</p>
+                    <div class="metric-label">Human Intervention Rate</div>
+                    <p>Percentage of model generations overridden or heavily edited by human reviewers.</p>
+                </div>
+            </div>
