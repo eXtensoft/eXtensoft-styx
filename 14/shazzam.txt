@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Census credential setup runbook - the five-bucket walkthrough.
+  Standalone: no build step, no local dependencies. Open it in a browser.
+  Fonts come from Google Fonts and degrade to the declared fallback stacks offline.
+  Reference procedure and design rationale: credentials-howto.md, features/census-collector.md 5.2.
+-->
+<style>:root{color-scheme:light dark}body{margin:0}</style>
+<title>Census Credential Runbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root{
+  --ground:#f2f4f6;
+  --surface:#ffffff;
+  --surface-sunk:#e9edf1;
+  --ink:#151a20;
+  --ink-soft:#3f4a56;
+  --ink-mute:#6b7683;
+  --rule:#d7dde3;
+  --rule-soft:#e6eaee;
+  --steel:#2f6db5;
+  --steel-wash:#eaf1f9;
+  --steel-edge:#bcd3ea;
+  --amber:#b26a00;
+  --amber-wash:#faf3e7;
+  --amber-edge:#e8d3ab;
+  --brick:#b3261e;
+  --brick-wash:#fbeeed;
+  --brick-edge:#eec6c2;
+  --code-ground:#1b2229;
+  --code-ink:#dbe3ea;
+  --code-dim:#7c8b99;
+  --code-key:#8fbcec;
+  --code-str:#c9b78b;
+  --shadow:0 1px 2px rgba(21,26,32,.05),0 8px 24px -16px rgba(21,26,32,.28);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0f1318;
+    --surface:#161c23;
+    --surface-sunk:#1c232b;
+    --ink:#e2e8ee;
+    --ink-soft:#b3bec9;
+    --ink-mute:#818d9a;
+    --rule:#2a323b;
+    --rule-soft:#222932;
+    --steel:#79aae4;
+    --steel-wash:#182533;
+    --steel-edge:#2d4762;
+    --amber:#dda44a;
+    --amber-wash:#2a2216;
+    --amber-edge:#544224;
+    --brick:#ea837a;
+    --brick-wash:#2c1a19;
+    --brick-edge:#5c2f2c;
+    --code-ground:#0b0f13;
+    --code-ink:#d3dbe3;
+    --code-dim:#6c7b89;
+    --code-key:#8fbcec;
+    --code-str:#c9b78b;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0f1318;
+  --surface:#161c23;
+  --surface-sunk:#1c232b;
+  --ink:#e2e8ee;
+  --ink-soft:#b3bec9;
+  --ink-mute:#818d9a;
+  --rule:#2a323b;
+  --rule-soft:#222932;
+  --steel:#79aae4;
+  --steel-wash:#182533;
+  --steel-edge:#2d4762;
+  --amber:#dda44a;
+  --amber-wash:#2a2216;
+  --amber-edge:#544224;
+  --brick:#ea837a;
+  --brick-wash:#2c1a19;
+  --brick-edge:#5c2f2c;
+  --code-ground:#0b0f13;
+  --code-ink:#d3dbe3;
+  --code-dim:#6c7b89;
+  --code-key:#8fbcec;
+  --code-str:#c9b78b;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--ground);
+  color:var(--ink);
+  font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  font-size:16px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 6rem}
+
+/* ---------- masthead ---------- */
+.masthead{
+  border-bottom:1px solid var(--rule);
+  padding:3.5rem 0 2rem;
+  margin-bottom:2.5rem;
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:.7rem;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--steel);
+  margin:0 0 1rem;
+}
+h1{
+  font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;
+  font-weight:700;
+  font-size:clamp(2.1rem,5.4vw,3.1rem);
+  line-height:1.06;
+  letter-spacing:-.015em;
+  text-wrap:balance;
+  margin:0 0 .9rem;
+}
+.standfirst{
+  font-size:1.06rem;color:var(--ink-soft);
+  max-width:56ch;margin:0 0 1.75rem;
+}
+.scenario{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));
+  gap:1px;
+  background:var(--rule);
+  border:1px solid var(--rule);
+  border-radius:3px;
+  overflow:hidden;
+  margin:0;
+}
+.scenario div{background:var(--surface);padding:.85rem 1rem}
+.scenario dt{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-mute);margin:0 0 .3rem;
+}
+.scenario dd{
+  margin:0;font-weight:600;font-size:.95rem;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- section furniture ---------- */
+h2{
+  font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;
+  font-weight:600;font-size:1.7rem;line-height:1.15;
+  letter-spacing:-.01em;text-wrap:balance;
+  margin:0 0 .75rem;
+}
+h3{
+  font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;
+  font-weight:600;font-size:1.12rem;line-height:1.3;
+  margin:2rem 0 .5rem;
+}
+p{margin:0 0 1rem;max-width:66ch}
+ul,ol{margin:0 0 1rem;padding-left:1.15rem;max-width:66ch}
+li{margin-bottom:.45rem}
+li::marker{color:var(--ink-mute)}
+strong{font-weight:600}
+a{color:var(--steel)}
+
+.plate{margin:0 0 3rem}
+
+code{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:.86em;
+  background:var(--surface-sunk);
+  border-radius:2px;
+  padding:.1em .35em;
+  word-break:break-word;
+}
+
+/* ---------- the two-accounts contrast ---------- */
+.contrast{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));
+  gap:1.25rem;
+  margin:1.5rem 0 1.25rem;
+}
+.card{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:4px;
+  padding:1.25rem 1.35rem 1.35rem;
+  box-shadow:var(--shadow);
+}
+.card .count{
+  font-family:"IBM Plex Sans Condensed",sans-serif;
+  font-size:2.4rem;font-weight:700;line-height:1;
+  letter-spacing:-.02em;
+  color:var(--steel);
+  font-variant-numeric:tabular-nums;
+}
+.card .count span{
+  font-size:.8rem;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-mute);
+  margin-left:.55rem;vertical-align:.55rem;
+}
+.card h4{
+  font-family:"IBM Plex Sans Condensed",sans-serif;
+  font-size:1.15rem;font-weight:600;margin:.65rem 0 .5rem;
+}
+.card p{font-size:.92rem;margin-bottom:.7rem}
+.card p:last-child{margin-bottom:0}
+.card .sample{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.8rem;
+  color:var(--ink-soft);
+  background:var(--surface-sunk);
+  border-left:2px solid var(--steel);
+  padding:.5rem .7rem;
+  margin:.7rem 0 0;
+  white-space:pre;
+  overflow-x:auto;
+}
+
+/* ---------- callouts ---------- */
+.note{
+  border:1px solid var(--steel-edge);
+  background:var(--steel-wash);
+  border-radius:4px;
+  padding:1rem 1.15rem;
+  margin:1.4rem 0;
+}
+.note.warn{border-color:var(--amber-edge);background:var(--amber-wash)}
+.note.stop{border-color:var(--brick-edge);background:var(--brick-wash)}
+.note .tag{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.66rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--steel);display:block;margin-bottom:.4rem;
+}
+.note.warn .tag{color:var(--amber)}
+.note.stop .tag{color:var(--brick)}
+.note p{font-size:.93rem;margin-bottom:.6rem}
+.note p:last-child{margin-bottom:0}
+.note ul{font-size:.93rem;margin-bottom:0}
+
+/* ---------- code blocks ---------- */
+.code{
+  background:var(--code-ground);
+  border:1px solid var(--rule);
+  border-radius:4px;
+  margin:1.1rem 0 1.3rem;
+  overflow:hidden;
+}
+.code-head{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:.5rem .5rem .5rem .9rem;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.code-head .where{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--code-dim);
+}
+.code-head button{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.68rem;letter-spacing:.06em;
+  color:var(--code-dim);
+  background:transparent;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:2px;
+  padding:.25rem .55rem;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.code-head button:hover{color:var(--code-ink);border-color:rgba(255,255,255,.32)}
+.code-head button:focus-visible{outline:2px solid var(--code-key);outline-offset:2px}
+.code pre{
+  margin:0;padding:.9rem 1rem 1rem;
+  overflow-x:auto;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:.83rem;line-height:1.62;
+  color:var(--code-ink);
+  tab-size:2;
+}
+.code pre .c{color:var(--code-dim);font-style:italic}
+.code pre .k{color:var(--code-key)}
+.code pre .s{color:var(--code-str)}
+
+/* ---------- step spine ---------- */
+.steps{counter-reset:step;margin-top:1rem}
+.step{
+  display:grid;
+  grid-template-columns:3.4rem 1fr;
+  gap:0 1.4rem;
+  padding-bottom:2.6rem;
+  position:relative;
+}
+.step::before{
+  counter-increment:step;
+  content:counter(step,decimal-leading-zero);
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.82rem;font-weight:600;
+  letter-spacing:.04em;
+  color:var(--steel);
+  background:var(--surface);
+  border:1px solid var(--steel-edge);
+  border-radius:2px;
+  width:2.6rem;height:2.1rem;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:.15rem;
+}
+.step::after{
+  content:"";
+  position:absolute;
+  left:1.3rem;top:2.5rem;bottom:.4rem;
+  width:1px;background:var(--rule);
+}
+.step:last-child::after{display:none}
+.step > .body{grid-column:2;min-width:0}
+.step > .body > h3:first-child{margin-top:0;font-size:1.28rem}
+.step.done::before{background:var(--steel);color:var(--surface);border-color:var(--steel)}
+
+.ck{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-mute);
+  background:none;border:1px solid var(--rule);border-radius:2px;
+  padding:.3rem .65rem;cursor:pointer;margin-top:.3rem;
+}
+.ck:hover{border-color:var(--steel);color:var(--steel)}
+.ck:focus-visible{outline:2px solid var(--steel);outline-offset:2px}
+.ck .box{
+  width:.85rem;height:.85rem;border:1px solid currentColor;border-radius:1px;
+  display:inline-block;position:relative;
+}
+.step.done .ck{color:var(--steel);border-color:var(--steel-edge);background:var(--steel-wash)}
+.step.done .ck .box::after{content:"";position:absolute;inset:1px;background:currentColor}
+
+/* ---------- tables ---------- */
+.tablewrap{
+  overflow-x:auto;margin:1.2rem 0 1.5rem;
+  border:1px solid var(--rule);border-radius:4px;background:var(--surface);
+}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:34rem}
+th,td{text-align:left;padding:.62rem .85rem;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+thead th{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-mute);font-weight:500;
+  background:var(--surface-sunk);
+  border-bottom:1px solid var(--rule);
+  white-space:nowrap;
+}
+tbody tr:last-child td{border-bottom:none}
+td code{font-size:.82em}
+.pill{
+  display:inline-block;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.7rem;font-weight:500;
+  padding:.12rem .45rem;border-radius:2px;white-space:nowrap;
+}
+.pill.ok{color:var(--steel);background:var(--steel-wash);border:1px solid var(--steel-edge)}
+.pill.warn{color:var(--amber);background:var(--amber-wash);border:1px solid var(--amber-edge)}
+.pill.bad{color:var(--brick);background:var(--brick-wash);border:1px solid var(--brick-edge)}
+.fill{color:var(--ink-mute);font-style:italic}
+
+/* ---------- flow strip ---------- */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:.5rem;margin:1.5rem 0 1.75rem}
+.flow .node{
+  flex:1 1 8.5rem;
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:3px;
+  padding:.7rem .8rem;
+  min-width:0;
+}
+.flow .node .lab{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-mute);display:block;margin-bottom:.25rem;
+}
+.flow .node .val{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.78rem;color:var(--ink);word-break:break-all;
+}
+.flow .arrow{align-self:center;color:var(--steel);font-size:1rem;flex:0 0 auto}
+
+footer{
+  border-top:1px solid var(--rule);
+  margin-top:2rem;padding-top:1.5rem;
+  font-size:.86rem;color:var(--ink-mute);
+}
+footer p{max-width:66ch}
+
+@media (max-width:34rem){
+  .step{grid-template-columns:1fr;gap:0}
+  .step::before{margin-bottom:.6rem}
+  .step::after{display:none}
+  .step > .body{grid-column:1}
+  .flow .arrow{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Census collector &middot; operator runbook</p>
+  <h1>Five buckets, five credentials, one control box</h1>
+  <p class="standfirst">Everything needed to take the census from <code>task-identity</code> to five DPAPI-protected credential buckets running unattended under Task Scheduler &mdash; in the order the steps have to happen.</p>
+  <dl class="scenario">
+    <div><dt>Buckets</dt><dd>5</dd></div>
+    <div><dt>Stored credentials</dt><dd>5 &mdash; one per bucket</dd></div>
+    <div><dt>Accounts that create the files</dt><dd>1</dd></div>
+    <div><dt>Passwords in machines.json</dt><dd>0</dd></div>
+  </dl>
+</header>
+
+<section class="plate">
+  <h2>Start here: there are two different kinds of account</h2>
+  <p>Almost everything that goes wrong with this setup comes from conflating them. They are unrelated, they are usually <em>different</em> accounts, and each has exactly one job.</p>
+
+  <div class="contrast">
+    <div class="card">
+      <div class="count">1<span>creator</span></div>
+      <h4>The account that <em>writes</em> the files</h4>
+      <p>The account the census scheduled task runs as. DPAPI binds every credential file to this account <strong>and</strong> to this machine, so all five files must be created by it, on the control box.</p>
+      <p>It needs no rights on any target machine. It only has to run the script and read its own files.</p>
+      <p class="sample">CORP\svc-census</p>
+    </div>
+    <div class="card">
+      <div class="count">5<span>stored</span></div>
+      <h4>The accounts <em>inside</em> the files</h4>
+      <p>The five domain credentials you were given. You type these at a <code>Get-Credential</code> prompt; they are handed to WinRM when the census reaches a machine.</p>
+      <p>Each one must be a <strong>local Administrator</strong> on the machines in its bucket. Domain Admin is not required and should be refused.</p>
+      <p class="sample">DOMAIN\username1
+DOMAIN\username2
+DOMAIN\username3
+DOMAIN\username4
+DOMAIN\username5</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <span class="tag">The one-line version</span>
+    <p>You log in <strong>once</strong> as <code>svc-census</code>, and from that one shell you type <strong>five different usernames and passwords</strong> into five prompts. Nothing else stores a secret.</p>
+  </div>
+
+  <h3>Where a password actually lives</h3>
+  <p>There is no username or password field anywhere in <code>machines.json</code>. A bucket holds a <em>file path</em>; the file holds the encrypted credential.</p>
+
+  <div class="flow">
+    <div class="node"><span class="lab">machine</span><span class="val">SQL-01</span></div>
+    <div class="arrow">&rarr;</div>
+    <div class="node"><span class="lab">names a bucket</span><span class="val">"bucket": "sql"</span></div>
+    <div class="arrow">&rarr;</div>
+    <div class="node"><span class="lab">bucket names a path</span><span class="val">config\creds\sql.cred.xml</span></div>
+    <div class="arrow">&rarr;</div>
+    <div class="node"><span class="lab">file holds</span><span class="val">DOMAIN\username2 + password (DPAPI)</span></div>
+  </div>
+
+  <p>That indirection is the point: when a password rotates you replace <strong>one file</strong>, not every machine that uses it. A per-machine credential is just a bucket with one machine in it &mdash; there is no second mechanism.</p>
+</section>
+
+<section class="plate">
+  <h2>Fill this in before you touch anything</h2>
+  <p>Write down the five pairings first. Every step below refers back to this table, and having it settled is most of what makes the rest mechanical.</p>
+
+  <div class="tablewrap">
+  <table>
+    <thead>
+      <tr><th>Bucket id</th><th>Machines in it</th><th>Stored credential</th><th>Credential file</th><th>Same forest?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>corp</code></td><td class="fill">WEB01, WEB02&hellip;</td><td><code>DOMAIN\username1</code></td><td><code>config\creds\corp.cred.xml</code></td><td><span class="pill ok">yes</span></td></tr>
+      <tr><td><code>sql</code></td><td class="fill">SQL-01&hellip;</td><td><code>DOMAIN\username2</code></td><td><code>config\creds\sql.cred.xml</code></td><td><span class="pill ok">yes</span></td></tr>
+      <tr><td><code>dmz</code></td><td class="fill">DMZ-WEB01&hellip;</td><td><code>DOMAIN\username3</code></td><td><code>config\creds\dmz.cred.xml</code></td><td><span class="pill warn">no &rarr; TrustedHosts</span></td></tr>
+      <tr><td><code>lab</code></td><td class="fill">LAB-VM-04&hellip;</td><td><code>DOMAIN\username4</code></td><td><code>config\creds\lab.cred.xml</code></td><td><span class="pill warn">no &rarr; TrustedHosts</span></td></tr>
+      <tr><td><code>legacy</code></td><td class="fill">OLDVM01&hellip;</td><td><code>DOMAIN\username5</code></td><td><code>config\creds\legacy.cred.xml</code></td><td><span class="pill ok">yes</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>Bucket ids are yours to name &mdash; they only have to match between the <code>buckets</code> list and each machine's <code>bucket</code> field. Keep the file name equal to the bucket id; nothing enforces it, and every later step is easier when it holds.</p>
+
+  <div class="note warn">
+    <span class="tag">Answer this now, not at step 04</span>
+    <p>Can you get an interactive shell as the census account? Run <code>runas /user:CORP\svc-census powershell.exe</code> today. If policy denies that account interactive logon, <code>runas</code> will not work and you need <code>PsExec -u CORP\svc-census -i powershell</code> instead. This is the single constraint most likely to force a rethink of the whole plan, so establish it before building anything on top of it.</p>
+  </div>
+</section>
+
+<section class="plate">
+  <h2>The sequence</h2>
+  <p>The order is load-bearing in two places: the buckets must exist in <code>machines.json</code> before the helper can resolve them, and the scheduled task must be registered before the helper can check that the account creating the files matches the account that will read them. Do these in order.</p>
+
+  <div class="steps" id="steps">
+
+    <div class="step" data-step="account">
+      <div class="body">
+        <h3>Choose and prepare the census account</h3>
+        <p>One account, on the control box, that the scheduled task will run as. It needs:</p>
+        <ul>
+          <li><strong>Log on as a batch job</strong> on the control box.</li>
+          <li>Read and write access to the repo folder and to <code>output\</code>.</li>
+          <li>Nothing at all on the target machines &mdash; the five stored credentials handle that.</li>
+        </ul>
+        <div class="note stop">
+          <span class="tag">Do not run the task as SYSTEM</span>
+          <p>Two reasons, and both bite silently. You cannot easily get a shell as <code>SYSTEM</code> to create the files, so they would end up written as you and fail to decrypt. And <code>New-CensusCredential.ps1</code> deliberately skips its mismatch check when the task account is <code>SYSTEM</code> or <code>S-1-5-18</code> &mdash; so the guard rail that would have caught it stays quiet.</p>
+        </div>
+        <button class="ck" type="button"><span class="box"></span>Mark done</button>
+      </div>
+    </div>
+
+    <div class="step" data-step="json">
+      <div class="body">
+        <h3>Declare the five buckets in <code>config\machines.json</code></h3>
+        <p>Replace the file's contents with the shape below, substituting your worksheet values. Keep the existing <code>local</code> bucket if the control box itself is still being collected.</p>
+        <div class="code">
+          <div class="code-head"><span class="where">config\machines.json</span><button type="button" data-copy>copy</button></div>
+<pre>{
+  <span class="k">"version"</span>: 1,
+  <span class="k">"buckets"</span>: [
+    { <span class="k">"id"</span>: <span class="s">"local"</span>,
+      <span class="k">"description"</span>: <span class="s">"The control box itself"</span>,
+      <span class="k">"credential"</span>: { <span class="k">"kind"</span>: <span class="s">"task-identity"</span> } },
+
+    { <span class="k">"id"</span>: <span class="s">"corp"</span>,
+      <span class="k">"description"</span>: <span class="s">"Corp web tier"</span>,
+      <span class="k">"credential"</span>: { <span class="k">"kind"</span>: <span class="s">"clixml"</span>, <span class="k">"path"</span>: <span class="s">"config\\creds\\corp.cred.xml"</span> } },
+
+    { <span class="k">"id"</span>: <span class="s">"sql"</span>,
+      <span class="k">"description"</span>: <span class="s">"Database tier"</span>,
+      <span class="k">"credential"</span>: { <span class="k">"kind"</span>: <span class="s">"clixml"</span>, <span class="k">"path"</span>: <span class="s">"config\\creds\\sql.cred.xml"</span> } },
+
+    { <span class="k">"id"</span>: <span class="s">"dmz"</span>,
+      <span class="k">"description"</span>: <span class="s">"DMZ web tier, separate forest"</span>,
+      <span class="k">"credential"</span>: { <span class="k">"kind"</span>: <span class="s">"clixml"</span>, <span class="k">"path"</span>: <span class="s">"config\\creds\\dmz.cred.xml"</span> },
+      <span class="k">"trustedHosts"</span>: [<span class="s">"DMZ-WEB01"</span>, <span class="s">"DMZ-WEB02"</span>] },
+
+    { <span class="k">"id"</span>: <span class="s">"lab"</span>,
+      <span class="k">"description"</span>: <span class="s">"Lab workgroup boxes"</span>,
+      <span class="k">"credential"</span>: { <span class="k">"kind"</span>: <span class="s">"clixml"</span>, <span class="k">"path"</span>: <span class="s">"config\\creds\\lab.cred.xml"</span> },
+      <span class="k">"trustedHosts"</span>: [<span class="s">"LAB-VM-04"</span>] },
+
+    { <span class="k">"id"</span>: <span class="s">"legacy"</span>,
+      <span class="k">"description"</span>: <span class="s">"2008 R2 holdouts"</span>,
+      <span class="k">"credential"</span>: { <span class="k">"kind"</span>: <span class="s">"clixml"</span>, <span class="k">"path"</span>: <span class="s">"config\\creds\\legacy.cred.xml"</span> } }
+  ],
+  <span class="k">"machines"</span>: [
+    { <span class="k">"name"</span>: <span class="s">"extensoft-6"</span>, <span class="k">"bucket"</span>: <span class="s">"local"</span>,  <span class="k">"expected"</span>: true, <span class="k">"notes"</span>: <span class="s">""</span> },
+    { <span class="k">"name"</span>: <span class="s">"WEB01"</span>,       <span class="k">"bucket"</span>: <span class="s">"corp"</span>,   <span class="k">"expected"</span>: true, <span class="k">"notes"</span>: <span class="s">""</span> },
+    { <span class="k">"name"</span>: <span class="s">"WEB02"</span>,       <span class="k">"bucket"</span>: <span class="s">"corp"</span>,   <span class="k">"expected"</span>: true, <span class="k">"notes"</span>: <span class="s">""</span> },
+    { <span class="k">"name"</span>: <span class="s">"SQL-01"</span>,      <span class="k">"bucket"</span>: <span class="s">"sql"</span>,    <span class="k">"expected"</span>: true, <span class="k">"notes"</span>: <span class="s">""</span> },
+    { <span class="k">"name"</span>: <span class="s">"DMZ-WEB01"</span>,   <span class="k">"bucket"</span>: <span class="s">"dmz"</span>,    <span class="k">"expected"</span>: true, <span class="k">"notes"</span>: <span class="s">""</span> },
+    { <span class="k">"name"</span>: <span class="s">"LAB-VM-04"</span>,   <span class="k">"bucket"</span>: <span class="s">"lab"</span>,    <span class="k">"expected"</span>: true, <span class="k">"notes"</span>: <span class="s">""</span> },
+    { <span class="k">"name"</span>: <span class="s">"OLDVM01"</span>,     <span class="k">"bucket"</span>: <span class="s">"legacy"</span>, <span class="k">"expected"</span>: true, <span class="k">"notes"</span>: <span class="s">""</span> }
+  ]
+}</pre>
+        </div>
+        <p>Four things to get right:</p>
+        <ul>
+          <li><strong>Backslashes are doubled</strong> in JSON. <code>config\\creds\\corp.cred.xml</code>, not <code>config\creds\corp.cred.xml</code>.</li>
+          <li><strong><code>path</code> is relative to <code>Invoke-Census.ps1</code></strong>, not to your shell's current directory.</li>
+          <li><strong>The five files do not exist yet.</strong> That is correct at this stage &mdash; step 05 creates them, and <code>config\creds\</code> along with them.</li>
+          <li><strong>Every machine must name a bucket.</strong> Omitting one is a <code>config-error</code>, not a silent default; a machine that fell back to some implicit identity would be collected under an account nobody chose.</li>
+        </ul>
+        <p>Check the JSON parses and the buckets read back the way you meant before moving on:</p>
+        <div class="code">
+          <div class="code-head"><span class="where">any shell, repo root</span><button type="button" data-copy>copy</button></div>
+<pre>(<span class="k">Get-Content</span> .\config\machines.json -Raw | <span class="k">ConvertFrom-Json</span>).buckets |
+  <span class="k">Format-Table</span> id, @{n=<span class="s">'kind'</span>;e={$_.credential.kind}}, @{n=<span class="s">'path'</span>;e={$_.credential.path}} -AutoSize</pre>
+        </div>
+        <button class="ck" type="button"><span class="box"></span>Mark done</button>
+      </div>
+    </div>
+
+    <div class="step" data-step="task">
+      <div class="body">
+        <h3>Register the scheduled task &mdash; before creating any credential file</h3>
+        <p>Registering first is what lets <code>New-CensusCredential.ps1</code> compare the account creating each file against the account that will read it, and refuse on a mismatch. With no task registered it can only warn, and a warning at 9pm is a failure at 3am.</p>
+        <div class="code">
+          <div class="code-head"><span class="where">elevated shell, once</span><button type="button" data-copy>copy</button></div>
+<pre><span class="c"># Adjust the paths, the account and the hour, then run elevated.</span>
+$action = <span class="k">New-ScheduledTaskAction</span> -Execute <span class="s">'powershell.exe'</span> `
+  -Argument <span class="s">'-NoProfile -ExecutionPolicy Bypass -File "C:\github\ai\census\Invoke-Census.ps1"'</span> `
+  -WorkingDirectory <span class="s">'C:\github\ai\census'</span>
+
+$trigger = <span class="k">New-ScheduledTaskTrigger</span> -Daily -At 2:00am
+
+$settings = <span class="k">New-ScheduledTaskSettingsSet</span> -StartWhenAvailable `
+  -ExecutionTimeLimit (<span class="k">New-TimeSpan</span> -Hours 4)
+
+<span class="k">Register-ScheduledTask</span> -TaskName <span class="s">'Census'</span> `
+  -Action $action -Trigger $trigger -Settings $settings `
+  -User <span class="s">'CORP\svc-census'</span> -Password (<span class="k">Read-Host</span> <span class="s">'svc-census password'</span>) `
+  -RunLevel Highest</pre>
+        </div>
+        <p>The equivalent settings in the Task Scheduler UI: <em>Run whether user is logged on or not</em>, <em>Run with highest privileges</em>, and <em>Start in</em> set to the repo root. <code>Invoke-Census.ps1</code> takes <code>-MachinesPath</code> and <code>-CensusRoot</code>, but both default relative to the script, so with <em>Start in</em> correct you need neither.</p>
+        <p>Confirm the task's identity &mdash; this exact string is what the helper compares against in step 05:</p>
+        <div class="code">
+          <div class="code-head"><span class="where">verify</span><button type="button" data-copy>copy</button></div>
+<pre><span class="k">Get-ScheduledTask</span> -TaskName <span class="s">'Census'</span> |
+  <span class="k">Select-Object</span> TaskName, @{n=<span class="s">'RunsAs'</span>;e={$_.Principal.UserId}}</pre>
+        </div>
+        <button class="ck" type="button"><span class="box"></span>Mark done</button>
+      </div>
+    </div>
+
+    <div class="step" data-step="shell">
+      <div class="body">
+        <h3>Get a shell as the census account</h3>
+        <p>Everything from here through step 07 happens inside <em>this</em> shell. Nothing else will produce files the task can read.</p>
+        <div class="code">
+          <div class="code-head"><span class="where">on the control box</span><button type="button" data-copy>copy</button></div>
+<pre>runas /user:CORP\svc-census powershell.exe
+
+<span class="c"># if interactive logon is denied for that account:</span>
+PsExec -u CORP\svc-census -i powershell</pre>
+        </div>
+        <p>In the new window, prove you are who you think you are, then get to the repo:</p>
+        <div class="code">
+          <div class="code-head"><span class="where">in the new shell</span><button type="button" data-copy>copy</button></div>
+<pre>[System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+cd C:\github\ai\census</pre>
+        </div>
+        <p>That must print <code>CORP\svc-census</code>. If it prints your own name the <code>runas</code> did not take &mdash; stop and fix it, because every file created from here would be unreadable by the task.</p>
+        <button class="ck" type="button"><span class="box"></span>Mark done</button>
+      </div>
+    </div>
+
+    <div class="step" data-step="creds">
+      <div class="body">
+        <h3>Create the five credential files</h3>
+        <p>This is the encryption step. There is no separate one &mdash; typing the credential and encrypting it are the same action.</p>
+        <div class="code">
+          <div class="code-head"><span class="where">as CORP\svc-census, repo root</span><button type="button" data-copy>copy</button></div>
+<pre><span class="s">'corp'</span>,<span class="s">'sql'</span>,<span class="s">'dmz'</span>,<span class="s">'lab'</span>,<span class="s">'legacy'</span> | <span class="k">ForEach-Object</span> {
+    <span class="k">Write-Host</span> <span class="s">"`n=== bucket: $_ ==="</span> -ForegroundColor Cyan
+    .\New-CensusCredential.ps1 -BucketId $_
+}</pre>
+        </div>
+        <p>You will get five <code>Get-Credential</code> prompts in a row. Enter a <strong>different</strong> username and password at each one, per your worksheet. Watch the bucket name printed above each prompt so username3 does not end up in the <code>sql</code> bucket.</p>
+        <p>Type the stored username in full domain form &mdash; <code>DOMAIN\username3</code>, or <code>DMZ-WEB01\localadmin</code> for a workgroup box. A bare username is resolved against the wrong domain and shows up later as <code>access-denied</code>.</p>
+
+        <h3>What the helper does at each prompt</h3>
+        <ol>
+          <li>Resolves the output path from <code>machines.json</code>, so the file cannot land somewhere the config is not looking.</li>
+          <li>Prints <strong>Creating as</strong> in yellow &mdash; the account DPAPI will bind the file to. Read that line every time.</li>
+          <li>Compares it to the registered task's account and <strong>throws on a mismatch</strong> rather than writing a file that cannot be read.</li>
+          <li>Prompts for the credential. The password is never printed, logged, or written anywhere but the encrypted file.</li>
+          <li>Writes the file, then immediately reads it back and checks the username round-trips.</li>
+        </ol>
+
+        <div class="note warn">
+          <span class="tag">If one prompt fails, the whole loop stops</span>
+          <p>The helper throws on error, which ends the pipeline. Fix the cause and re-run &mdash; it refuses to clobber an existing file, so a repeat run is safe but stops at the first bucket already written. Drop the finished ids from the list, or add <code>-Force</code> when you actually intend to replace one.</p>
+        </div>
+
+        <p>Doing it by hand works too; the helper is a guard rail, not a requirement. The two commands it wraps are:</p>
+        <div class="code">
+          <div class="code-head"><span class="where">the unguarded equivalent</span><button type="button" data-copy>copy</button></div>
+<pre><span class="k">Get-Credential</span> | <span class="k">Export-CliXml</span> -Path C:\github\ai\census\config\creds\corp.cred.xml</pre>
+        </div>
+        <p>What you give up is every check in the list above &mdash; and nothing about running it by hand tells you whether the result will work.</p>
+        <button class="ck" type="button"><span class="box"></span>Mark done</button>
+      </div>
+    </div>
+
+    <div class="step" data-step="trusted">
+      <div class="body">
+        <h3>TrustedHosts &mdash; only for workgroup or other-forest targets</h3>
+        <p>Skip this entirely if all five buckets point at machines in your own forest. Targets outside it fall back from Kerberos to NTLM, which requires them listed in <code>TrustedHosts</code> <strong>on the control box</strong>.</p>
+        <div class="code">
+          <div class="code-head"><span class="where">elevated shell on the control box</span><button type="button" data-copy>copy</button></div>
+<pre><span class="k">Set-Item</span> WSMan:\localhost\Client\TrustedHosts `
+  -Value <span class="s">'DMZ-WEB01,DMZ-WEB02,LAB-VM-04'</span> -Concatenate
+
+<span class="c"># what is there now</span>
+(<span class="k">Get-Item</span> WSMan:\localhost\Client\TrustedHosts).Value</pre>
+        </div>
+        <p>The census <em>reports</em> a missing entry &mdash; one warning per host, and the affected machines are stamped in the run log &mdash; but it <strong>never writes the setting</strong>. Silently changing a security setting to make its own job succeed is not behaviour this tool has.</p>
+        <p>Enumerate hosts explicitly. Never <code>*</code>.</p>
+        <button class="ck" type="button"><span class="box"></span>Mark done</button>
+      </div>
+    </div>
+
+    <div class="step" data-step="prove">
+      <div class="body">
+        <h3>Prove all five files decrypt, before any collection runs</h3>
+        <p>Run this <strong>in the <code>svc-census</code> shell</strong>. Run it as anyone else and every row reads <code>CANNOT DECRYPT</code>, which tells you nothing about the task.</p>
+        <div class="code">
+          <div class="code-head"><span class="where">as CORP\svc-census, repo root</span><button type="button" data-copy>copy</button></div>
+<pre>$root = (<span class="k">Resolve-Path</span> .).Path
+(<span class="k">Get-Content</span> .\config\machines.json -Raw | <span class="k">ConvertFrom-Json</span>).buckets |
+  <span class="k">Where-Object</span> { $_.credential.kind -eq <span class="s">'clixml'</span> } |
+  <span class="k">ForEach-Object</span> {
+      $path = <span class="k">Join-Path</span> $root $_.credential.path
+      $user = <span class="s">'(file missing)'</span>
+      <span class="k">if</span> (<span class="k">Test-Path</span> $path) {
+          <span class="k">try</span>   { $user = (<span class="k">Import-CliXml</span> -Path $path).UserName }
+          <span class="k">catch</span> { $user = <span class="s">'CANNOT DECRYPT AS THIS ACCOUNT'</span> }
+      }
+      [pscustomobject]@{ Bucket = $_.id; StoredUser = $user }
+  } | <span class="k">Format-Table</span> -AutoSize</pre>
+        </div>
+        <p>You want five rows, each showing the right <code>DOMAIN\usernameN</code> against the right bucket. This is also the fastest way to catch a credential typed into the wrong prompt at step 05 &mdash; before a machine gets collected under the wrong identity.</p>
+        <button class="ck" type="button"><span class="box"></span>Mark done</button>
+      </div>
+    </div>
+
+    <div class="step" data-step="run">
+      <div class="body">
+        <h3>Do a full interactive run before trusting the schedule</h3>
+        <p>Send the output somewhere disposable so a bad first run does not land in the real tree.</p>
+        <div class="code">
+          <div class="code-head"><span class="where">as CORP\svc-census, repo root</span><button type="button" data-copy>copy</button></div>
+<pre>.\Invoke-Census.ps1 -CensusRoot C:\temp\census-test -Verbose
+
+<span class="c"># the run log is one file per calendar year, UTC</span>
+$log = <span class="k">Join-Path</span> C:\temp\census-test `
+  <span class="s">"_runs\run-log-$((Get-Date).ToUniversalTime().Year).jsonl"</span>
+
+<span class="k">Get-Content</span> $log | <span class="k">ForEach-Object</span> { $_ | <span class="k">ConvertFrom-Json</span> } |
+  <span class="k">Format-Table</span> machine, bucket, outcome, reason -AutoSize</pre>
+        </div>
+        <p>Every machine should read <code>ok</code>. Anything else is diagnosed in the table below. Only once this is clean should you let the 2am task run against the real <code>output\</code> tree.</p>
+        <button class="ck" type="button"><span class="box"></span>Mark done</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="plate">
+  <h2>Why the creating account matters this much</h2>
+  <p><code>Export-CliXml</code> encrypts with DPAPI, which binds the blob to the <strong>user account</strong> <em>and</em> the <strong>machine</strong> that wrote it. There is no way to look at a <code>.cred.xml</code> and see who can open it.</p>
+  <p>So a file created by the wrong account looks perfect. It writes with no error. Days pass. Then the nightly task cannot decrypt it &mdash; and with five buckets all created in one sitting, that failure takes out <strong>every machine in the estate at once, unattended</strong>. That is the entire reason <code>New-CensusCredential.ps1</code> exists instead of a note telling you to pipe <code>Get-Credential</code> into <code>Export-CliXml</code>.</p>
+  <div class="note stop">
+    <span class="tag">The guard rail has one blind spot</span>
+    <p>The mismatch check compares only the <strong>short</strong> account name &mdash; the part after the backslash. <code>CORP\svc-census</code> and <code>OTHERDOM\svc-census</code> pass the check and then fail to decrypt. If more than one domain is in play on the control box, verify the full string yourself at step 04.</p>
+  </div>
+</section>
+
+<section class="plate">
+  <h2>Reading the run log</h2>
+  <p>The vocabulary is deliberately narrow, and each outcome points at exactly one class of remedy.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Outcome</th><th>What happened</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="pill ok">ok</span></td>
+        <td>Collected.</td>
+        <td>&mdash;</td>
+      </tr>
+      <tr>
+        <td><span class="pill bad">config-error</span></td>
+        <td>A machine names a bucket that is not defined, or names none at all. Also an unrecognised <code>kind</code>.</td>
+        <td>Fix <code>machines.json</code>. Look for a typo in the bucket id, and for single backslashes in <code>path</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="pill bad">credential-error</span></td>
+        <td>The file is missing, or could not be decrypted. The reason string names the account it tried as.</td>
+        <td>Missing &rarr; that bucket was skipped at step 05. Cannot decrypt &rarr; it was created by the wrong account; re-create it as the account named in the reason.</td>
+      </tr>
+      <tr>
+        <td><span class="pill bad">access-denied</span></td>
+        <td>WinRM answered and <em>refused</em> the credential.</td>
+        <td>The stored credential is real but wrong: mistyped, stale after a rotation, missing its domain prefix, or not a local Administrator on that machine.</td>
+      </tr>
+      <tr>
+        <td><span class="pill warn">unreachable</span></td>
+        <td>WinRM never answered.</td>
+        <td>Nothing to do with credentials &mdash; DNS, routing, firewall, or the WinRM service is not running. Revisit <code>trustedHosts</code> only if the run warned about it.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p><code>access-denied</code> and <code>unreachable</code> are kept separate on purpose. A rotated service-account password would otherwise read as a network outage, and send you debugging the wrong thing for an afternoon.</p>
+</section>
+
+<section class="plate">
+  <h2>Rotating one of the five</h2>
+  <p>Three commands, and nothing else in the system changes. This is what the bucket indirection bought.</p>
+  <div class="code">
+    <div class="code-head"><span class="where">when username3's password changes</span><button type="button" data-copy>copy</button></div>
+<pre>runas /user:CORP\svc-census powershell.exe
+
+cd C:\github\ai\census
+.\New-CensusCredential.ps1 -BucketId dmz -Force</pre>
+  </div>
+  <p>Re-run the step 07 check to confirm the file reads back, and every machine in the <code>dmz</code> bucket picks it up on the next run. No machine entry is touched.</p>
+
+  <h3>Adding a machine to an existing bucket</h3>
+  <p>One line in <code>machines.json</code>. No new credential, no new file.</p>
+  <div class="code">
+    <div class="code-head"><span class="where">config\machines.json &middot; machines</span><button type="button" data-copy>copy</button></div>
+<pre>{ <span class="k">"name"</span>: <span class="s">"WEB03"</span>, <span class="k">"bucket"</span>: <span class="s">"corp"</span>, <span class="k">"expected"</span>: true, <span class="k">"notes"</span>: <span class="s">""</span> }</pre>
+  </div>
+</section>
+
+<section class="plate">
+  <h2>Two things to know going in</h2>
+
+  <h3>The credentialed remote hop has never actually run</h3>
+  <p>The development box has one machine and one account. Bucket resolution, DPAPI round-tripping, the outcome classifier and the <code>context</code> block are all covered by fixtures &mdash; but no remote WinRM call carrying a <code>-Credential</code> has ever been exercised against a real second machine. Treat your first run against a <code>clixml</code> bucket as the test, run it interactively with <code>-Verbose</code>, and do not schedule it until step 08 comes back clean.</p>
+
+  <h3>The credential files must never reach the repo</h3>
+  <p><code>config/creds/</code> is already in <code>.gitignore</code>, and the helper warns if a bucket's <code>path</code> points outside that directory. If you relocate the files, confirm the new location cannot be committed &mdash; a DPAPI blob in git history is still a secret in git history, even though nobody but that one account on that one box could open it.</p>
+  <div class="code">
+    <div class="code-head"><span class="where">sanity check</span><button type="button" data-copy>copy</button></div>
+<pre>git status --short config/
+git check-ignore -v config/creds/corp.cred.xml</pre>
+  </div>
+  <p>The first should print nothing. The second should name the <code>.gitignore</code> rule that covers it.</p>
+</section>
+
+<footer>
+  <p>Design rationale, and the reasoning behind buckets rather than a credential field on each machine, live in <code>.docs/features/census-collector.md</code> &sect;5.2&ndash;5.2.2; the reference procedure is <code>.docs/credentials-howto.md</code>. This page is the walkthrough for the five-bucket case and supersedes neither.</p>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  var KEY = 'census-cred-runbook-progress';
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function save(state) {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  var state = load();
+
+  Array.prototype.forEach.call(document.querySelectorAll('.step[data-step]'), function (step) {
+    var id = step.getAttribute('data-step');
+    var btn = step.querySelector('.ck');
+    if (state[id]) step.classList.add('done');
+    if (!btn) return;
+    btn.setAttribute('aria-pressed', state[id] ? 'true' : 'false');
+    btn.addEventListener('click', function () {
+      var now = !step.classList.contains('done');
+      step.classList.toggle('done', now);
+      btn.setAttribute('aria-pressed', now ? 'true' : 'false');
+      state[id] = now;
+      save(state);
+    });
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-copy]'), function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.parentNode.parentNode.querySelector('pre');
+      var label = btn.textContent;
+      var flash = function (text) {
+        btn.textContent = text;
+        setTimeout(function () { btn.textContent = label; }, 1600);
+      };
+      var fallback = function () {
+        try {
+          var range = document.createRange();
+          range.selectNodeContents(pre);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          flash('selected \u2014 ctrl+c');
+        } catch (e) { flash('select manually'); }
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(pre.innerText).then(function () { flash('copied'); }, fallback);
+      } else {
+        fallback();
+      }
+    });
+  });
+})();
+</script>
+</html>
