@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interpretable Context Methodology — Reference Overview</title>
+<style>
+  :root{
+    --bg: #0F1B2D;
+    --panel: #142137;
+    --panel-2: #17273F;
+    --line: #2C4A6E;
+    --line-soft: rgba(44,74,110,0.45);
+    --ink: #E7ECF3;
+    --ink-soft: #9AACC4;
+    --ink-faint: #6C7F9B;
+    --amber: #E3A84B;
+    --teal: #5FBFA6;
+    --rust: #C97C63;
+    --serif: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a{ color: var(--amber); }
+
+  ::selection{ background: var(--amber); color: #14202F; }
+
+  .scale-note{
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 5;
+    text-align:center;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    background: linear-gradient(0deg, rgba(15,27,45,0.95), rgba(15,27,45,0));
+    padding: 18px 0 6px;
+    pointer-events:none;
+  }
+
+  .frame{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px 120px;
+  }
+
+  header.masthead{
+    padding: 72px 0 40px;
+    border-bottom: 1px solid var(--line-soft);
+    margin-bottom: 8px;
+  }
+
+  .doc-id{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: 0.02em;
+    margin-bottom: 22px;
+  }
+  .doc-id span{ color: var(--amber); }
+
+  h1.title{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(2.1rem, 4.4vw, 3.4rem);
+    line-height: 1.12;
+    margin: 0 0 14px;
+    max-width: 16ch;
+  }
+
+  .subtitle{
+    font-size: 1.08rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0 0 28px;
+  }
+
+  .meta-row{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+  .meta-row dt{ color: var(--ink-faint); display:inline; }
+  .meta-row dd{ display:inline; margin:0; color: var(--ink-soft); }
+  .meta-item{ display:flex; flex-direction:column; gap:4px; }
+  .meta-item .lbl{ color: var(--ink-faint); }
+  .meta-item .val{ color: var(--ink-soft); }
+
+  .layout{
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 56px;
+    padding-top: 44px;
+  }
+
+  nav.toc{
+    position: sticky;
+    top: 40px;
+    align-self: start;
+    font-family: var(--mono);
+    font-size: 12.5px;
+  }
+  nav.toc .toc-label{
+    color: var(--ink-faint);
+    margin-bottom: 14px;
+    font-size: 11px;
+  }
+  nav.toc ol{
+    list-style: none;
+    margin:0; padding:0;
+    border-left: 1px solid var(--line-soft);
+  }
+  nav.toc li{ margin: 0; }
+  nav.toc a{
+    display:block;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 7px 0 7px 16px;
+    border-left: 2px solid transparent;
+    margin-left: -1px;
+    transition: color .15s ease, border-color .15s ease;
+  }
+  nav.toc a:hover{ color: var(--ink); border-left-color: var(--line); }
+
+  main{ min-width: 0; }
+
+  section{
+    padding: 56px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  section:last-of-type{ border-bottom: none; }
+
+  .kicker{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin: 0 0 10px;
+  }
+
+  h2{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.9rem;
+    margin: 0 0 22px;
+    color: var(--ink);
+  }
+
+  h3{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.15rem;
+    margin: 0 0 10px;
+    color: var(--ink);
+  }
+
+  p{ max-width: 74ch; color: var(--ink-soft); margin: 0 0 16px; }
+  p.lead{ color: var(--ink); font-size: 1.05rem; }
+
+  .principles{
+    list-style: none;
+    margin: 28px 0 0;
+    padding: 0;
+    counter-reset: p-count;
+  }
+  .principles li{
+    counter-increment: p-count;
+    position: relative;
+    padding: 18px 0 18px 52px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .principles li:first-child{ border-top: none; padding-top: 4px; }
+  .principles li::before{
+    content: counter(p-count);
+    position: absolute;
+    left: 0; top: 20px;
+    width: 30px; height: 30px;
+    border: 1px solid var(--line);
+    color: var(--ink-faint);
+    font-family: var(--mono);
+    font-size: 12px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .principles li:first-child::before{ top: 4px; }
+  .principles strong{ color: var(--ink); font-weight: 600; }
+  .principles p{ margin: 6px 0 0; }
+
+  /* five-layer diagram */
+  .diagram{
+    margin: 40px 0 8px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    padding: 32px;
+  }
+  .diagram-caption{
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    margin-bottom: 24px;
+  }
+  .layer-stack{ display:flex; flex-direction: column; gap: 0; }
+  .layer{
+    display:grid;
+    grid-template-columns: 90px 1fr 130px;
+    align-items: center;
+    gap: 18px;
+    padding: 16px 18px;
+    border: 1px solid var(--line-soft);
+    margin-top: -1px;
+    background: var(--panel-2);
+  }
+  .layer:nth-child(1){ margin-left: 0%; }
+  .layer:nth-child(2){ margin-left: 3%; width: 97%; }
+  .layer:nth-child(3){ margin-left: 6%; width: 94%; }
+  .layer:nth-child(4){ margin-left: 9%; width: 91%; background: rgba(227,168,75,0.06); border-color: rgba(227,168,75,0.35); }
+  .layer:nth-child(5){ margin-left: 12%; width: 88%; background: rgba(227,168,75,0.1); border-color: rgba(227,168,75,0.5); }
+  .layer .tag{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--amber);
+  }
+  .layer .desc{ color: var(--ink); font-size: 14px; }
+  .layer .desc small{ display:block; color: var(--ink-faint); font-size: 12px; margin-top: 3px; }
+  .layer .tok{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    text-align: right;
+  }
+
+  .layer-legend{
+    display:flex; gap: 28px; margin-top: 20px;
+    font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint);
+    flex-wrap: wrap;
+  }
+  .layer-legend span{ display:flex; align-items:center; gap:8px; }
+  .swatch{ width:12px; height:12px; display:inline-block; border:1px solid var(--line); }
+  .swatch.ref{ background: rgba(227,168,75,0.15); border-color: rgba(227,168,75,0.5); }
+  .swatch.struct{ background: var(--panel-2); }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-top: 8px;
+  }
+
+  .card{
+    border: 1px solid var(--line-soft);
+    background: var(--panel);
+    padding: 26px 26px;
+  }
+  .card.strength{ border-left: 3px solid var(--teal); }
+  .card.weakness{ border-left: 3px solid var(--rust); }
+  .card h3{ display:flex; align-items:center; gap:10px; }
+  .card .mark{ font-family: var(--mono); font-size: 12px; }
+  .card.strength .mark{ color: var(--teal); }
+  .card.weakness .mark{ color: var(--rust); }
+  .card ul{ margin: 0; padding-left: 18px; color: var(--ink-soft); }
+  .card li{ margin-bottom: 10px; }
+  .card li:last-child{ margin-bottom: 0; }
+  .card li strong{ color: var(--ink); }
+
+  .assumption-list{
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 12px;
+  }
+  .assumption-list li{
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-soft);
+    padding: 12px 16px;
+    border: 1px dashed var(--line);
+    background: var(--panel);
+  }
+  .assumption-list li em{ color: var(--ink); font-style: normal; }
+
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  caption{ text-align:left; font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint); margin-bottom: 12px; }
+  th, td{
+    border: 1px solid var(--line-soft);
+    padding: 12px 14px;
+    text-align: left;
+    vertical-align: top;
+    color: var(--ink-soft);
+  }
+  th{
+    background: var(--panel-2);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 12px;
+  }
+  td:first-child{ color: var(--ink); font-weight: 600; white-space: nowrap; }
+  td strong{ color: var(--amber); font-weight: 600; }
+
+  .efficacy-facts{
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line-soft);
+  }
+  .efficacy-facts li{
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line-soft);
+    display:grid;
+    grid-template-columns: 150px 1fr;
+    gap: 20px;
+  }
+  .efficacy-facts .k{ font-family: var(--mono); font-size: 12px; color: var(--ink-faint); padding-top:2px; }
+  .efficacy-facts .v{ color: var(--ink-soft); margin:0; }
+
+  .bottom-line{
+    margin-top: 36px;
+    border: 1px solid var(--amber);
+    background: linear-gradient(135deg, rgba(227,168,75,0.08), rgba(227,168,75,0.02));
+    padding: 34px 36px;
+  }
+  .bottom-line .kicker{ color: var(--amber); }
+  .bottom-line p{ color: var(--ink); font-size: 1.05rem; max-width: none; margin:0; }
+
+  footer{
+    padding-top: 48px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    display:flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  @media (max-width: 900px){
+    .layout{ grid-template-columns: 1fr; }
+    nav.toc{ position: static; border-bottom: 1px solid var(--line-soft); padding-bottom: 20px; margin-bottom: 8px; }
+    nav.toc ol{ display:flex; flex-wrap:wrap; gap: 4px 18px; border-left:none; }
+    nav.toc a{ padding: 4px 0; border-left:none; }
+    .grid-2{ grid-template-columns: 1fr; }
+    .layer{ grid-template-columns: 70px 1fr; }
+    .layer .tok{ grid-column: 2; text-align:left; }
+    .efficacy-facts li{ grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <header class="masthead">
+    <div class="doc-id">REF/ICM &nbsp;·&nbsp; folder structure as agent architecture &nbsp;·&nbsp; compiled <span>31 Aug 2026</span></div>
+    <h1 class="title">Interpretable Context Methodology</h1>
+    <p class="subtitle">A working reference on Jake Van Clief's "ICM folder system" — what it is, what it assumes, where it holds up, and how it sits next to the frameworks it's trying to avoid.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="lbl">Authors</span><span class="val">Jake Van Clief, David McDermott</span></div>
+      <div class="meta-item"><span class="lbl">Form</span><span class="val">Folder hierarchy + markdown contracts</span></div>
+      <div class="meta-item"><span class="lbl">License</span><span class="val">MIT, open source</span></div>
+      <div class="meta-item"><span class="lbl">Status</span><span class="val">Single preprint, practitioner-reported</span></div>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <nav class="toc">
+      <div class="toc-label">CONTENTS</div>
+      <ol>
+        <li><a href="#intent">Intent</a></li>
+        <li><a href="#methodology">Methodology</a></li>
+        <li><a href="#assumptions">Assumptions</a></li>
+        <li><a href="#strengths">Strengths</a></li>
+        <li><a href="#weaknesses">Weaknesses</a></li>
+        <li><a href="#efficacy">Efficacy</a></li>
+        <li><a href="#comparison">Comparison</a></li>
+        <li><a href="#bottom-line">Bottom line</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <section id="intent">
+        <div class="kicker">01 — WHAT IT'S FOR</div>
+        <h2>Intent</h2>
+        <p class="lead">ICM targets one specific job: sequential, human-reviewed AI workflows — content pipelines, report generation, slide decks — where a person checks the output at each step before moving on.</p>
+        <p>It replaces framework-level orchestration with filesystem structure. Numbered folders represent stages. Plain markdown files carry the prompts and context that tell a single AI agent what role to play at each step, while local scripts handle mechanical work that doesn't need AI at all.</p>
+        <p>The pitch is deliberately narrow: not "better than LangChain, CrewAI, or AutoGen" in general, but "for this specific class of workflow, you don't need them at all."</p>
+      </section>
+
+      <section id="methodology">
+        <div class="kicker">02 — HOW IT WORKS</div>
+        <h2>Methodology</h2>
+        <p>Five design principles, each lifted from an established practice:</p>
+
+        <ol class="principles">
+          <li><strong>One stage, one job.</strong>
+            <p>Each folder performs a single transformation — fetch, filter, format — never more than one. Mirrors Unix's "do one thing" rule and Parnas's information-hiding criterion.</p>
+          </li>
+          <li><strong>Plain text as the interface.</strong>
+            <p>Stages hand off through markdown and JSON — nothing binary, nothing proprietary. Any text editor can inspect or modify any artifact.</p>
+          </li>
+          <li><strong>Layered context loading.</strong>
+            <p>Agents load only what the current stage needs. Reference material (stable rules, style guides) and working artifacts (this run's actual content) are kept structurally separate, so the model isn't left to sort constraints from input on its own.</p>
+          </li>
+          <li><strong>Every output is an edit surface.</strong>
+            <p>Each stage's output is a file a human can open, edit, and save before the next stage reads it. The next stage picks up whatever was left there.</p>
+          </li>
+          <li><strong>Configure the factory, not the product.</strong>
+            <p>A workspace is set up once — voice, brand, structural conventions — then every run reuses that configuration to produce a new deliverable.</p>
+          </li>
+        </ol>
+
+        <div class="diagram">
+          <div class="diagram-caption">FIG. 1 — the five-layer context hierarchy, loaded selectively per stage</div>
+          <div class="layer-stack">
+            <div class="layer">
+              <div class="tag">L0</div>
+              <div class="desc">Global identity — <em>"where am I?"</em><small>Which workspace, what the folders contain, where to find things</small></div>
+              <div class="tok">~800 tok</div>
+            </div>
+            <div class="layer">
+              <div class="tag">L1</div>
+              <div class="desc">Workspace routing — <em>"where do I go?"</em><small>Given the task, which stage handles it and what's shared</small></div>
+              <div class="tok">~300 tok</div>
+            </div>
+            <div class="layer">
+              <div class="tag">L2</div>
+              <div class="desc">Stage contract — <em>"what do I do?"</em><small>Inputs, process, and outputs for this one step</small></div>
+              <div class="tok">200–500 tok</div>
+            </div>
+            <div class="layer">
+              <div class="tag">L3</div>
+              <div class="desc">Reference material — <em>"what rules apply?"</em><small>Voice guides, style rules, conventions — stable across every run</small></div>
+              <div class="tok">500–2k tok</div>
+            </div>
+            <div class="layer">
+              <div class="tag">L4</div>
+              <div class="desc">Working artifacts — <em>"what am I working with?"</em><small>Previous stage's output, source material — changes every run</small></div>
+              <div class="tok">varies</div>
+            </div>
+          </div>
+          <div class="layer-legend">
+            <span><span class="swatch struct"></span> structural (routing)</span>
+            <span><span class="swatch ref"></span> content (factory / product)</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="assumptions">
+        <div class="kicker">03 — WHAT IT TAKES FOR GRANTED</div>
+        <h2>Assumptions</h2>
+        <ul class="assumption-list">
+          <li>The workflow is genuinely <em>sequential</em> — stage 2 can't start without stage 1's finished output.</li>
+          <li>A human <em>wants</em> to review and edit between steps — this is treated as a feature, not overhead.</li>
+          <li>The same pipeline <em>runs repeatedly</em> with different input — built for a factory, not a one-off task.</li>
+          <li>One capable orchestrating agent, given the right scoped context per stage, can competently execute each step — no need for multiple agents negotiating independently.</li>
+        </ul>
+      </section>
+
+      <section id="strengths">
+        <div class="kicker">04 — WHERE IT HOLDS UP</div>
+        <h2>Strengths</h2>
+        <div class="grid-2">
+          <div class="card strength">
+            <h3><span class="mark">+</span> Zero framework dependency</h3>
+            <ul>
+              <li>A workspace is just a folder — copy it, zip it, <code>git commit</code> it, hand it to someone with no dev environment.</li>
+              <li>No server to configure, no deployment step, no environment to replicate.</li>
+            </ul>
+          </div>
+          <div class="card strength">
+            <h3><span class="mark">+</span> Cheap, effective context</h3>
+            <ul>
+              <li>Each stage sees roughly 2,000–8,000 focused tokens instead of a 30–50k monolithic prompt.</li>
+              <li>Avoids the "lost in the middle" degradation from burying relevant instructions in irrelevant material.</li>
+            </ul>
+          </div>
+          <div class="card strength">
+            <h3><span class="mark">+</span> Observability for free</h3>
+            <ul>
+              <li>No logging layer or dashboard to build — state is just files you open and read.</li>
+              <li>Aligns naturally with emerging regulatory expectations around staged review and audit trails.</li>
+            </ul>
+          </div>
+          <div class="card strength">
+            <h3><span class="mark">+</span> Low barrier to change</h3>
+            <ul>
+              <li>Non-technical users have edited stage behavior directly in markdown — tone, constraints — with no developer involved.</li>
+              <li>A workspace can be duplicated and retargeted to a new format without rebuilding from scratch.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="weaknesses">
+        <div class="kicker">05 — WHERE IT STRAINS</div>
+        <h2>Weaknesses</h2>
+        <div class="grid-2">
+          <div class="card weakness">
+            <h3><span class="mark">−</span> Not built for concurrency</h3>
+            <ul>
+              <li>Real-time, tightly-coordinating multi-agent loops need message-passing infrastructure this approach doesn't provide.</li>
+              <li>Local-first by design — many simultaneous users would require the infrastructure it was built to avoid.</li>
+            </ul>
+          </div>
+          <div class="card weakness">
+            <h3><span class="mark">−</span> Awkward automated branching</h3>
+            <ul>
+              <li>A human can choose between stages based on what they see — but branching driven by the AI's own mid-pipeline decisions pushes the system back toward being a framework.</li>
+            </ul>
+          </div>
+          <div class="card weakness">
+            <h3><span class="mark">−</span> No real debugging yet</h3>
+            <ul>
+              <li>If a later stage's output is subtly wrong, there's no automated way to trace it to the file or instruction that caused it — today that's done by manually re-reading contracts.</li>
+              <li>Provenance IDs, cross-stage verification, and markdown "breakpoints" are proposed, not built.</li>
+            </ul>
+          </div>
+          <div class="card weakness">
+            <h3><span class="mark">−</span> Thin, self-reported evidence</h3>
+            <ul>
+              <li>Practitioner observations come from an invite-only, self-selected community of 52 via informal conversation — not structured interviews or instrumented logging.</li>
+              <li>No controlled comparison exists against monolithic prompting on the same tasks.</li>
+              <li>All testing used a single model family — cross-model generalization is unverified.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="efficacy">
+        <div class="kicker">06 — DOES IT ACTUALLY WORK</div>
+        <h2>Efficacy</h2>
+        <p>No rigorous benchmarking exists yet. What's reported comes entirely from practitioner conversation, not instrumented measurement:</p>
+        <ul class="efficacy-facts">
+          <li><span class="k">Edit pattern</span><p class="v">A "U-shaped" curve — heavy human edits at the first stage (setting direction), light edits mid-pipeline, heavy edits again at the final stage (aligning output with earlier decisions). Reported by 30 of 33 practitioners surveyed informally.</p></li>
+          <li><span class="k">Accessibility</span><p class="v">A handful of users with no coding background built and ran working pipelines unaided, using the workspace-builder's guided setup.</p></li>
+          <li><span class="k">Outside adoption</span><p class="v">Reported use at a university lab and two other organizations — but actual outcomes are under NDA and unreported.</p></li>
+          <li><span class="k">Net read</span><p class="v">Plausible and consistent with known context-window research, but the efficacy claims remain anecdotal rather than measured.</p></li>
+        </ul>
+      </section>
+
+      <section id="comparison">
+        <div class="kicker">07 — HOW IT SITS AMONG OTHER SYSTEMS</div>
+        <h2>Comparison</h2>
+        <table>
+          <caption>Where coordination logic actually lives, across systems</caption>
+          <thead>
+            <tr>
+              <th>System</th>
+              <th>Coordination lives in</th>
+              <th>Best for</th>
+              <th>How ICM differs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>LangChain / CrewAI / AutoGen</td>
+              <td>Application code — agent objects, message arrays, control flow</td>
+              <td>Dynamic, concurrent, tightly-coordinating multi-agent systems</td>
+              <td>No code layer at all — coordination is folders and file handoffs. Trades concurrency for zero-deploy portability.</td>
+            </tr>
+            <tr>
+              <td>RAG</td>
+              <td>A retrieval index queried at inference time</td>
+              <td>Pulling relevant facts from a large corpus dynamically</td>
+              <td>Layers 3/4 are static and hand-curated per stage, not retrieved — pre-selected context, not search.</td>
+            </tr>
+            <tr>
+              <td>Anthropic's MCP</td>
+              <td>Tool/data-source access protocol</td>
+              <td>Standardizing how a model calls external services</td>
+              <td><strong>Complementary, not competing</strong> — MCP governs tool access; ICM governs what context surrounds that access at each stage.</td>
+            </tr>
+            <tr>
+              <td>Prompt chaining (AI Chains)</td>
+              <td>Sequential prompts, output → input</td>
+              <td>Transparent, controllable multi-step LLM workflows</td>
+              <td>Same chaining logic, implemented at the filesystem level — each link is a durable file, not an in-memory variable.</td>
+            </tr>
+            <tr>
+              <td>Make / build systems</td>
+              <td>Declarative dependency graph between files</td>
+              <td>Rebuilding only what changed</td>
+              <td>Borrows the "re-run only what changed" idea, but with no formal dependency solver — a human still decides what to re-run.</td>
+            </tr>
+            <tr>
+              <td>Claude Code Skills / CLAUDE.md</td>
+              <td>Markdown instruction files loaded contextually</td>
+              <td>Task-specific guidance within one agent session</td>
+              <td>An elaborate superset of this pattern — a whole directory tree of scoped, layered files instead of one skill file.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="bottom-line" style="border-bottom:none;">
+        <div class="kicker">08 — SUMMARY</div>
+        <h2>Bottom line</h2>
+        <div class="bottom-line">
+          <div class="kicker">VERDICT</div>
+          <p>ICM isn't new AI capability — it's an organizational discipline for one specific class of problem: sequential, human-reviewed, repeatable content or document pipelines run through a single coding agent. For that niche, it's a genuinely reasonable alternative to standing up a multi-agent framework. It is not a substitute where you need concurrency, dynamic agent negotiation, or automated branching — and its efficacy claims currently rest on a small, self-selected practitioner community rather than controlled evaluation.</p>
+        </div>
+      </section>
+
+      <footer>
+        <span>Compiled from the ICM preprint, project repositories, and practitioner reports.</span>
+        <span>For personal reference — not peer-reviewed.</span>
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>
