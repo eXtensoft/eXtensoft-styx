@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GS-14 Prep — Criteria and Evidence</title>
+<style>
+  :root {
+    --ink: #1c2230;
+    --ink-soft: #4a5468;
+    --rule: #d6dbe4;
+    --paper: #ffffff;
+    --tint: #f2f5f9;
+    --accent: #2b4c7e;
+    --accent-soft: #e4ecf7;
+    --reserve: #7a4a1e;
+    --reserve-soft: #f7ede3;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  header, main, footer {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 22px;
+  }
+  header { padding-top: 36px; padding-bottom: 18px; border-bottom: 3px solid var(--accent); }
+  header h1 {
+    font-size: 30px; line-height: 1.15; margin: 0 0 10px; font-weight: normal; letter-spacing: -0.01em;
+  }
+  header p { margin: 0; color: var(--ink-soft); font-size: 16px; }
+  .thesis {
+    margin: 22px 0 0;
+    padding: 16px 20px;
+    background: var(--accent-soft);
+    border-left: 5px solid var(--accent);
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  .thesis small { display: block; margin-top: 8px; color: var(--ink-soft); font-size: 14px; }
+
+  nav {
+    margin: 24px 0 8px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+  }
+  nav a { color: var(--accent); text-decoration: none; margin-right: 18px; white-space: nowrap; }
+  nav a:hover, nav a:focus { text-decoration: underline; }
+
+  section { padding: 26px 0 10px; }
+  section h2 {
+    font-size: 23px; font-weight: normal; margin: 0 0 6px;
+    padding-bottom: 6px; border-bottom: 1px solid var(--rule);
+  }
+  section > p.lead { margin: 0 0 18px; color: var(--ink-soft); font-size: 15.5px; }
+
+  .item { margin: 0 0 22px; }
+  .item h3 {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 17px; font-weight: 600; margin: 0 0 6px; color: var(--accent);
+  }
+  .item ul { margin: 0; padding-left: 20px; }
+  .item li { margin: 0 0 6px; }
+  .item li b { font-weight: 600; }
+  .kick { color: var(--ink-soft); font-style: italic; }
+  .note { font-size: 15px; color: var(--ink-soft); margin-top: 6px; padding-left: 20px; }
+
+  .reserve h2 { border-bottom-color: var(--reserve); }
+  .reserve .item h3 { color: var(--reserve); }
+
+  .closing {
+    margin: 28px 0 0;
+    padding: 16px 20px;
+    background: var(--tint);
+    border-left: 5px solid var(--ink-soft);
+    font-size: 16px;
+  }
+  .closing h2 { border: 0; font-size: 19px; padding: 0; margin: 0 0 8px; }
+  .closing ul { margin: 0; padding-left: 20px; }
+  .closing li { margin: 0 0 6px; }
+
+  footer { padding: 22px 22px 40px; color: var(--ink-soft); font-size: 14px; border-top: 1px solid var(--rule); margin-top: 28px; }
+
+  @media (max-width: 520px) {
+    body { font-size: 16px; }
+    header h1 { font-size: 26px; }
+    section h2 { font-size: 21px; }
+  }
+  @media print {
+    body { font-size: 12.5pt; }
+    nav { display: none; }
+    header { border-bottom-width: 2pt; }
+    section { page-break-inside: auto; }
+    .item { page-break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>What they said they're looking for — and what you've done</h1>
+  <p>GS-14 IT Specialist (2210, non-supervisory). The branch chief's criteria, each hung with evidence from your SSA years, your resume, and your AI work.</p>
+  <div class="thesis">
+    "Thirty years building frameworks other people build on — now applied to AI. The model is the easy part; the governance around it is the work, and I've built a working miniature of what the agency needs at enterprise scale."
+    <small>Every answer deposits into one of four accounts: Builder, Follower, Multiplier, Governor.</small>
+  </div>
+</header>
+
+<main>
+  <nav aria-label="Sections">
+    <a href="#technical">Technical</a>
+    <a href="#leadership">Leadership &amp; people</a>
+    <a href="#execution">Execution &amp; delivery</a>
+    <a href="#breadth">Breadth &amp; interface</a>
+    <a href="#soft">Soft skills</a>
+    <a href="#reserve">Reserve stories</a>
+    <a href="#room">The room</a>
+  </nav>
+
+  <section id="technical">
+    <h2>Technical</h2>
+    <p class="lead">Nobody in the room doubts this column. Answer briefly and pivot to what the work enabled for others.</p>
+
+    <div class="item">
+      <h3>Hands-on technical execution</h3>
+      <ul>
+        <li><b>ColdFusion → .NET 6 rewrite:</b> state-machine wizards for job configuration, queued asynchronous submission, FTP mainframe integration, Server-Sent Events for real-time operator feedback.</li>
+        <li><b>AppTrak built end to end:</b> NuGet package, central aggregation API, dashboard.</li>
+        <li><b>Solo AI-assisted project:</b> 304 commits, ~19K LOC plus 12K lines of documentation, in 30 evenings.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Systems architecture &amp; design</h3>
+      <ul>
+        <li><b>AppTrak:</b> semantic structured logging, session clickstream capture, health monitoring across DEV/VAL/UAT/PROD — now tracking 17 applications.</li>
+        <li><b>Federated query platform</b> across 60+ datastores.</li>
+        <li><b>Inovalon:</b> the LOB framework and pluggable portal that other developers built on.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Governance, standards &amp; structure implementation</h3>
+      <ul>
+        <li><b>Azure DevOps pipeline standard</b> for DEV/VAL/PROD across the team's applications.</li>
+        <li><b>Eight named architectural invariants</b> enforced by three guardian subagents before any commit; a decisions log with preclusions the model must consult.</li>
+        <li><b>Data-access pattern standards</b> generated for the inherited 34K-LOC platform — now the written standard for new work.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Currency with industry practices &amp; emerging tech</h3>
+      <ul>
+        <li>Self-taught Azure DevOps pipelines — no one asked.</li>
+        <li><b>Walked the entire AI adoption curve in order:</b> GPT three years ago (built a knowledge-base site of 30 years of architecture notes with it — painfully), 14 months of daily Copilot in Visual Studio, Codex CLI and Claude Code since February. The orchestration work is the last four months of that.</li>
+        <li>Authored an MCP server, three subagents, multi-provider adapters (692-line test file).</li>
+      </ul>
+      <p class="note">Tenure phrasing: "Three years total, in three phases." Never round up; never say "years of agentic work."</p>
+    </div>
+  </section>
+
+  <section id="leadership">
+    <h2>Leadership &amp; people</h2>
+    <p class="lead">He coached here twice as often as on anything technical. This is where the senior decision-maker's doubt sits. Lead with this column.</p>
+
+    <div class="item">
+      <h3>Leadership through technical expertise — leading from craft, not title</h3>
+      <ul>
+        <li><b>AppTrak adoption by demonstration:</b> showed the other developers searchable semantic logging rather than mandating anything. "Once they saw it, they were sold." Three developers integrated it into their own apps.</li>
+        <li class="kick">Name it as a change-management strategy, not a personality trait: you win developers by showing them their own problem solved.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Mentorship — explicitly of the long-tenured 13s</h3>
+      <ul>
+        <li>The government developer on the CF rewrite learned .NET Core, dependency injection, and loose coupling through the work itself.</li>
+        <li>Taught the pipeline process to two contractors and one government employee, hands-on, until they could do it without you.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Great follower <em>and</em> great leader</h3>
+      <ul>
+        <li><b>Disagree and commit:</b> recommended against an approach, with reasons, before the decision. Overruled and told how to implement. Built the best version possible within the constraints — no relitigating, no slow-walking, no "I told you so."</li>
+        <li>Two years of labor directed by Chuck on the rewrite.</li>
+        <li class="kick">"I owe leadership my honest recommendation before the decision, and my full craftsmanship after it. If the evidence changes, I'll raise it again through the front door."</li>
+      </ul>
+      <p class="note">One neutral clause about your concerns ("an approach I had concerns about") is all the criticism you voice. The story is about your conduct, not the decision.</p>
+    </div>
+
+    <div class="item">
+      <h3>Force multiplication — "enabling others through leadership and technology"</h3>
+      <ul>
+        <li><b>The pipeline standard is his definition, lived:</b> self-taught → standardized → taught → they now build their own.</li>
+        <li><b>AI onboarding kit:</b> plain-English subagent explainer for someone who's never seen one, a portable 150-line config that installs as-is, a one-command scaffold that installs AI-session rules into any repo, a collaboration contract refined twenty times with a dated change log.</li>
+        <li class="kick">"A force multiplier's job is to make himself unnecessary to the process he created. The standard is still there; my hands aren't."</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="execution">
+    <h2>Execution &amp; delivery</h2>
+
+    <div class="item">
+      <h3>Project planning</h3>
+      <ul>
+        <li>Two-year CF → .NET 6 replacement delivered without breaking the operators who depend on it daily.</li>
+        <li>Dig pipeline run across roughly six unrelated codebases, with executed validation — a cold agent's first run passed schema validation with zero errors.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Accountability — for yourself and every team member</h3>
+      <ul>
+        <li>Owned the outcome of the overruled solution without relitigating it.</li>
+        <li>304 commits in 30 days with architecture intact — conformance enforced by automation, not memory.</li>
+        <li>Chuck now answers ATO requests with AppTrak data.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Multitasking / parallel workstreams</h3>
+      <ul>
+        <li>CF rewrite, AppTrak, pipeline standardization, and the federated platform overlapping across the SSA years.</li>
+        <li>AI tooling built on personal time and hardware alongside all of it.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Proactivity over reactivity</h3>
+      <ul>
+        <li>Nobody asked for the pipeline standard.</li>
+        <li>AppTrak came from a 20-minute conversation and half a dozen sentences — no spec, no follow-up meetings.</li>
+        <li>AI data boundary treated as requirement zero before anyone required it: government code never touched a commercial model; the one database-touching tool is read-only, row-governed, human-gated, against an offline copy; local models for anything sensitive.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Initiative &amp; innovation</h3>
+      <ul>
+        <li><b>Dig briefs:</b> a portable, self-validating brief a cold agent executes against any repo, extracting system intent into 110 machine-validated JSON schemas with provenance.</li>
+        <li>A full governing corpus for the 34K-LOC platform: schema docs, security review, feature specs, remediation backlog.</li>
+        <li class="kick">"By hand, the ColdFusion dig cost months for one system. The pipeline changes that arithmetic — and every output is machine-validated, because 'the AI said so' is not a standard."</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="breadth">
+    <h2>Breadth &amp; interface</h2>
+
+    <div class="item">
+      <h3>Customer &amp; analyst interfacing</h3>
+      <ul>
+        <li>Hearing the system inside the sentence: Chuck's 20-minute directive became an enterprise platform.</li>
+        <li>Ten years in insurance operations adjudicating claims before software. You've sat in the customer's chair, and this agency's business is the one you started in.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Interacting with a wider variety of personnel</h3>
+      <ul>
+        <li>Taught across both workforces — contractors and feds.</li>
+        <li>Worked with the operators who depend on the scheduling application daily.</li>
+        <li>All three 13s who were asked endorsed bringing you in above them.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Cross-divisional flexibility — representing the division on the distributed side</h3>
+      <ul>
+        <li>Federated query platform spanning 60+ datastores.</li>
+        <li>Monitoring across four deployment environments.</li>
+        <li>NIH years as prior federal context.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Being allocated wherever the 15 sees fit</h3>
+      <ul>
+        <li>Two years working under Chuck's direction; the overruled-and-implemented story. You go where pointed and deliver.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="soft">
+    <h2>Soft skills</h2>
+
+    <div class="item">
+      <h3>Active listening</h3>
+      <ul>
+        <li>AppTrak: a complete platform from six sentences, because you heard the need behind them.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Collaborative spirit</h3>
+      <ul>
+        <li>Adoption by demonstration rather than mandate.</li>
+        <li>Bringing the government developer along on the rewrite rather than building around him.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>Communication &amp; interpersonal skills</h3>
+      <ul>
+        <li>Wrote the subagent explainer for someone who has never seen one; extracted 30 years of architecture notes into a navigable knowledge-base site.</li>
+        <li>In the room: headline → story → kicker, 90–120 seconds. Demonstrated live.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="reserve" class="reserve">
+    <h2>Reserve stories for the hard questions</h2>
+
+    <div class="item">
+      <h3>"Tell me about a failure."</h3>
+      <ul>
+        <li><b>Silverlight at Inovalon.</b> Built a member-outreach application and portal plug-ins on a platform Microsoft then killed. Nobody's fault, but you bet skill and product on a vendor-locked runtime and lost.</li>
+        <li>The lesson runs straight to today: standards over vendor lock-in, seams where the vendor is — which is why your AI layer has tested multi-provider adapters, and why your one head-to-head model evaluation went to your primary vendor's competitor.</li>
+      </ul>
+      <p class="note">Never say "I can't think of a failure."</p>
+    </div>
+
+    <div class="item">
+      <h3>"What's a weakness?"</h3>
+      <ul>
+        <li>"I've optimized for individual throughput for a long time. The deliberate growth edge is scaling through others — which is why the pipeline teaching happened, why the onboarding kit exists, and frankly why this role and not another IC seat."</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>"Have you rolled AI out to a team?"</h3>
+      <ul>
+        <li>"Not yet — and that's precisely the job I'm applying for." Then the onboarding kit, then the thirty-year pattern (Inovalon frameworks, the portal, AppTrak's NuGet adoption). "The kit is packed; this role is where it deploys."</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>"How have you used AI on agency work?"</h3>
+      <ul>
+        <li>"Deliberately, not at all." Government code and data never touched a commercial model. Then the data-boundary discipline, then: formal NIST AI RMF work is ahead of you, and you want to do it from the government side.</li>
+      </ul>
+    </div>
+
+    <div class="item">
+      <h3>"How do you know AI output is good?"</h3>
+      <ul>
+        <li>Guardian gauntlet, executed validation (zero schema errors), two structured bake-offs (a 7B model beat a bigger name with a 100% error rate; a 28–28 tie awarded against your own favorite on a stated tiebreak).</li>
+      </ul>
+      <p class="note">Say "I ran two structured bake-offs." Never say "I do evals."</p>
+    </div>
+
+    <div class="item">
+      <h3>"Why leave contracting for government?"</h3>
+      <ul>
+        <li>Ownership and mission, not comfort. "For eight years I've built what I was directed to build, and built it well. The AI transition is the one I want accountability for, not proximity to." The mission is personal — you started in this business.</li>
+      </ul>
+      <p class="note">Never mention benefits, retirement, or the pre-wiring.</p>
+    </div>
+  </section>
+
+  <div class="closing" id="room">
+    <h2>The room tomorrow</h2>
+    <ul>
+      <li>A one-on-one with the senior manager is a different room from a panel: conversational, fewer rubric questions, mostly "do I trust this person's judgment."</li>
+      <li>He's the one who hasn't bought the pitch, and he'll spend his time on the leadership column. Lead there — pipeline standard, disagree-and-commit.</li>
+      <li>Let the AI material arrive as the answer to "what would you do with the seat," not as the opener.</li>
+      <li>Questions to have ready: what success looks like at twelve months; where the division sits on the AI adoption curve and the appetite for standards versus experimentation; the biggest non-technical obstacle modernization has hit; which fire he'd point this role at first.</li>
+      <li>Every story ends on its kicker. The kicker is what gets written down.</li>
+    </ul>
+  </div>
+</main>
+
+<footer>
+  Prepared September 2026. Self-contained — no network required.
+</footer>
+
+</body>
+</html>
